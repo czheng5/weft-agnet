@@ -38,3 +38,4 @@ RESULT: PASS (docker checks limited to container backend)
 - --wsl-user cz0919 报 WSL_E_USER_NOT_FOUND；这是 WSL 用户映射问题，不是路径检查失败。
 - 尝试在 Ubuntu 内创建 weft 用户后，wsl -d Ubuntu -u weft 仍报 WSL_E_USER_NOT_FOUND；非 root 路径未打通。
 - 改用 WSL 内 runuser（不经 wsl -u）后，Ubuntu/Kali 的 useradd 均报 Permission denied，仍无法创建非 root 用户。
+- sudo -n id -u 仍返回 1000（无免密 root），无法通过 sudo 创建用户。
