@@ -100,7 +100,7 @@
 | 2026-11-01 | M3-F | MemoryHub pgvector schema | migration 已落盘；未执行 | e792188 |
 | 2026-11-01 | M3-G | Real Postgres contract | PASS；postgres:16-alpine 55432 | 5aeb8ce |
 | 2026-11-01 | M3-I | pgvector probe | 74 tests pass；探针 fail-closed | a774864 |
-| 2026-11-01 | M3-J | pgvector live | PASS；extension/vector/HNSW/cosine | 待提交 |
+| 2026-11-01 | M3-J | pgvector live | PASS；extension/vector/HNSW/cosine | 575bd13 |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |
 | 2026-11-01 | M1-G | Memory 检索/注入 | 40 tests pass；Agent 上下文含 MEMORY；memory/injected | 73978a0 |
