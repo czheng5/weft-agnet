@@ -73,7 +73,7 @@
 | Model HTTP（M1-L） | 本地 OpenAI-compatible HTTP server 测试；cached_tokens 24 | 只有 fake fetch，无 HTTP 端到端 | 1 个测试；HTTP 路径通过 |
 | Agent HTTP（M1-N） | Agent+OpenAICompatibleModel+本地 server+tool call | 没有 agent HTTP 端到端 | 1 个测试；cacheReadTokens=128，file 写入 |
 | v1.0 RC（M3-L） | docs/v1.0-rc.md：功能矩阵/证据/外部缺口 | 无 RC 口径，易虚报 | RC 明确未发布 |
-| WSL conformance（M1-O） | default-user 模式 + WSL 原生命令；创建 weft 用户后 -u 仍失败 | WSL 用户映射失败；非 root 未验证 | **基础 PASS**（root/default）；非 root 仍 SKIP |
+| WSL conformance（M1-O） | default-user 模式 + WSL 原生命令 + runuser 尝试 | useradd Permission denied；WSL 用户映射失败 | **基础 PASS**（root/default）；非 root 仍 SKIP |
 | Guardian 50（M1-M） | 50 动作 rule/model shadow harness | 无 50 动作对比证据 | harness PASS；fake model；真实 key 待接 |
 | 文档/接口 | PRD/ROADMAP/M0 status/interfaces/appendix/README | 范围漂移、实现无契约 | PRD/ROADMAP FROZEN；接口契约可测试 |
 
