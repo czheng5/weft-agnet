@@ -11,7 +11,7 @@
 | 里程碑 | 状态 | 进度 | 说明 |
 |---|---|---|---|
 | M0 Foundation | ✅ 完成（骨架） | 100% | 事件日志/请求分区/权限/审批缓存/workspace 守卫/SQLite Memory/KB/TUI/测试 |
-| M1 Safety & Memory skeleton | ◐ 进行中 | ~65% | Guardian、CUA、usage、WSL/Docker backend + auto-start、Docker conformance PASS、HTTP KB/MemoryHub；Windows/WSL/PG/缓存未完成 |
+| M1 Safety & Memory skeleton | ◐ 进行中 | ~70% | Guardian、CUA、usage、WSL/Docker backend + auto-start、Docker conformance PASS、HTTP KB/MemoryHub、Postgres provider；真实 PG/Windows/WSL/缓存未完成 |
 | M2 Long-horizon | ◐ 进行中 | ~15% | Work Graph/Goal/Plan/Task DAG/Todo 投影已落地；Actor/Scheduler/Event Bus/压缩未开始 |
 | M3 Memory & v1.0 | ⏳ 未开始 | 0% | PG MemoryHub 完整/治理/评测/v1.0 gate |
 | M4 v1.5 | ⏳ 未开始 | 0% | 收口/多租户/技能演化/CUA driver/Polyglot 契约 |
@@ -43,6 +43,7 @@
 | Shell 输出捕获修复 | ShellSandbox 从 pipe 改为临时文件重定向 | DSH 内 Node child_process pipe 报 EPERM，demo 的 shell 实际失败 | demo 现在真正拿到 stdout=2；新增 capture 测试 |
 | HTTP KB（M1-C） | HttpKnowledgeBaseProvider：/search、/docs、/health、Bearer、scope headers、timeout | KB 只有本地文件，无法接外部知识库 | 2 个测试；`--kb-url` 可切；只读、不自动入 Memory |
 | HTTP MemoryHub（M1-D） | HttpMemoryProvider：write/search/get/forget/health、Bearer、scope headers、timeout | 只有 SQLite dev，接不上远程 MemoryHub | 2 个测试；`--memory-url` 可切；默认仍 SQLite |
+| Postgres provider（M1-E） | PostgresMemoryProvider：pg Pool、write/get/search/forget/audit、`--pg-url` | MemoryHub 只有 SQLite/HTTP，缺 PG 直连 | pg-mem 契约测试通过；真实 PG 容器/服务待接 |
 | Work Graph（M2-A） | Goal/Task DAG/依赖/ready/todo/持久化；TUI /goal /task /tasks /start /done | 长任务没有单一任务图，Todo 容易变第二任务表 | 3 个测试；Todo 是 Work Graph 投影；JSON 落盘 |
 | 文档/接口 | PRD/ROADMAP/M0 status/interfaces/appendix/README | 范围漂移、实现无契约 | PRD/ROADMAP FROZEN；接口契约可测试 |
 
@@ -63,13 +64,14 @@
 | 2026-11-01 | M1-B | Docker conformance 6 项 | PASS：/workspace、write、uid=1000、network none、read-only /etc 拒绝 | 14cfcef |
 | 2026-11-01 | M1-D | HTTP MemoryHub provider | 31 tests pass；--memory-url 可切；远程 MemoryProvider 契约 | 87dac81 |
 | 2026-11-01 | M2-A | Work Graph foundation | 34 tests pass；Goal/Task DAG/ready/todo；TUI 命令 | 4a368f7 |
+| 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 
 ---
 
 ## 4. 当前可验证结果
 
 ~~~text
-34 tests, 34 pass, 0 fail
+35 tests, 35 pass, 0 fail
 
 Weft M0 complete: file written, shell verified, memory stored and recalled, knowledge base searched.
 steps=7 toolCalls=6 cacheStable=6 cacheReadTokens=0
@@ -85,7 +87,7 @@ request cachePrefixStable=true ...
 | 优先级 | 缺口 | 影响 | 下一步 |
 |---|---|---|---|
 | P0 | Windows OS 沙箱未实现 | Docker Linux backend 已 conformance PASS；Windows/WSL backend 未验证；**不是要求改 DSH 授权** | M1：Windows VM/WSL conformance；见 [docs/docker-conformance.md](docs/docker-conformance.md) |
-| P0 | PG MemoryHub 服务端未实现 | SQLite dev + HTTP adapter 已有；PG+pgvector+graph 服务端待 M3 | M3：PG+pgvector+graph |
+| P0 | PG MemoryHub 服务端未接 | Postgres provider + pg-mem 契约已有；真实 PG 容器/服务未接 | M1/M3：启动 PG 容器、跑真实契约 |
 | P0 | 真实 provider cache 未接 | cacheReadTokens 恒 0 | M1：接真实模型 usage |
 | P1 | Guardian 只有规则版 | 无模型评审/多模态 | M1：模型 reviewer + shadow 对比 |
 | P1 | CUA 无 driver | 只有策略 | M1/M4：MCP/native driver |

@@ -134,6 +134,7 @@ interface MemoryProvider {
 | id | 类型 | 状态 |
 |---|---|---|
 | sqlite-dev | SQLite 开发实现 | 已实现；M0/M1 单机 dev |
+| postgres-memoryhub | PostgreSQL 直连 | 已实现：pg Pool、write/get/search/forget/audit；pg-mem 契约测试通过；真实容器/服务待接 |
 | http-memory | 远程 MemoryHub HTTP | 已实现：Bearer + scope headers + timeout；/memory/write、/memory/search、/memory/:id、/memory/forget、/health |
 | redhat-memoryhub | PostgreSQL + pgvector + graph | v1.0 目标；服务端实现，Weft 通过 http-memory/MCP 接入 |
 
