@@ -140,7 +140,7 @@ export class Tui {
       if (line === '/demo') {
         const { AgentLoop } = await import('./agent.ts');
         const { ScriptedModel } = await import('./model.ts');
-        const agent = new AgentLoop({ model: new ScriptedModel(), session: this.opts.session, toolContext: this.opts.toolContext });
+        const agent = new AgentLoop({ model: new ScriptedModel(), session: this.opts.session, toolContext: this.opts.toolContext, memory: { provider: this.opts.toolContext.memory, scope: this.opts.toolContext.scope } });
         const result = await agent.run('M0 demo: write a file, verify it with a shell command, store a memory, recall it, and search the knowledge base.');
         stdout.write('\n' + result.content + '\n');
         stdout.write('  steps=' + result.steps + ' toolCalls=' + result.toolCalls + ' cacheStable=' + result.cacheReused + ' cacheReadTokens=' + result.cacheReadTokens + '\n\n');
@@ -151,7 +151,7 @@ export class Tui {
         continue;
       }
       const { AgentLoop } = await import('./agent.ts');
-      const agent = new AgentLoop({ model: this.opts.model, session: this.opts.session, toolContext: this.opts.toolContext });
+      const agent = new AgentLoop({ model: this.opts.model, session: this.opts.session, toolContext: this.opts.toolContext, memory: { provider: this.opts.toolContext.memory, scope: this.opts.toolContext.scope } });
       const result = await agent.run(line);
       stdout.write('\n' + result.content + '\n');
       stdout.write('  steps=' + result.steps + ' toolCalls=' + result.toolCalls + ' cacheStable=' + result.cacheReused + '\n\n');

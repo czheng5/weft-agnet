@@ -151,7 +151,7 @@ async function main(): Promise<void> {
     });
     process.stdout.write(banner + '\n');
     process.stdout.write('  running M0 demo...\n\n');
-    const agent = new AgentLoop({ model, session, toolContext, maxSteps: 12 });
+    const agent = new AgentLoop({ model, session, toolContext, maxSteps: 12, memory: { provider: memory, scope } });
     const result = await agent.run('M0 demo: write a file, verify it with a shell command, store a memory, recall it, and search the knowledge base.');
     process.stdout.write(result.content + '\n');
     process.stdout.write('  session=' + result.sessionId + '\n');

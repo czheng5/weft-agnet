@@ -5,12 +5,22 @@ import type { ModelMessage } from './session.ts';
 import type { ToolContext } from './tools.ts';
 import { executeTool, toolSchemas } from './tools.ts';
 import type { ToolCall } from './tools.ts';
+import type { MemoryProvider, MemoryScope } from './memory.ts';
+import { MemoryInjector } from './memory-injection.ts';
 
 export interface AgentOptions {
   model: ModelProvider;
   session: Session;
   toolContext: ToolContext;
   maxSteps?: number;
+  memory?: {
+    provider: MemoryProvider;
+    scope: MemoryScope;
+    injector?: MemoryInjector;
+    topK?: number;
+    minScore?: number;
+    maxChars?: number;
+  };
 }
 
 export interface AgentResult {
@@ -20,6 +30,7 @@ export interface AgentResult {
   cacheReused: number;
   toolCalls: number;
   cacheReadTokens: number;
+  memoryInjected: number;
 }
 
 const SYSTEM_PROMPT = [
@@ -44,6 +55,26 @@ export class AgentLoop {
     const maxSteps = this.opts.maxSteps ?? 12;
     session.append('turn/start', { task });
     session.append('user/message', { content: task });
+
+    let memoryContext = '';
+    let memoryInjected = 0;
+    if (this.opts.memory) {
+      try {
+        const injector = this.opts.memory.injector ?? new MemoryInjector(this.opts.memory.provider, {
+          topK: this.opts.memory.topK,
+          minScore: this.opts.memory.minScore,
+          maxChars: this.opts.memory.maxChars
+        });
+        const injection = await injector.build(task, this.opts.memory.scope);
+        if (injection.count > 0) {
+          memoryContext = injection.text;
+          memoryInjected = injection.count;
+          session.append('memory/injected', { ids: injection.ids, count: injection.count });
+        }
+      } catch (error) {
+        session.append('memory/injection_failed', { error: error instanceof Error ? error.message : String(error) });
+      }
+    }
 
     let steps = 0;
     let cacheReused = 0;
@@ -71,7 +102,7 @@ export class AgentLoop {
           approvals: this.opts.toolContext.approvals.policy.ctx.approvalPolicy,
           memory: this.opts.toolContext.memory.id,
           knowledge: this.opts.toolContext.kb.id
-        })
+        }) + (memoryContext ? '\n\n' + memoryContext : '')
       });
 
       const systemToolsHash = sha256(canonicalJson({ system: request.system, tools: request.tools }));
@@ -128,7 +159,8 @@ export class AgentLoop {
       steps: steps + 1,
       cacheReused,
       toolCalls,
-      cacheReadTokens
+      cacheReadTokens,
+      memoryInjected
     };
   }
 }
