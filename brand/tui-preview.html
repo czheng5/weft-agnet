@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Weft — TUI preview</title>
+<style>
+  :root {
+    --bg: #070B12;
+    --panel: #0B1220;
+    --text: #E6EDF3;
+    --muted: #8B98A9;
+    --cyan: #22D3EE;
+    --cyan-bright: #67E8F9;
+    --cyan-dim: #0E7490;
+    --border: #1E293B;
+    --teal: #5EEAD4;
+    --pink: #FB7185;
+    --amber: #FBBF24;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 1200px; height: 760px; background: var(--bg); }
+  body {
+    font-family: 'Cascadia Mono', 'Microsoft YaHei', monospace;
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+  .stage {
+    position: relative;
+    width: 1200px;
+    height: 760px;
+    padding: 26px 42px 24px;
+    background:
+      radial-gradient(900px 520px at 12% 0%, rgba(34, 211, 238, 0.13), transparent 62%),
+      radial-gradient(700px 420px at 92% 100%, rgba(14, 116, 144, 0.10), transparent 60%),
+      #070B12;
+    overflow: hidden;
+  }
+  .stage::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0 1px, transparent 1px 3px);
+    pointer-events: none;
+    opacity: .5;
+  }
+  .top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(30, 41, 59, .8);
+    padding-bottom: 12px;
+  }
+  .top .left { display: flex; align-items: center; gap: 10px; }
+  .top .mark { color: var(--cyan); font-size: 14px; letter-spacing: 0; }
+  .top .right { color: #64748B; }
+  .logo {
+    margin: 18px 0 0 0;
+    color: var(--cyan);
+    font-size: 19px;
+    line-height: 1.02;
+    white-space: pre;
+    text-shadow: 0 0 22px rgba(34, 211, 238, .20);
+  }
+  .brandline {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-top: 10px;
+    font-size: 14px;
+  }
+  .brandline .name {
+    color: var(--cyan);
+    font-size: 18px;
+    letter-spacing: .34em;
+    text-shadow: 0 0 18px rgba(34, 211, 238, .18);
+  }
+  .brandline .cn { color: var(--cyan-bright); font-size: 18px; }
+  .brandline .ver { color: var(--muted); font-size: 12px; letter-spacing: .08em; }
+  .brandline .tag { color: var(--muted); font-size: 13px; margin-left: 6px; }
+  .brandline .divider { color: #334155; }
+
+  .box {
+    margin-top: 24px;
+    border: 1px solid #164E63;
+    border-radius: 14px;
+    background: linear-gradient(180deg, rgba(15, 23, 42, .78), rgba(11, 18, 32, .55));
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, .035),
+      0 0 0 1px rgba(34, 211, 238, .04),
+      0 24px 80px rgba(0, 0, 0, .42);
+    padding: 18px 24px 16px;
+  }
+  .row { display: flex; align-items: baseline; font-size: 14px; line-height: 1.95; }
+  .row .k { width: 92px; color: #64748B; flex: 0 0 92px; }
+  .row .v { color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row.welcome { font-size: 17px; color: var(--cyan); margin-bottom: 2px; }
+  .row.welcome .mark { color: var(--cyan); margin-right: 10px; }
+  .row.cmds { color: var(--muted); }
+  .row.cmds .slash { color: var(--cyan-bright); }
+  .row.cmds span + span { margin-left: 26px; }
+  .muted { color: var(--muted); }
+  .dot { color: #475569; margin: 0 8px; }
+
+  .tip {
+    margin-top: 22px;
+    font-size: 13.5px;
+    color: var(--muted);
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .tip .mark { color: var(--cyan-bright); }
+  .tip .label { color: var(--text); }
+  .prompt {
+    margin-top: 24px;
+    font-size: 15.5px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .prompt .chev { color: var(--cyan); font-size: 17px; }
+  .prompt .caret {
+    display: inline-block;
+    width: 9px;
+    height: 19px;
+    background: var(--cyan);
+    box-shadow: 0 0 14px rgba(34, 211, 238, .55);
+    transform: translateY(2px);
+  }
+  .status {
+    position: absolute;
+    left: 42px;
+    right: 42px;
+    bottom: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid rgba(30, 41, 59, .9);
+    padding-top: 12px;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: .02em;
+  }
+  .status .left { display: flex; align-items: center; gap: 14px; }
+  .status .rec { color: var(--teal); }
+  .status .sep { color: #334155; }
+  .status .key { color: var(--cyan-bright); }
+  .foot { position: absolute; right: 42px; bottom: 48px; color: #475569; font-size: 11px; letter-spacing: .12em; }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="top">
+      <div class="left"><span class="mark">≡</span><span>Weft / TUI preview</span></div>
+      <div class="right">120 × 34 · truecolor</div>
+    </div>
+
+    <pre class="logo">  ██╗    ██╗███████╗███████╗████████╗
+  ██║    ██║██╔════╝██╔════╝╚══██╔══╝
+  ██║ █╗ ██║█████╗  █████╗     ██║
+  ██║███╗██║██╔══╝  ██╔══╝     ██║
+  ╚███╔███╔╝███████╗██║        ██║
+   ╚══╝╚══╝ ╚══════╝╚═╝        ╚═╝</pre>
+
+    <div class="brandline">
+      <span class="name">WEFT</span>
+      <span class="cn">纬</span>
+      <span class="ver">v0.1.0</span>
+      <span class="divider">·</span>
+      <span class="tag">三线成纬，一机成章</span>
+    </div>
+
+    <div class="box">
+      <div class="row welcome"><span class="mark">≡</span><span>Welcome to Weft!</span></div>
+      <div class="row cmds">
+        <span><span class="slash">/help</span> for help</span>
+        <span><span class="slash">/status</span> for runtime</span>
+        <span><span class="slash">/plan</span> to start</span>
+      </div>
+      <div class="row"><span class="k">cwd</span><span class="v">D:\dsh_env\workspaces\codex_claude_dsh_comb_mod</span></div>
+      <div class="row"><span class="k">model</span><span class="v">deepseek-flash<span class="muted">  ·  deepseek</span></span></div>
+      <div class="row"><span class="k">sandbox</span><span class="v">workspace-write<span class="muted">  ·  approvals </span><span class="key">ask</span></span></div>
+    </div>
+
+    <div class="tip"><span class="mark">※</span><span class="label">Tip</span><span>计划先落盘，执行先沙箱；缓存靠前缀，记忆靠评估。</span></div>
+
+    <div class="prompt"><span class="chev">&gt;</span><span>把 01-codex / 02-claude / 03-dsh 综合成 M0 实现计划</span><span class="caret"></span></div>
+
+    <div class="foot">？ for shortcuts</div>
+
+    <div class="status">
+      <div class="left">
+        <span class="rec">⏺</span>
+        <span>weft v0.1.0</span>
+        <span class="sep">│</span>
+        <span>workspace-write</span>
+        <span class="sep">│</span>
+        <span>approvals ask</span>
+      </div>
+      <div class="right" style="display:flex;align-items:center;gap:14px">
+        <span>cache <span class="muted">—</span></span>
+        <span class="sep">│</span>
+        <span>0 tok</span>
+        <span class="sep">│</span>
+        <span>0.0s</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

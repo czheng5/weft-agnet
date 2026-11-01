@@ -1,0 +1,6 @@
+.weft/
+node_modules/
+dist/
+*.log
+repos/
+report/evidence/

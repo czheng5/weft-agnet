@@ -1,0 +1,2 @@
+Weft M0
+policy-governed, cache-first, memory-growing.
