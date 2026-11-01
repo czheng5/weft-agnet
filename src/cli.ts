@@ -45,6 +45,9 @@ interface Args {
   wslDistro?: string;
   wslUser?: string;
   wslMount?: string;
+  modelBaseUrl?: string;
+  modelName?: string;
+  modelKey?: string;
 }
 
 function parseArgs(argv: string[]): Args {
@@ -65,6 +68,9 @@ function parseArgs(argv: string[]): Args {
   let wslDistro: string | undefined;
   let wslUser: string | undefined;
   let wslMount: string | undefined;
+  let modelBaseUrl: string | undefined = process.env.WEFT_MODEL_BASE_URL;
+  let modelName: string | undefined = process.env.WEFT_MODEL;
+  let modelKey: string | undefined = process.env.WEFT_MODEL_API_KEY ?? process.env.DEEPSEEK_API_KEY;
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === '--workspace' && argv[i + 1]) { workspace = resolve(argv[++i]); }
@@ -84,6 +90,9 @@ function parseArgs(argv: string[]): Args {
     else if (arg === '--wsl-distro' && argv[i + 1]) { wslDistro = argv[++i]; }
     else if (arg === '--wsl-user' && argv[i + 1]) { wslUser = argv[++i]; }
     else if (arg === '--wsl-mount' && argv[i + 1]) { wslMount = argv[++i]; }
+    else if (arg === '--model-base-url' && argv[i + 1]) { modelBaseUrl = argv[++i]; }
+    else if (arg === '--model-name' && argv[i + 1]) { modelName = argv[++i]; }
+    else if (arg === '--model-key' && argv[i + 1]) { modelKey = argv[++i]; }
   }
   return {
     demo: argv.includes('--demo'),
@@ -105,17 +114,21 @@ function parseArgs(argv: string[]): Args {
     port,
     wslDistro,
     wslUser,
-    wslMount
+    wslMount,
+    modelBaseUrl,
+    modelName,
+    modelKey
   };
 }
 
-function liveModel(): ModelProvider | undefined {
-  const apiKey = process.env.WEFT_MODEL_API_KEY ?? process.env.DEEPSEEK_API_KEY;
+function liveModel(opts: { baseUrl?: string; modelName?: string; apiKey?: string } = {}): ModelProvider | undefined {
+  const baseUrl = opts.baseUrl ?? process.env.WEFT_MODEL_BASE_URL;
+  const apiKey = opts.apiKey ?? process.env.WEFT_MODEL_API_KEY ?? process.env.DEEPSEEK_API_KEY ?? (baseUrl ? 'local' : undefined);
   if (!apiKey) return undefined;
   return new OpenAICompatibleModel({
-    baseUrl: process.env.WEFT_MODEL_BASE_URL ?? 'https://api.deepseek.com/v1',
+    baseUrl: baseUrl ?? 'https://api.deepseek.com/v1',
     apiKey,
-    model: process.env.WEFT_MODEL ?? 'deepseek-chat'
+    model: opts.modelName ?? process.env.WEFT_MODEL ?? 'deepseek-chat'
   });
 }
 
@@ -135,7 +148,7 @@ async function main(): Promise<void> {
 
   const guard = new WorkspaceGuard(workspace);
   const policy = new PolicyEngine({ workspace, mode: args.mode, approvalPolicy: args.approval });
-  const model = args.demo ? new ScriptedModel() : (liveModel() ?? new ScriptedModel());
+  const model = args.demo ? new ScriptedModel() : (liveModel({ baseUrl: args.modelBaseUrl, modelName: args.modelName, apiKey: args.modelKey }) ?? new ScriptedModel());
   const ruleGuardian = new RuleBasedGuardian();
   const guardianImpl = args.guardianMode === 'model' && model.id !== 'scripted'
     ? new GuardianShadow(ruleGuardian, new ModelGuardian({ model }), (comparison) => session.append('guardian/comparison', comparison))
