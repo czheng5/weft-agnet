@@ -20,6 +20,7 @@ import './guardian.test.ts';
 import './cua.test.ts';
 import './sandbox.test.ts';
 import './agent.test.ts'
+import './agent-http.test.ts'
 import './workgraph.test.ts'
 import './metrics.test.ts'
 import './actors.test.ts'
