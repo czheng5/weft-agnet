@@ -105,7 +105,7 @@ async function main(): Promise<void> {
     const uid = result.stdout.trim();
     if (uid === '0') throw new Error('running as root');
     return 'uid=' + uid;
-  }, args.backend === 'workspace-guard');
+  }, args.backend === 'workspace-guard' || (args.backend === 'wsl' && (!args.wslUser || args.wslUser === 'default')));
 
   await check('network egress is denied', async () => {
     const code = 'node -e "fetch(\'https://example.com\').then(()=>process.exit(0)).catch(()=>process.exit(7))"';

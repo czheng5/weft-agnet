@@ -38,7 +38,10 @@ export function decodeWslList(buffer: Buffer): string[] {
 }
 
 export function buildWslArgs(opts: { distro: string; user: string; workspaceMount: string; command: string }): string[] {
-  return ['-d', opts.distro, '-u', opts.user, '--cd', opts.workspaceMount, '--', 'bash', '-lc', opts.command];
+  const args = ['-d', opts.distro];
+  if (opts.user && opts.user !== 'default') args.push('-u', opts.user);
+  args.push('--cd', opts.workspaceMount, '--', 'bash', '-lc', opts.command);
+  return args;
 }
 
 function runProcess(command: string, args: string[], timeoutMs: number): Promise<ShellResult> {
