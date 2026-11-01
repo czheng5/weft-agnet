@@ -95,7 +95,7 @@
 | 2026-11-01 | M3-D | MemoryHub MCP endpoint | 72 tests pass；initialize/tools/call | 429e352 |
 | 2026-11-01 | M3-E | v1.0 demo + gate | demo PASS；gate 未过（真实 PG/key/OS） | 483fc6c |
 | 2026-11-01 | M3-F | MemoryHub pgvector schema | migration 已落盘；未执行 | e792188 |
-| 2026-11-01 | M3-G | Real Postgres contract | PASS；postgres:16-alpine 55432 | 待提交 |
+| 2026-11-01 | M3-G | Real Postgres contract | PASS；postgres:16-alpine 55432 | 5aeb8ce |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |
 | 2026-11-01 | M1-G | Memory 检索/注入 | 40 tests pass；Agent 上下文含 MEMORY；memory/injected | 73978a0 |
