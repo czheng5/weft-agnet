@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { SqliteMemoryProvider } from '../src/core/memory.ts';
 import { MemoryHub } from '../src/core/memory-hub.ts';
+import { InMemoryVectorIndex } from '../src/core/vector-index.ts';
 import type { MemoryRecord } from '../src/core/memory.ts';
 
 function record(id: string, content: string): MemoryRecord {
@@ -26,6 +27,29 @@ function record(id: string, content: string): MemoryRecord {
     updatedAt: now
   };
 }
+
+
+test('MemoryHub hybrid vector recall', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'weft-hub-vec-'));
+  const provider = new SqliteMemoryProvider(join(dir, 'memory.db'));
+  const embedding = {
+    async embed(texts: string[]): Promise<number[][]> {
+      return texts.map((text) => text.includes('alpha') ? [1, 0] : [0, 1]);
+    }
+  };
+  const vectorIndex = new InMemoryVectorIndex();
+  const hub = new MemoryHub({ provider, workspace: dir, embedding, vectorIndex });
+  try {
+    await hub.write([record('a', 'alpha memory'), record('b', 'beta related')]);
+    const hits = await hub.search({ text: 'zzz', scope: { tenantId: 't1' }, topK: 5 });
+    assert.equal(hits.length, 2);
+    assert.equal(hits.some((hit) => hit.record.id === 'b' && hit.matchedBy.includes('vector')), true);
+    assert.equal(vectorIndex.size(), 2);
+  } finally {
+    await hub.close();
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
 
 test('MemoryHub graph expansion and outbox', async () => {
   const dir = mkdtempSync(join(tmpdir(), 'weft-hub-'));

@@ -10,28 +10,37 @@ export interface ActorHandle {
   createdAt: number;
 }
 
+export interface ActorPrefix {
+  system?: string;
+  tools?: string[];
+  history?: unknown[];
+}
+
 export interface ActorContext {
   id: string;
   name: string;
   signal: AbortSignal;
   mailbox: unknown[];
+  prefix?: ActorPrefix;
 }
 
 export interface SpawnActorInput<T> {
   name: string;
   parentId?: string;
+  prefix?: ActorPrefix;
   run: (context: ActorContext) => Promise<T>;
 }
 
 export interface ActorEvent {
   actorId: string;
-  type: 'spawned' | 'started' | 'message' | 'done' | 'failed' | 'stopped';
+  type: 'spawned' | 'started' | 'message' | 'forked' | 'done' | 'failed' | 'stopped';
   detail?: unknown;
 }
 
 interface ActorRecord<T = unknown> extends ActorHandle {
   controller: AbortController;
   mailbox: unknown[];
+  prefix?: ActorPrefix;
   result?: T;
   error?: unknown;
   promise: Promise<T>;
@@ -58,6 +67,7 @@ export class ActorRuntime {
       createdAt: Date.now(),
       controller,
       mailbox: [],
+      prefix: input.prefix ? clonePrefix(input.prefix) : undefined,
       promise: Promise.resolve(undefined as T)
     };
     this.actors.set(id, record as ActorRecord);
@@ -70,7 +80,8 @@ export class ActorRuntime {
           id,
           name: input.name,
           signal: controller.signal,
-          mailbox: record.mailbox
+          mailbox: record.mailbox,
+          prefix: record.prefix ? clonePrefix(record.prefix) : undefined
         });
         if (controller.signal.aborted) {
           record.status = 'stopped';
@@ -95,6 +106,14 @@ export class ActorRuntime {
     })();
 
     return this.handle(record);
+  }
+
+  fork<T>(parentId: string, input: Omit<SpawnActorInput<T>, 'parentId' | 'prefix'> & { prefix?: ActorPrefix }): ActorHandle {
+    const parent = this.require(parentId);
+    const prefix = input.prefix ?? parent.prefix;
+    const handle = this.spawn({ ...input, parentId, prefix });
+    this.onEvent?.({ actorId: handle.id, type: 'forked', detail: { parentId } });
+    return handle;
   }
 
   send(actorId: string, message: unknown): void {
@@ -148,4 +167,12 @@ export class ActorRuntime {
     if (!actor) throw new Error('unknown actor: ' + actorId);
     return actor;
   }
+}
+
+function clonePrefix(prefix: ActorPrefix): ActorPrefix {
+  return {
+    system: prefix.system,
+    tools: prefix.tools ? [...prefix.tools] : undefined,
+    history: prefix.history ? prefix.history.map((item) => (item && typeof item === 'object' ? { ...(item as object) } : item)) : undefined
+  };
 }

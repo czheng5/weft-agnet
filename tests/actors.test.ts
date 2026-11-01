@@ -43,6 +43,25 @@ test('ActorRuntime stop is cooperative', async () => {
   assert.equal(runtime.get(handle.id)?.status, 'stopped');
 });
 
+
+test('ActorRuntime fork reuses parent prefix', async () => {
+  const runtime = new ActorRuntime();
+  const parent = runtime.spawn({
+    name: 'parent',
+    prefix: { system: 'sys', tools: ['read_file'], history: [{ role: 'user', content: 'hi' }] },
+    run: async () => 'p'
+  });
+  const child = runtime.fork(parent.id, {
+    name: 'child',
+    run: async (ctx) => ctx.prefix
+  });
+  const prefix = await runtime.wait<{ system?: string; tools?: string[]; history?: unknown[] }>(child.id);
+  assert.equal(prefix.system, 'sys');
+  assert.deepEqual(prefix.tools, ['read_file']);
+  assert.equal(prefix.history?.length, 1);
+  assert.equal(runtime.children(parent.id).length, 1);
+});
+
 test('ActorRuntime failure is observable', async () => {
   const runtime = new ActorRuntime();
   const handle = runtime.spawn({ name: 'bad', run: async () => { throw new Error('boom'); } });
