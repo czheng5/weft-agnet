@@ -13,7 +13,7 @@
 | M0 Foundation | ✅ 完成（骨架） | 100% | 事件日志/请求分区/权限/审批缓存/workspace 守卫/SQLite Memory/KB/TUI/测试 |
 | M1 Safety & Memory skeleton | ◐ 进行中 | ~95% | Guardian（规则/模型 shadow）、CUA、usage/cache 映射、Docker conformance、Memory 巩固/注入/RBAC、四路 KB、metrics；真实 PG/Windows/WSL/真实 key 未完成 |
 | M2 Long-horizon | ✅ 代码/单测 | 100% | Work Graph/Goal/Plan/Evidence/Checkpoint/Actor fork/Scheduler/EventBus/Capability/Projection |
-| M3 Memory & v1.0 | ◐ 进行中 | ~40% | MemoryHub facade/hybrid/HTTP/MCP；PG+pgvector 真实服务/v1.0 gate 未接 |
+| M3 Memory & v1.0 | ◐ 进行中 | ~45% | MemoryHub facade/hybrid/HTTP/MCP + v1 demo；PG+pgvector 真实服务/v1.0 gate 未过 |
 | M4 v1.5 | ⏳ 未开始 | 0% | 收口/多租户/技能演化/CUA driver/Polyglot 契约 |
 | M5 v2.0 | ⏳ 未开始 | 0% | 自有协议/Weft Bench/插件生态 |
 
@@ -63,6 +63,7 @@
 | Hybrid recall（M3-B） | EmbeddingProvider + InMemoryVectorIndex + MemoryHub vector search；Actor fork prefix | 只有 lexical/graph，无向量；fork 无前缀 | 2 个测试；vector matchedBy + fork prefix 复用 |
 | MemoryHub API（M3-C） | HTTP server：write/search/get/forget/health、Bearer、scope headers；`--serve-memory` | MemoryHub 无对外入口 | 1 个测试；真实 HTTP 请求通过 |
 | MemoryHub MCP（M3-D） | initialize/ping/tools/list/tools/call；memory_search/write/get | 没有 MCP 入口 | 1 个测试；MCP tools 可调用 |
+| v1.0 demo/gate（M3-E） | scripts/v1-demo.ts 端到端；docs/v1.0-gate.md 对照 | 无端到端证据，易虚报 v1.0 | demo PASS；gate 明确未过 |
 | 文档/接口 | PRD/ROADMAP/M0 status/interfaces/appendix/README | 范围漂移、实现无契约 | PRD/ROADMAP FROZEN；接口契约可测试 |
 
 ---
@@ -90,6 +91,7 @@
 | 2026-11-01 | M2-I/M3-B | Actor fork + hybrid vector | 70 tests pass；prefix 复用 + vector recall | 5d573b0 |
 | 2026-11-01 | M3-C | MemoryHub HTTP API | 71 tests pass；/health/write/search/get/forget | 8451f77 |
 | 2026-11-01 | M3-D | MemoryHub MCP endpoint | 72 tests pass；initialize/tools/call | 429e352 |
+| 2026-11-01 | M3-E | v1.0 demo + gate | demo PASS；gate 未过（真实 PG/key/OS） | 483fc6c |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |
 | 2026-11-01 | M1-G | Memory 检索/注入 | 40 tests pass；Agent 上下文含 MEMORY；memory/injected | 73978a0 |
@@ -103,7 +105,7 @@
 ## 4. 当前可验证结果
 
 ~~~text
-72 tests, 72 pass, 0 fail
+72 tests, 72 pass, 0 fail；v1.0 demo PASS；gate 未过
 
 Weft M0 complete: file written, shell verified, memory stored and recalled, knowledge base searched.
 steps=7 toolCalls=6 cacheStable=6 cacheReadTokens=0
