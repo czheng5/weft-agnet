@@ -11,7 +11,7 @@
 | 里程碑 | 状态 | 进度 | 说明 |
 |---|---|---|---|
 | M0 Foundation | ✅ 完成（骨架） | 100% | 事件日志/请求分区/权限/审批缓存/workspace 守卫/SQLite Memory/KB/TUI/测试 |
-| M1 Safety & Memory skeleton | ◐ 进行中 | ~85% | ... + Memory 治理 RBAC；真实 PG/Windows/WSL/缓存未完成 |
+| M1 Safety & Memory skeleton | ◐ 进行中 | ~85% | Guardian、CUA、usage、WSL/Docker backend + auto-start、Docker conformance PASS、HTTP/Postgres Memory、Memory 巩固/注入/RBAC、HTTP KB；真实 PG/Windows/WSL/缓存未完成 |
 | M2 Long-horizon | ◐ 进行中 | ~15% | Work Graph/Goal/Plan/Task DAG/Todo 投影已落地；Actor/Scheduler/Event Bus/压缩未开始 |
 | M3 Memory & v1.0 | ⏳ 未开始 | 0% | PG MemoryHub 完整/治理/评测/v1.0 gate |
 | M4 v1.5 | ⏳ 未开始 | 0% | 收口/多租户/技能演化/CUA driver/Polyglot 契约 |
