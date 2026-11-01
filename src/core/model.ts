@@ -108,11 +108,13 @@ export class OpenAICompatibleModel implements ModelProvider {
   private readonly baseUrl: string;
   private readonly apiKey: string;
   private readonly model: string;
+  private readonly fetchImpl: typeof fetch;
 
-  constructor(opts: { baseUrl: string; apiKey: string; model: string }) {
+  constructor(opts: { baseUrl: string; apiKey: string; model: string; fetchImpl?: typeof fetch }) {
     this.baseUrl = opts.baseUrl.replace(/\/$/, '');
     this.apiKey = opts.apiKey;
     this.model = opts.model;
+    this.fetchImpl = opts.fetchImpl ?? fetch;
   }
 
   async complete(request: ModelRequest): Promise<ModelResponse> {
@@ -142,7 +144,7 @@ export class OpenAICompatibleModel implements ModelProvider {
       tool_choice: 'auto'
     };
 
-    const response = await fetch(this.baseUrl + '/chat/completions', {
+    const response = await this.fetchImpl(this.baseUrl + '/chat/completions', {
       method: 'POST',
       headers: {
         'content-type': 'application/json',

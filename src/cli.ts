@@ -7,7 +7,8 @@ import { WorkspaceGuard } from './core/sandbox.ts';
 import { createShellRunner } from './core/sandbox-backends.ts';
 import type { SandboxBackendKind } from './core/sandbox-backends.ts';
 import { PolicyEngine, ApprovalService } from './core/permissions.ts';
-import { GuardianService } from './core/guardian.ts';
+import { GuardianService, RuleBasedGuardian } from './core/guardian.ts';
+import { ModelGuardian, GuardianShadow } from './core/guardian-model.ts';
 import { SqliteMemoryProvider } from './core/memory.ts';
 import { HttpMemoryProvider } from './core/memory-http.ts';
 import { MemoryConsolidator } from './core/memory-consolidation.ts';
@@ -36,6 +37,7 @@ interface Args {
   memoryUrl?: string;
   memoryToken?: string;
   pgUrl?: string;
+  guardianMode: 'rule' | 'model';
 }
 
 function parseArgs(argv: string[]): Args {
@@ -51,6 +53,7 @@ function parseArgs(argv: string[]): Args {
   let memoryUrl: string | undefined = process.env.WEFT_MEMORY_URL;
   let memoryToken: string | undefined = process.env.WEFT_MEMORY_TOKEN;
   let pgUrl: string | undefined = process.env.WEFT_PG_URL;
+  let guardianMode: Args['guardianMode'] = (process.env.WEFT_GUARDIAN as Args['guardianMode']) ?? 'rule';
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === '--workspace' && argv[i + 1]) { workspace = resolve(argv[++i]); }
@@ -65,6 +68,7 @@ function parseArgs(argv: string[]): Args {
     else if (arg === '--memory-url' && argv[i + 1]) { memoryUrl = argv[++i]; }
     else if (arg === '--memory-token' && argv[i + 1]) { memoryToken = argv[++i]; }
     else if (arg === '--pg-url' && argv[i + 1]) { pgUrl = argv[++i]; }
+    else if (arg === '--guardian' && argv[i + 1]) { guardianMode = argv[++i] as Args['guardianMode']; }
   }
   return {
     demo: argv.includes('--demo'),
@@ -80,7 +84,8 @@ function parseArgs(argv: string[]): Args {
     autoStartDocker,
     memoryUrl,
     memoryToken,
-    pgUrl
+    pgUrl,
+    guardianMode
   };
 }
 
@@ -110,7 +115,13 @@ async function main(): Promise<void> {
 
   const guard = new WorkspaceGuard(workspace);
   const policy = new PolicyEngine({ workspace, mode: args.mode, approvalPolicy: args.approval });
+  const model = args.demo ? new ScriptedModel() : (liveModel() ?? new ScriptedModel());
+  const ruleGuardian = new RuleBasedGuardian();
+  const guardianImpl = args.guardianMode === 'model' && model.id !== 'scripted'
+    ? new GuardianShadow(ruleGuardian, new ModelGuardian({ model }), (comparison) => session.append('guardian/comparison', comparison))
+    : ruleGuardian;
   const guardian = new GuardianService({
+    guardian: guardianImpl,
     mode: 'shadow',
     onAssessment: (assessment, action) => session.append('guardian/assessment', {
       actionKind: action.kind,
@@ -147,8 +158,6 @@ async function main(): Promise<void> {
   const scope = { tenantId: 'local', userId: 'default', projectId: 'weft' };
   const memoryConsolidator = new MemoryConsolidator(memory);
   const toolContext: ToolContext = { session, guard, sandbox, approvals, memory, memoryConsolidator, kb, guardian, scope, workspace };
-
-  const model = args.demo ? new ScriptedModel() : (liveModel() ?? new ScriptedModel());
 
   if (args.demo) {
     const banner = renderBanner({

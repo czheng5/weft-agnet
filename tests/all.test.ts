@@ -17,3 +17,5 @@ import './sandbox.test.ts';
 import './agent.test.ts'
 import './workgraph.test.ts'
 import './metrics.test.ts'
+import './model-usage.test.ts'
+import './guardian-model.test.ts'
