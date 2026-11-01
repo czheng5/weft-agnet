@@ -10,6 +10,7 @@ import { PolicyEngine, ApprovalService } from './core/permissions.ts';
 import { GuardianService } from './core/guardian.ts';
 import { SqliteMemoryProvider } from './core/memory.ts';
 import { HttpMemoryProvider } from './core/memory-http.ts';
+import { createPostgresMemoryProvider } from './core/memory-postgres.ts';
 import { LocalDocsProvider } from './core/kb.ts';
 import { HttpKnowledgeBaseProvider } from './core/kb-http.ts';
 import { ScriptedModel, OpenAICompatibleModel } from './core/model.ts';
@@ -30,6 +31,7 @@ interface Args {
   autoStartDocker: boolean;
   memoryUrl?: string;
   memoryToken?: string;
+  pgUrl?: string;
 }
 
 function parseArgs(argv: string[]): Args {
@@ -43,6 +45,7 @@ function parseArgs(argv: string[]): Args {
   let autoStartDocker = true;
   let memoryUrl: string | undefined = process.env.WEFT_MEMORY_URL;
   let memoryToken: string | undefined = process.env.WEFT_MEMORY_TOKEN;
+  let pgUrl: string | undefined = process.env.WEFT_PG_URL;
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === '--workspace' && argv[i + 1]) { workspace = resolve(argv[++i]); }
@@ -55,6 +58,7 @@ function parseArgs(argv: string[]): Args {
     else if (arg === '--no-auto-start') { autoStartDocker = false; }
     else if (arg === '--memory-url' && argv[i + 1]) { memoryUrl = argv[++i]; }
     else if (arg === '--memory-token' && argv[i + 1]) { memoryToken = argv[++i]; }
+    else if (arg === '--pg-url' && argv[i + 1]) { pgUrl = argv[++i]; }
   }
   return {
     demo: argv.includes('--demo'),
@@ -68,7 +72,8 @@ function parseArgs(argv: string[]): Args {
     kbToken,
     autoStartDocker,
     memoryUrl,
-    memoryToken
+    memoryToken,
+    pgUrl
   };
 }
 
@@ -120,9 +125,11 @@ async function main(): Promise<void> {
     autoStartDocker: args.autoStartDocker,
     onDockerEvent: (event) => session.append('sandbox/launch', event)
   });
-  const memory = args.memoryUrl
-    ? new HttpMemoryProvider({ baseUrl: args.memoryUrl, token: args.memoryToken })
-    : new SqliteMemoryProvider(join(workspace, '.weft', 'memory.db'));
+  const memory = args.pgUrl
+    ? await createPostgresMemoryProvider({ connectionString: args.pgUrl })
+    : args.memoryUrl
+      ? new HttpMemoryProvider({ baseUrl: args.memoryUrl, token: args.memoryToken })
+      : new SqliteMemoryProvider(join(workspace, '.weft', 'memory.db'));
   const kb = args.kbUrl
     ? new HttpKnowledgeBaseProvider({ baseUrl: args.kbUrl, token: args.kbToken })
     : new LocalDocsProvider([join(workspace, 'docs'), join(workspace, 'report'), join(workspace, 'appendix')].filter((p) => existsSync(p)));
