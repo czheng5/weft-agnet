@@ -43,7 +43,7 @@
 - 已落地：MemoryHub facade、graph、outbox、hybrid vector、HTTP API/MCP（--serve-memory）。
 - 已落地：真实 PostgreSQL 契约（postgres:16-alpine / 55432）。
 - 已落地：pgvector v0.8.0 源码编译 + HNSW/cosine 查询。
-- 未落地：PgVectorIndex 接入 MemoryHub。
+- 已落地：PgVectorIndex 接入 MemoryHub，真实 vector search PASS。
 
 - F-MF-001/002/003/004 完整：PG+pgvector+graph、outbox、混合召回、治理。
 - F-MF-005 默认 provider 契约测试。

@@ -50,9 +50,21 @@ FROM vec_test ORDER BY embedding <=> '[1,0,0]' LIMIT 1;
 (1 row)
 ~~~
 
+## PgVectorIndex 接入
+
+~~~powershell
+$env:WEFT_PG_URL = "postgres://postgres:weft@127.0.0.1:55432/weft"
+node --experimental-strip-types scripts/pgvector-live-index.ts
+~~~
+
+~~~text
+PGVECTOR INDEX LIVE PASS
+  hits=2 vectorHit=beta-live score=1.00
+~~~
+
 ## 结论
 
 - PostgreSQL + pgvector 扩展真实可用。
 - memories 表已有 vector(1536) 与 HNSW cosine 索引。
-- 仍需把 PgVectorIndex 接入 MemoryHub 的向量检索路径；当前代码默认使用 InMemoryVectorIndex。
+- PgVectorIndex 已接入 MemoryHub，真实向量检索 PASS。
 - 真实 key/50 动作/OS conformance 仍未完成。

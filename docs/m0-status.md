@@ -96,7 +96,7 @@ request cachePrefixStable=true ...
 6. **测试 runner**：Node 24 的 node --test 在此环境会 spawn EPERM，使用 --test-isolation=none 跑同进程。
 7. **Shell 输出捕获**：DSH 内 Node child_process pipe 会 EPERM；ShellSandbox 已改为临时文件重定向，demo 的 shell 才是真正执行成功。
 8. **Docker/WSL conformance**：Docker Linux backend 已 6 项 PASS（见 [docker-conformance.md](docker-conformance.md)）；WSL 在 DSH 内不可用，Windows/WSL backend 仍未验证。Docker backend 不覆盖 Windows GUI/CUA。
-9. **Postgres**：真实 postgres:16-alpine 契约 PASS；pgvector v0.8.0 已源码编译，vector(1536)+HNSW+cosine 查询 PASS；PgVectorIndex 尚未接入 MemoryHub。
+9. **Postgres/pgvector**：真实 postgres:16-alpine 契约 PASS；pgvector v0.8.0 源码编译，vector(1536)+HNSW+cosine PASS；PgVectorIndex 已接入 MemoryHub，真实 vector search PASS。
 
 ---
 
