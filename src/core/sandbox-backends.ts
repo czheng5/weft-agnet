@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { spawn } from 'node:child_process';
 import type { ShellResult, ShellRunner, SandboxInfo, WorkspaceGuard } from './sandbox.ts';
 import { ShellSandbox } from './sandbox.ts';
@@ -161,6 +162,118 @@ export function buildDockerArgs(opts: Required<DockerOptions> & { command: strin
   ];
 }
 
+export type DockerLaunchStage = 'probe' | 'launch' | 'wait' | 'ready' | 'failed';
+
+export interface DockerLaunchEvent {
+  stage: DockerLaunchStage;
+  detail: string;
+}
+
+export interface DockerLauncherDeps {
+  probe: () => Promise<SandboxProbeResult>;
+  start: () => Promise<boolean>;
+  sleep?: (ms: number) => Promise<void>;
+  timeoutMs?: number;
+  pollMs?: number;
+  onEvent?: (event: DockerLaunchEvent) => void;
+}
+
+export interface DockerLauncherResult {
+  probe: SandboxProbeResult;
+  started: boolean;
+}
+
+export class DockerLauncher {
+  private readonly deps: Required<DockerLauncherDeps>;
+
+  constructor(deps: DockerLauncherDeps) {
+    this.deps = {
+      probe: deps.probe,
+      start: deps.start,
+      sleep: deps.sleep ?? ((ms) => new Promise((resolve) => setTimeout(resolve, ms))),
+      timeoutMs: deps.timeoutMs ?? 90000,
+      pollMs: deps.pollMs ?? 2000,
+      onEvent: deps.onEvent ?? (() => {})
+    };
+  }
+
+  async ensure(): Promise<DockerLauncherResult> {
+    let probe = await this.deps.probe();
+    if (probe.available) {
+      this.deps.onEvent({ stage: 'ready', detail: probe.reason });
+      return { probe, started: false };
+    }
+
+    this.deps.onEvent({ stage: 'probe', detail: probe.reason });
+    const started = await this.deps.start();
+    if (!started) {
+      this.deps.onEvent({ stage: 'failed', detail: 'could not start Docker Desktop' });
+      return { probe, started: false };
+    }
+
+    const deadline = Date.now() + this.deps.timeoutMs;
+    while (Date.now() < deadline) {
+      await this.deps.sleep(this.deps.pollMs);
+      this.deps.onEvent({ stage: 'wait', detail: 'waiting for Docker daemon' });
+      probe = await this.deps.probe();
+      if (probe.available) {
+        this.deps.onEvent({ stage: 'ready', detail: probe.reason });
+        return { probe, started: true };
+      }
+    }
+
+    this.deps.onEvent({ stage: 'failed', detail: 'Docker daemon did not become ready in ' + this.deps.timeoutMs + 'ms' });
+    return { probe, started: true };
+  }
+}
+
+export function findDockerDesktop(): string[] {
+  const candidates: string[] = [];
+  const programFiles = process.env.ProgramFiles ?? 'C:\\Program Files';
+  const programFilesX86 = process.env['ProgramFiles(x86)'] ?? 'C:\\Program Files (x86)';
+  const localAppData = process.env.LOCALAPPDATA ?? '';
+  candidates.push(programFiles + '\\Docker\\Docker\\Docker Desktop.exe');
+  candidates.push(programFilesX86 + '\\Docker\\Docker\\Docker Desktop.exe');
+  if (localAppData) candidates.push(localAppData + '\\Docker\\Docker Desktop.exe');
+  return candidates;
+}
+
+async function startDockerDesktop(dockerPath: string): Promise<boolean> {
+  const cli = await runProcess(dockerPath, ['desktop', 'start'], 30000);
+  if (cli.code === 0) return true;
+  for (const path of findDockerDesktop()) {
+    if (!existsSync(path)) continue;
+    try {
+      const child = spawn(path, [], { detached: true, stdio: 'ignore', windowsHide: false });
+      child.unref();
+      return true;
+    } catch {
+      // try next candidate
+    }
+  }
+  return false;
+}
+
+export interface DockerLauncherOptions {
+  workspace: string;
+  dockerPath?: string;
+  image?: string;
+  timeoutMs?: number;
+  pollMs?: number;
+  onEvent?: (event: DockerLaunchEvent) => void;
+}
+
+export function createDockerLauncher(opts: DockerLauncherOptions): DockerLauncher {
+  const backend = new DockerSandboxBackend({ workspace: opts.workspace, dockerPath: opts.dockerPath, image: opts.image });
+  return new DockerLauncher({
+    probe: () => backend.probe(),
+    start: () => startDockerDesktop(backend.opts.dockerPath),
+    timeoutMs: opts.timeoutMs,
+    pollMs: opts.pollMs,
+    onEvent: opts.onEvent
+  });
+}
+
 export class DockerSandboxBackend implements ShellRunner {
   readonly kind: SandboxBackendKind = 'docker';
   readonly info: SandboxInfo;
@@ -229,6 +342,8 @@ export class DockerSandboxBackend implements ShellRunner {
 export interface ShellRunnerOptions {
   dockerImage?: string;
   dockerPath?: string;
+  autoStartDocker?: boolean;
+  onDockerEvent?: (event: DockerLaunchEvent) => void;
   wsl?: WslOptions;
 }
 
@@ -241,8 +356,23 @@ export async function createShellRunner(kind: SandboxBackendKind, guard: Workspa
     return backend;
   }
   if (kind === 'docker') {
-    const backend = new DockerSandboxBackend({ workspace: guard.workspace, image: options.dockerImage, dockerPath: options.dockerPath });
-    const probe = await backend.probe();
+    let backend = new DockerSandboxBackend({ workspace: guard.workspace, image: options.dockerImage, dockerPath: options.dockerPath });
+    let probe = await backend.probe();
+    if (!probe.available && options.autoStartDocker !== false) {
+      const launcher = createDockerLauncher({
+        workspace: guard.workspace,
+        image: options.dockerImage,
+        dockerPath: options.dockerPath,
+        onEvent: options.onDockerEvent
+      });
+      const launched = await launcher.ensure();
+      if (launched.started) {
+        backend = new DockerSandboxBackend({ workspace: guard.workspace, image: options.dockerImage, dockerPath: options.dockerPath });
+        probe = await backend.probe();
+      } else {
+        probe = launched.probe;
+      }
+    }
     if (!probe.available) throw new SandboxUnavailableError('docker', probe.reason + (probe.details ? ': ' + probe.details : ''));
     return backend;
   }

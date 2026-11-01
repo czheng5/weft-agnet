@@ -26,6 +26,7 @@ interface Args {
   dockerImage?: string;
   kbUrl?: string;
   kbToken?: string;
+  autoStartDocker: boolean;
 }
 
 function parseArgs(argv: string[]): Args {
@@ -36,6 +37,7 @@ function parseArgs(argv: string[]): Args {
   let dockerImage: string | undefined;
   let kbUrl: string | undefined = process.env.WEFT_KB_URL;
   let kbToken: string | undefined = process.env.WEFT_KB_TOKEN;
+  let autoStartDocker = true;
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === '--workspace' && argv[i + 1]) { workspace = resolve(argv[++i]); }
@@ -45,6 +47,7 @@ function parseArgs(argv: string[]): Args {
     else if (arg === '--docker-image' && argv[i + 1]) { dockerImage = argv[++i]; }
     else if (arg === '--kb-url' && argv[i + 1]) { kbUrl = argv[++i]; }
     else if (arg === '--kb-token' && argv[i + 1]) { kbToken = argv[++i]; }
+    else if (arg === '--no-auto-start') { autoStartDocker = false; }
   }
   return {
     demo: argv.includes('--demo'),
@@ -55,7 +58,8 @@ function parseArgs(argv: string[]): Args {
     sandbox,
     dockerImage,
     kbUrl,
-    kbToken
+    kbToken,
+    autoStartDocker
   };
 }
 
@@ -102,7 +106,11 @@ async function main(): Promise<void> {
     if (!tui) return 'deny';
     return tui.approve(action, reason);
   }, guardian);
-  const sandbox = await createShellRunner(args.sandbox, guard, args.mode, { dockerImage: args.dockerImage });
+  const sandbox = await createShellRunner(args.sandbox, guard, args.mode, {
+    dockerImage: args.dockerImage,
+    autoStartDocker: args.autoStartDocker,
+    onDockerEvent: (event) => session.append('sandbox/launch', event)
+  });
   const memory = new SqliteMemoryProvider(join(workspace, '.weft', 'memory.db'));
   const kb = args.kbUrl
     ? new HttpKnowledgeBaseProvider({ baseUrl: args.kbUrl, token: args.kbToken })

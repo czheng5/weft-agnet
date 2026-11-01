@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { WorkspaceGuard, ShellSandbox } from '../src/core/sandbox.ts';
-import { createShellRunner, buildWslArgs, buildDockerArgs, decodeWslList, WslSandboxBackend, DockerSandboxBackend, SandboxUnavailableError } from '../src/core/sandbox-backends.ts';
+import { createShellRunner, buildWslArgs, buildDockerArgs, decodeWslList, WslSandboxBackend, DockerSandboxBackend, DockerLauncher, SandboxUnavailableError } from '../src/core/sandbox-backends.ts';
 
 
 test('workspace shell captures output without pipes', async () => {
@@ -57,6 +57,44 @@ test('WSL backend declares VM boundary', () => {
   const backend = new WslSandboxBackend({ distro: 'weft-sandbox' });
   assert.equal(backend.info.osBoundary, true);
   assert.equal(backend.info.backend, 'wsl');
+});
+
+
+test('Docker launcher starts daemon and waits for readiness', async () => {
+  let probes = 0;
+  let started = false;
+  const events: string[] = [];
+  const launcher = new DockerLauncher({
+    probe: async () => {
+      probes += 1;
+      return probes > 1
+        ? { kind: 'docker', available: true, reason: 'ready' }
+        : { kind: 'docker', available: false, reason: 'stopped' };
+    },
+    start: async () => { started = true; return true; },
+    sleep: async () => {},
+    timeoutMs: 1000,
+    pollMs: 1,
+    onEvent: (e) => events.push(e.stage)
+  });
+  const result = await launcher.ensure();
+  assert.equal(started, true);
+  assert.equal(result.probe.available, true);
+  assert.equal(result.started, true);
+  assert.deepEqual(events, ['probe', 'wait', 'ready']);
+});
+
+test('Docker launcher fails closed if it cannot start', async () => {
+  const launcher = new DockerLauncher({
+    probe: async () => ({ kind: 'docker', available: false, reason: 'stopped' }),
+    start: async () => false,
+    sleep: async () => {},
+    timeoutMs: 100,
+    pollMs: 1
+  });
+  const result = await launcher.ensure();
+  assert.equal(result.probe.available, false);
+  assert.equal(result.started, false);
 });
 
 test('unimplemented backend fails closed', async () => {
