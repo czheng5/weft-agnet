@@ -48,7 +48,7 @@
 | 2026-11-01 | 产品文档 | PRD v1.0、ROADMAP v1.0、Memory 默认红帽/Polyglot 附录、KB 接口 | 范围冻结；8 概念/F-ID；接口契约 | 2b576f4 |
 | 2026-11-01 | M0 基础 | 事件日志/请求/权限/沙箱/Memory/KB/工具/Agent/TUI/CLI | 12 tests pass；demo 7 steps/6 tools；cacheStable=6 | 2b576f4 |
 | 2026-11-01 | M0 修复 | TUI EOF 处理 | 管道/关闭 stdin 不再以异常退出 | 5d20446 |
-| 2026-11-01 | M1-A | Guardian shadow + 熔断、CUA 策略、usage/cacheReadTokens | 18 tests pass；guardian/assessment=6；model/usage=7 | 841036c |
+| 2026-11-01 | M1-A | Guardian shadow + 熔断、CUA 策略、usage/cacheReadTokens | 18 tests pass；guardian/assessment=6；model/usage=7 | 137d0d6 |
 
 ---
 
