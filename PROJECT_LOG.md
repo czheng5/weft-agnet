@@ -66,6 +66,7 @@
 | v1.0 demo/gate（M3-E） | scripts/v1-demo.ts 端到端；docs/v1.0-gate.md 对照 | 无端到端证据，易虚报 v1.0 | demo PASS；gate 明确未过 |
 | MemoryHub schema（M3-F） | migrations/001_memoryhub.sql：pgvector/HNSW/relations/outbox/audit | 无 PG 建表工件 | schema 已落盘；真实 PG 执行待验证 |
 | Real PG（M3-G） | scripts/pg-live.ts：真实 postgres:16-alpine 连接/建表/写查删 | pg-mem 不能证明真实连接 | **PASS**：write/get/search/forget/health |
+| pgvector 尝试（M3-H） | postgres16 容器内 apk 安装 pgvector 0.8.1 | PG16 与包内 PG18 extension 路径不匹配；PG18 镜像拉取停滞 | **未验证**；不宣称 vector 生效 |
 | 文档/接口 | PRD/ROADMAP/M0 status/interfaces/appendix/README | 范围漂移、实现无契约 | PRD/ROADMAP FROZEN；接口契约可测试 |
 
 ---

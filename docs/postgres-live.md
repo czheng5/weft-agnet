@@ -36,4 +36,5 @@ POSTGRES LIVE CONTRACT PASS
 
 - **pgvector 未安装**：postgres:16-alpine 不含 vector 扩展，migrations/001_memoryhub.sql 的 CREATE EXTENSION vector 未执行。
 - 需要 pgvector/pgvector:pg16 或自建扩展镜像后，再跑 vector/HNSW 验证。
+- 尝试在 postgres:16-alpine 内 apk add postgresql-pgvector 0.8.1：包写入 PG18 extension 路径，PG16 报 extension vector is not available；PG18 镜像拉取在 53/115MB 停滞。
 - 远端 TLS/连接池压测未做。
