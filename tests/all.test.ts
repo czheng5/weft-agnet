@@ -3,6 +3,7 @@ import './permissions.test.ts';
 import './memory.test.ts';
 import './memory-http.test.ts'
 import './memory-postgres.test.ts'
+import './pgvector-probe.test.ts'
 import './memory-consolidation.test.ts'
 import './memory-injection.test.ts'
 import './memory-governance.test.ts'
