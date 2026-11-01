@@ -95,7 +95,7 @@ request cachePrefixStable=true ...
 5. **模型**：默认 ScriptedModel；真实模型需 env key；没有 key 时 TUI 会提示。
 6. **测试 runner**：Node 24 的 node --test 在此环境会 spawn EPERM，使用 --test-isolation=none 跑同进程。
 7. **Shell 输出捕获**：DSH 内 Node child_process pipe 会 EPERM；ShellSandbox 已改为临时文件重定向，demo 的 shell 才是真正执行成功。
-8. **Docker/WSL conformance**：Docker Linux backend 已 6 项 PASS（见 [docker-conformance.md](docker-conformance.md)）；WSL 在 DSH 内不可用，Windows/WSL backend 仍未验证。Docker backend 不覆盖 Windows GUI/CUA。
+8. **Docker/WSL conformance**：Docker Linux backend 6 项 PASS；WSL root/default 基础 PASS（非 root SKIP，见 [wsl-conformance.md](wsl-conformance.md)）；Windows 原生 backend 未做。Docker/WSL 不覆盖 Windows GUI/CUA。
 9. **Postgres/pgvector**：真实 postgres:16-alpine 契约 PASS；pgvector v0.8.0 源码编译，vector(1536)+HNSW+cosine PASS；PgVectorIndex 已接入 MemoryHub，真实 vector search PASS。
 
 ---

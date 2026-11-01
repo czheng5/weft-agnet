@@ -73,7 +73,7 @@
 | Model HTTP（M1-L） | 本地 OpenAI-compatible HTTP server 测试；cached_tokens 24 | 只有 fake fetch，无 HTTP 端到端 | 1 个测试；HTTP 路径通过 |
 | Agent HTTP（M1-N） | Agent+OpenAICompatibleModel+本地 server+tool call | 没有 agent HTTP 端到端 | 1 个测试；cacheReadTokens=128，file 写入 |
 | v1.0 RC（M3-L） | docs/v1.0-rc.md：功能矩阵/证据/外部缺口 | 无 RC 口径，易虚报 | RC 明确未发布 |
-| WSL options（M1-O） | CLI/conformance 支持 --wsl-distro/--wsl-user/--wsl-mount | WSL backend 只能默认 distro | 可指定现有 distro；Ubuntu/Kali 上 getpwnam(user) 失败，仍未验证 |
+| WSL conformance（M1-O） | default-user 模式 + WSL 原生命令 | WSL 用户映射失败；非 root 未验证 | **基础 PASS**（root/default）；非 root SKIP |
 | Guardian 50（M1-M） | 50 动作 rule/model shadow harness | 无 50 动作对比证据 | harness PASS；fake model；真实 key 待接 |
 | 文档/接口 | PRD/ROADMAP/M0 status/interfaces/appendix/README | 范围漂移、实现无契约 | PRD/ROADMAP FROZEN；接口契约可测试 |
 
@@ -110,7 +110,7 @@
 | 2026-11-01 | M3-K | PgVectorIndex + MemoryHub | PASS；真实 vector search | 128f614 |
 | 2026-11-01 | M1-L/M | local HTTP model + Guardian 50 harness | 76 tests；50 actions 0 mismatch | cb0bf2c |
 | 2026-11-01 | M1-N | agent HTTP integration | 77 tests；cacheReadTokens=128 | 8522da9 |
-| 2026-11-01 | M1-O | WSL conformance options | 77 tests；CLI options 已加；WSL 未跑通 | 8d59179 |
+| 2026-11-01 | M1-O | WSL conformance | 77 tests；root/default 基础 PASS；非 root SKIP | e548eba |
 | 2026-11-01 | M3-L | v1.0 RC | RC 代码完成；未发布 | 8bdb955 |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |
