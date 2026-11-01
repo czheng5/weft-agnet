@@ -11,7 +11,7 @@
 | 里程碑 | 状态 | 进度 | 说明 |
 |---|---|---|---|
 | M0 Foundation | ✅ 完成（骨架） | 100% | 事件日志/请求分区/权限/审批缓存/workspace 守卫/SQLite Memory/KB/TUI/测试 |
-| M1 Safety & Memory skeleton | ◐ 进行中 | ~50% | Guardian、CUA、usage、WSL/Docker backend + conformance、HTTP KB 已落地；真实 OS conformance/PG/缓存未完成 |
+| M1 Safety & Memory skeleton | ◐ 进行中 | ~55% | Guardian、CUA、usage、WSL/Docker backend + auto-start + conformance、HTTP KB 已落地；完整 OS conformance/PG/缓存未完成 |
 | M2 Long-horizon | ⏳ 未开始 | 0% | Work Graph/Actor/Scheduler/Event Bus/Capability/Context |
 | M3 Memory & v1.0 | ⏳ 未开始 | 0% | PG MemoryHub 完整/治理/评测/v1.0 gate |
 | M4 v1.5 | ⏳ 未开始 | 0% | 收口/多租户/技能演化/CUA driver/Polyglot 契约 |
@@ -38,7 +38,8 @@
 | CUA 策略（M1-A） | app allow/deny/ask、敏感应用、锁屏、持久批准字段 | CUA 无治理入口 | 敏感应用默认 deny；锁屏默认 deny |
 | Usage/缓存观测（M1-A） | ModelResponse.usage；OpenAI cached_tokens；model/usage 事件；TUI/CLI cacheReadTokens | 缓存命中不可观测 | demo 7 次 usage；cacheReadTokens 可显示（Scripted=0） |
 | WSL sandbox backend（M1-B） | WslSandboxBackend：probe/命令构造/超时/fail-closed；`--sandbox wsl` | 没有内层 OS 边界 backend | probe 失败显式报错；sandbox 测试；DSH 内 EPERM/E_ACCESSDENIED，不静默降级 |
-| Docker Linux backend（M1-B） | DockerSandboxBackend：network none/read-only/cap-drop/non-root/pids/memory/cpus；`--sandbox docker` | 需要一个可用的 Linux OS 边界 | 命令构造/测试通过；conformance.cmd 可跑；当前 daemon Stopped，真实容器验收待跑 |
+| Docker Linux backend（M1-B） | DockerSandboxBackend：network none/read-only/cap-drop/non-root/pids/memory/cpus；`--sandbox docker` | 需要一个可用的 Linux OS 边界 | 命令构造/测试通过；真实容器 smoke：engine 29.7.2，uid=1000；完整 canary 未跑完 |
+| Docker 自启动（M1-B） | DockerLauncher：`docker desktop start` / Docker Desktop.exe，轮询 daemon，事件 sandbox/launch，`--no-auto-start` | 不能要求用户手动开 Docker；产品要像 Codex 一样自启动 | 2 个 launcher 测试；默认自动启动；失败仍 fail-closed |
 | Shell 输出捕获修复 | ShellSandbox 从 pipe 改为临时文件重定向 | DSH 内 Node child_process pipe 报 EPERM，demo 的 shell 实际失败 | demo 现在真正拿到 stdout=2；新增 capture 测试 |
 | HTTP KB（M1-C） | HttpKnowledgeBaseProvider：/search、/docs、/health、Bearer、scope headers、timeout | KB 只有本地文件，无法接外部知识库 | 2 个测试；`--kb-url` 可切；只读、不自动入 Memory |
 | 文档/接口 | PRD/ROADMAP/M0 status/interfaces/appendix/README | 范围漂移、实现无契约 | PRD/ROADMAP FROZEN；接口契约可测试 |
@@ -56,13 +57,14 @@
 | 2026-11-01 | M1-B | WSL sandbox backend：probe/命令构造/fail-closed | 22 tests pass；`--sandbox wsl` 在 DSH 内显式失败 | 2bea213 |
 | 2026-11-01 | M1-B | Docker Linux backend + conformance + shell capture fix | 25 tests pass；guard conformance PASS；docker daemon Stopped | 45081f3 |
 | 2026-11-01 | M1-C | HTTP KB adapter | 27 tests pass；--kb-url 可切；外部 KB 只读接入 | c411761 |
+| 2026-11-01 | M1-B | Docker auto-start + canary helper | 29 tests pass；默认自启动；容器 smoke uid=1000 | 10634b6 |
 
 ---
 
 ## 4. 当前可验证结果
 
 ~~~text
-27 tests, 27 pass, 0 fail
+29 tests, 29 pass, 0 fail
 
 Weft M0 complete: file written, shell verified, memory stored and recalled, knowledge base searched.
 steps=7 toolCalls=6 cacheStable=6 cacheReadTokens=0
@@ -77,7 +79,7 @@ request cachePrefixStable=true ...
 
 | 优先级 | 缺口 | 影响 | 下一步 |
 |---|---|---|---|
-| P0 | Windows OS 沙箱未实现 | workspace-guard 不是 OS 边界；WSL/Docker backend 已实现，但真实 conformance 未跑；**不是要求改 DSH 授权** | M1：启动 Docker Desktop + 拉镜像跑 docker conformance；WSL/Windows VM 后续；见 [docs/sandbox-verification.md](docs/sandbox-verification.md) |
+| P0 | Windows OS 沙箱未实现 | workspace-guard 不是 OS 边界；Docker engine 已 smoke，但完整 conformance 未跑完；**不是要求改 DSH 授权** | M1：跑完 Docker canary；WSL/Windows VM 后续；见 [docs/sandbox-verification.md](docs/sandbox-verification.md) |
 | P0 | PG MemoryHub 未实现 | SQLite 只是开发 provider | M3：PG+pgvector+graph |
 | P0 | 真实 provider cache 未接 | cacheReadTokens 恒 0 | M1：接真实模型 usage |
 | P1 | Guardian 只有规则版 | 无模型评审/多模态 | M1：模型 reviewer + shadow 对比 |
@@ -90,7 +92,7 @@ request cachePrefixStable=true ...
 
 ## 6. 下一步（M1 剩余）
 
-1. 启动 Docker Desktop + 拉 node:24-bookworm-slim，外层跑 `conformance.cmd --backend docker`。
+1. 跑完 Docker canary（engine 已 smoke；完整 network/read-only/non-root 验收）；auto-start 已实现。
 2. WSL backend conformance（外层/正常主机）+ Windows RestrictedToken/MXC（后续）。
 3. 真实模型接线 + provider usage/cacheReadTokens。
 4. Guardian 从规则版升级为模型 reviewer（shadow 对比；超时/熔断保留）。
