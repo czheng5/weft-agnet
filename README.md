@@ -51,8 +51,9 @@ Work Graph · Actor Runtime · Scheduler · Event Bus · Capability Package · M
 - WSL sandbox backend（M1-B）：probe/命令构造/fail-closed；`--sandbox wsl` 在 DSH 内显式失败，不静默降级
 - Docker Linux container backend：`--network none`、`--read-only`、`--cap-drop ALL`、非 root、资源限制；`--sandbox docker`；conformance 6 项 PASS
 - HTTP KB 适配器：`--kb-url` / `WEFT_KB_URL`，Bearer + scope headers + timeout；只读、不自动入 Memory
+- HTTP MemoryHub 适配器：`--memory-url` / `WEFT_MEMORY_URL`，远程 MemoryProvider；默认仍是 SQLite dev
 - `conformance.cmd`：workspace-guard / docker 的边界 canary 脚本
-- 29 个测试通过；`node --experimental-strip-types src/cli.ts --demo`
+- 31 个测试通过；`node --experimental-strip-types src/cli.ts --demo`
 
 细节与限制见 [docs/m0-status.md](docs/m0-status.md)。
 
