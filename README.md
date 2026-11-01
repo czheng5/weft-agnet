@@ -55,7 +55,7 @@ Work Graph · Actor Runtime · Scheduler · Event Bus · Capability Package · M
 - Postgres MemoryProvider：`--pg-url` / `WEFT_PG_URL`，pg Pool + 契约实现；pg-mem 测试通过
 - `conformance.cmd`：workspace-guard / docker 的边界 canary 脚本
 - M2 Work Graph 地基：Goal/Task DAG/依赖/ready/todo 投影；TUI `/goal` `/task` `/tasks` `/start` `/done`
-- 35 个测试通过；`node --experimental-strip-types src/cli.ts --demo`
+- 38 个测试通过；`node --experimental-strip-types src/cli.ts --demo`
 
 细节与限制见 [docs/m0-status.md](docs/m0-status.md)。
 
