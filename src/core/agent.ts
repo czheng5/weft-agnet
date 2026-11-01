@@ -7,6 +7,8 @@ import { executeTool, toolSchemas } from './tools.ts';
 import type { ToolCall } from './tools.ts';
 import type { MemoryProvider, MemoryScope } from './memory.ts';
 import { MemoryInjector } from './memory-injection.ts';
+import { ContextProjector } from './context-projection.ts';
+import type { ProjectionPolicy } from './context-projection.ts';
 
 export interface AgentOptions {
   model: ModelProvider;
@@ -21,6 +23,7 @@ export interface AgentOptions {
     minScore?: number;
     maxChars?: number;
   };
+  projection?: ProjectionPolicy;
 }
 
 export interface AgentResult {
@@ -90,11 +93,19 @@ export class AgentLoop {
       const all = session.deriveMessages();
       const first = steps === 0;
       const history = first ? all.slice(0, -1) : all;
+      let requestHistory = history;
+      if (this.opts.projection) {
+        const projected = new ContextProjector().project(history, this.opts.projection);
+        if (projected.compacted) {
+          requestHistory = projected.messages;
+          session.append('context/projected', { dropped: projected.dropped.length, summaryChars: projected.summary.length });
+        }
+      }
       const instruction = first ? task : '';
       const request = buildRequest({
         system: SYSTEM_PROMPT,
         tools: toolSchemas(),
-        messages: history,
+        messages: requestHistory,
         instruction,
         runtimeContext: runtimeContextText({
           cwd: this.opts.toolContext.workspace,
