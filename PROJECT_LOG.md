@@ -109,7 +109,7 @@
 | 2026-11-01 | M3-K | PgVectorIndex + MemoryHub | PASS；真实 vector search | 128f614 |
 | 2026-11-01 | M1-L/M | local HTTP model + Guardian 50 harness | 76 tests；50 actions 0 mismatch | cb0bf2c |
 | 2026-11-01 | M1-N | agent HTTP integration | 77 tests；cacheReadTokens=128 | 8522da9 |
-| 2026-11-01 | M3-L | v1.0 RC | RC 代码完成；未发布 | 待提交 |
+| 2026-11-01 | M3-L | v1.0 RC | RC 代码完成；未发布 | 8bdb955 |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |
 | 2026-11-01 | M1-G | Memory 检索/注入 | 40 tests pass；Agent 上下文含 MEMORY；memory/injected | 73978a0 |
