@@ -8,6 +8,8 @@ import './memory-injection.test.ts'
 import './memory-governance.test.ts'
 import './kb.test.ts';
 import './kb-http.test.ts'
+import './kb-web.test.ts'
+import './kb-mcp.test.ts'
 import './eventlog.test.ts';
 import './guardian.test.ts';
 import './cua.test.ts';

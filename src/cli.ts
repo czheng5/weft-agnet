@@ -14,6 +14,8 @@ import { MemoryConsolidator } from './core/memory-consolidation.ts';
 import { createPostgresMemoryProvider } from './core/memory-postgres.ts';
 import { LocalDocsProvider } from './core/kb.ts';
 import { HttpKnowledgeBaseProvider } from './core/kb-http.ts';
+import { WebKnowledgeBaseProvider } from './core/kb-web.ts';
+import { McpKnowledgeBaseProvider, HttpMcpTransport } from './core/kb-mcp.ts';
 import { ScriptedModel, OpenAICompatibleModel } from './core/model.ts';
 import type { ModelProvider } from './core/model.ts';
 import { Tui } from './core/tui.ts';
@@ -29,6 +31,7 @@ interface Args {
   dockerImage?: string;
   kbUrl?: string;
   kbToken?: string;
+  kbKind: 'http' | 'web' | 'mcp';
   autoStartDocker: boolean;
   memoryUrl?: string;
   memoryToken?: string;
@@ -43,6 +46,7 @@ function parseArgs(argv: string[]): Args {
   let dockerImage: string | undefined;
   let kbUrl: string | undefined = process.env.WEFT_KB_URL;
   let kbToken: string | undefined = process.env.WEFT_KB_TOKEN;
+  let kbKind: Args['kbKind'] = (process.env.WEFT_KB_KIND as Args['kbKind']) ?? 'http';
   let autoStartDocker = true;
   let memoryUrl: string | undefined = process.env.WEFT_MEMORY_URL;
   let memoryToken: string | undefined = process.env.WEFT_MEMORY_TOKEN;
@@ -56,6 +60,7 @@ function parseArgs(argv: string[]): Args {
     else if (arg === '--docker-image' && argv[i + 1]) { dockerImage = argv[++i]; }
     else if (arg === '--kb-url' && argv[i + 1]) { kbUrl = argv[++i]; }
     else if (arg === '--kb-token' && argv[i + 1]) { kbToken = argv[++i]; }
+    else if (arg === '--kb-kind' && argv[i + 1]) { kbKind = argv[++i] as Args['kbKind']; }
     else if (arg === '--no-auto-start') { autoStartDocker = false; }
     else if (arg === '--memory-url' && argv[i + 1]) { memoryUrl = argv[++i]; }
     else if (arg === '--memory-token' && argv[i + 1]) { memoryToken = argv[++i]; }
@@ -71,6 +76,7 @@ function parseArgs(argv: string[]): Args {
     dockerImage,
     kbUrl,
     kbToken,
+    kbKind,
     autoStartDocker,
     memoryUrl,
     memoryToken,
@@ -132,7 +138,11 @@ async function main(): Promise<void> {
       ? new HttpMemoryProvider({ baseUrl: args.memoryUrl, token: args.memoryToken })
       : new SqliteMemoryProvider(join(workspace, '.weft', 'memory.db'));
   const kb = args.kbUrl
-    ? new HttpKnowledgeBaseProvider({ baseUrl: args.kbUrl, token: args.kbToken })
+    ? args.kbKind === 'web'
+      ? new WebKnowledgeBaseProvider({ urls: args.kbUrl.split(',').map((u) => u.trim()).filter(Boolean) })
+      : args.kbKind === 'mcp'
+        ? new McpKnowledgeBaseProvider({ transport: new HttpMcpTransport({ endpoint: args.kbUrl, token: args.kbToken }) })
+        : new HttpKnowledgeBaseProvider({ baseUrl: args.kbUrl, token: args.kbToken })
     : new LocalDocsProvider([join(workspace, 'docs'), join(workspace, 'report'), join(workspace, 'appendix')].filter((p) => existsSync(p)));
   const scope = { tenantId: 'local', userId: 'default', projectId: 'weft' };
   const memoryConsolidator = new MemoryConsolidator(memory);
