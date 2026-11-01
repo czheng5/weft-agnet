@@ -207,8 +207,8 @@ interface KnowledgeBaseProvider {
 | id | 类型 | 说明 |
 |---|---|---|
 | local-docs | 本地文件/目录 | 只读；按 path/glob 索引 |
-| web | HTTP fetch | 只读；遵守 robots/超时 |
-| mcp-kb | MCP resource/tool | 外部 KB 以 MCP 暴露 |
+| web | HTTP fetch | 已实现 WebKnowledgeBaseProvider：HTML→text、citation、timeout、只读 |
+| mcp-kb | MCP resource/tool | 已实现 McpKnowledgeBaseProvider + HttpMcpTransport：tools/call、resources/read、ping |
 | http-kb | HTTP JSON | 通用 REST 适配；已实现 HttpKnowledgeBaseProvider：Bearer、scope headers、timeout、404→null |
 
 ---

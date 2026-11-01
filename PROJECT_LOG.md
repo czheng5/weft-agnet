@@ -11,7 +11,7 @@
 | 里程碑 | 状态 | 进度 | 说明 |
 |---|---|---|---|
 | M0 Foundation | ✅ 完成（骨架） | 100% | 事件日志/请求分区/权限/审批缓存/workspace 守卫/SQLite Memory/KB/TUI/测试 |
-| M1 Safety & Memory skeleton | ◐ 进行中 | ~85% | Guardian、CUA、usage、WSL/Docker backend + auto-start、Docker conformance PASS、HTTP/Postgres Memory、Memory 巩固/注入/RBAC、HTTP KB；真实 PG/Windows/WSL/缓存未完成 |
+| M1 Safety & Memory skeleton | ◐ 进行中 | ~90% | Guardian、CUA、usage、WSL/Docker backend + auto-start、Docker conformance PASS、HTTP/Postgres Memory、Memory 巩固/注入/RBAC、local/http/web/mcp KB；真实 PG/Windows/WSL/缓存未完成 |
 | M2 Long-horizon | ◐ 进行中 | ~15% | Work Graph/Goal/Plan/Task DAG/Todo 投影已落地；Actor/Scheduler/Event Bus/压缩未开始 |
 | M3 Memory & v1.0 | ⏳ 未开始 | 0% | PG MemoryHub 完整/治理/评测/v1.0 gate |
 | M4 v1.5 | ⏳ 未开始 | 0% | 收口/多租户/技能演化/CUA driver/Polyglot 契约 |
@@ -47,6 +47,7 @@
 | Memory 巩固（M1-F） | MemoryConsolidator：duplicate/conflict/new-wins/manual/keep-both | 记忆只写不巩固，冲突无解释 | 3 个测试；旧记录 contested + supersededBy |
 | Memory 注入（M1-G） | MemoryInjector：作用域内 search、topK/minScore、maxChars、memory/injected 事件 | 记忆只在工具里，不进入模型上下文 | 2 个测试；Agent 首轮注入，失败降级 |
 | Memory 治理（M1-H） | MemoryGovernance：viewer/editor/admin、tenant/project、审计 | 只有 scope，没有 RBAC | 2 个测试；越权抛 MemoryAccessDenied |
+| KB 适配器（M1-I） | WebKnowledgeBaseProvider + McpKnowledgeBaseProvider + HttpMcpTransport | KB 只有 local/http | 4 个测试；`--kb-kind web|mcp` 可切；citation |
 | Work Graph（M2-A） | Goal/Task DAG/依赖/ready/todo/持久化；TUI /goal /task /tasks /start /done | 长任务没有单一任务图，Todo 容易变第二任务表 | 3 个测试；Todo 是 Work Graph 投影；JSON 落盘 |
 | 文档/接口 | PRD/ROADMAP/M0 status/interfaces/appendix/README | 范围漂移、实现无契约 | PRD/ROADMAP FROZEN；接口契约可测试 |
 
@@ -71,13 +72,14 @@
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |
 | 2026-11-01 | M1-G | Memory 检索/注入 | 40 tests pass；Agent 上下文含 MEMORY；memory/injected | 73978a0 |
 | 2026-11-01 | M1-H | Memory RBAC/治理 | 42 tests pass；viewer/editor/admin；越权拒绝 | 16328af |
+| 2026-11-01 | M1-I | web/MCP KB 适配器 | 46 tests pass；local/http/web/mcp 可切 | 77eaa49 |
 
 ---
 
 ## 4. 当前可验证结果
 
 ~~~text
-42 tests, 42 pass, 0 fail
+46 tests, 46 pass, 0 fail
 
 Weft M0 complete: file written, shell verified, memory stored and recalled, knowledge base searched.
 steps=7 toolCalls=6 cacheStable=6 cacheReadTokens=0
