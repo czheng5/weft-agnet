@@ -72,7 +72,7 @@ request cachePrefixStable=true ...
 
 | 优先级 | 缺口 | 影响 | 下一步 |
 |---|---|---|---|
-| P0 | Windows OS 沙箱未实现 | workspace-guard 不是 OS 边界；WSL backend 已实现但 DSH 内不可用；**不是要求改 DSH 授权** | M1：WSL conformance 在外层/正常主机；RestrictedToken/MXC 后续；见 [docs/sandbox-boundaries.md](docs/sandbox-boundaries.md) |
+| P0 | Windows OS 沙箱未实现 | workspace-guard 不是 OS 边界；WSL backend 已实现但 DSH 内不可用；**不是要求改 DSH 授权** | M1：WSL conformance 在外层/正常主机；RestrictedToken/MXC 后续；验证矩阵见 [docs/sandbox-verification.md](docs/sandbox-verification.md) |
 | P0 | PG MemoryHub 未实现 | SQLite 只是开发 provider | M3：PG+pgvector+graph |
 | P0 | 真实 provider cache 未接 | cacheReadTokens 恒 0 | M1：接真实模型 usage |
 | P1 | Guardian 只有规则版 | 无模型评审/多模态 | M1：模型 reviewer + shadow 对比 |
