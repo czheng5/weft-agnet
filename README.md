@@ -51,7 +51,7 @@ Work Graph · Actor Runtime · Scheduler · Event Bus · Capability Package · M
 - Docker Linux container backend：`--network none`、`--read-only`、`--cap-drop ALL`、非 root、资源限制；`--sandbox docker`
 - HTTP KB 适配器：`--kb-url` / `WEFT_KB_URL`，Bearer + scope headers + timeout；只读、不自动入 Memory
 - `conformance.cmd`：workspace-guard / docker 的边界 canary 脚本
-- 25 个测试通过；`node --experimental-strip-types src/cli.ts --demo`
+- 27 个测试通过；`node --experimental-strip-types src/cli.ts --demo`
 
 细节与限制见 [docs/m0-status.md](docs/m0-status.md)。
 
