@@ -21,6 +21,7 @@
 | [docs/interfaces.md](docs/interfaces.md) | MemoryProvider / KnowledgeBaseProvider 契约 |
 | [docs/m0-status.md](docs/m0-status.md) | M0 实现状态、运行命令、限制、M1 下一步 |
 | [PROJECT_LOG.md](PROJECT_LOG.md) | 项目管理台账：模块/问题/效果、时间线、缺口、下一步 |
+| [docs/sandbox-boundaries.md](docs/sandbox-boundaries.md) | 外层 DSH 沙箱 vs 内层 Weft 沙箱；为什么不需改授权 |
 | [appendix/polyglot-hub.md](appendix/polyglot-hub.md) | 附录 A：未来 Polyglot 记忆 provider |
 | [report/README.md](report/README.md) | 四家源码研究、融合架构、推导审计、集合审计、Memory 研究 |
 | [brand/README.md](brand/README.md) | Weft 品牌、Weft Cyan、TUI 模板 |

@@ -70,7 +70,7 @@ request cachePrefixStable=true ...
 
 | 优先级 | 缺口 | 影响 | 下一步 |
 |---|---|---|---|
-| P0 | Windows OS 沙箱未实现 | 当前只是 workspace-guard，不是 OS 边界 | M1：RestrictedToken/MXC 或 fail-closed provider |
+| P0 | Windows OS 沙箱未实现 | 当前只是 workspace-guard，不是 OS 边界；**不是要求改 DSH 授权** | M1：RestrictedToken/MXC 或 fail-closed provider；见 [docs/sandbox-boundaries.md](docs/sandbox-boundaries.md) |
 | P0 | PG MemoryHub 未实现 | SQLite 只是开发 provider | M3：PG+pgvector+graph |
 | P0 | 真实 provider cache 未接 | cacheReadTokens 恒 0 | M1：接真实模型 usage |
 | P1 | Guardian 只有规则版 | 无模型评审/多模态 | M1：模型 reviewer + shadow 对比 |

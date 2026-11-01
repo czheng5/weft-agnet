@@ -88,7 +88,7 @@ request cachePrefixStable=true ...
 
 ## 5. 已知限制（不掩盖）
 
-1. **Sandbox 不是 OS 边界**：M0 是 workspace-guard + 命令策略；shell 仍以当前用户执行。Windows RestrictedToken/MXC 属 M1。
+1. **Sandbox 不是 OS 边界**：M0 是 workspace-guard + 命令策略；shell 仍以当前用户执行。Windows RestrictedToken/MXC 属 M1。**这不是要求改外层 DSH 授权**；两个沙箱的边界见 [sandbox-boundaries.md](sandbox-boundaries.md)。
 2. **Memory 是 SQLite 开发实现**：PRD 默认 Red Hat 型 PG+pgvector+graph；M0 只验证 MemoryProvider 契约与单权威语义。PG provider 属 M3。
 3. **Guardian 未实现**：M0 只有审批阶梯；Guardian shadow 属 M1。
 4. **CUA 未实现**：只有策略位置；治理/驱动属 M1/M4。
