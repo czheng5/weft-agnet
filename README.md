@@ -56,7 +56,8 @@ Work Graph · Actor Runtime · Scheduler · Event Bus · Capability Package · M
 - Guardian shadow + CUA 策略 + model usage/cacheReadTokens（M1-A）
 - WSL sandbox backend（M1-B）：probe/命令构造/fail-closed；`--sandbox wsl` 在 DSH 内显式失败，不静默降级
 - Docker Linux container backend：`--network none`、`--read-only`、`--cap-drop ALL`、非 root、资源限制；`--sandbox docker`；conformance 6 项 PASS
-- HTTP KB 适配器：`--kb-url` / `WEFT_KB_URL`，Bearer + scope headers + timeout；只读、不自动入 Memory
+- HTTP KB 适配器：--kb-url / WEFT_KB_URL，Bearer + scope headers + timeout；只读、不自动入 Memory
+- 本地 OpenAI-compatible 模型：--model-base-url / WEFT_MODEL_BASE_URL，无 key 时自动用 local key
 - HTTP MemoryHub 适配器：`--memory-url` / `WEFT_MEMORY_URL`，远程 MemoryProvider；默认仍是 SQLite dev
 - Postgres MemoryProvider：`--pg-url` / `WEFT_PG_URL`，pg Pool + 契约实现；pg-mem 测试通过
 - `conformance.cmd`：workspace-guard / docker 的边界 canary 脚本
