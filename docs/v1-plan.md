@@ -35,8 +35,8 @@
 | 4 | F-AR-001 | Actor Runtime | ✅ spawn/wait/stop/children/mailbox |
 | 5 | F-SC-001 | Scheduler cron/wakeup/monitor | ✅ wakeup/interval/monitor + restore |
 | 6 | F-EB-001 | Event Bus + Hooks | ✅ subscribe/publish/wildcard/history/replay |
-| 7 | F-CP-001 | Capability Package registry | ⏳ |
-| 8 | F-CX-002 | 压缩/投影/retention | ⏳ |
+| 7 | F-CP-001 | Capability Package registry | ✅ manifest/install/enable/disable/uninstall/版本/权限 |
+| 8 | F-CX-002 | 压缩/投影/retention | ✅ shadow summary + restore；Agent 可选 projection |
 
 ## M3（v1.0 gate）
 
