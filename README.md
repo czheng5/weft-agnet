@@ -26,6 +26,7 @@
 | [docs/docker-conformance.md](docs/docker-conformance.md) | Docker Linux backend conformance 结果（6 项 PASS） |
 | [docs/v1.0-gate.md](docs/v1.0-gate.md) | v1.0 gate 对照：已过/未过、证据、真实环境缺口 |
 | [docs/v1.0-rc.md](docs/v1.0-rc.md) | v1.0 RC 功能矩阵、证据、外部验证缺口 |
+| [docs/v1.0-demo.md](docs/v1.0-demo.md) | v1 demo 默认 SQLite / 真实 PG+pgvector 运行说明 |
 | [docs/postgres-live.md](docs/postgres-live.md) | 真实 PostgreSQL 契约 PASS（postgres:16-alpine / 55432） |
 | [docs/pgvector-live.md](docs/pgvector-live.md) | pgvector v0.8.0 编译/HNSW/cosine + PgVectorIndex PASS |
 | [docs/guardian-50.md](docs/guardian-50.md) | Guardian 50 动作 shadow harness（fake model；真实 key 待接） |
