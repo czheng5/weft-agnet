@@ -2,6 +2,7 @@ import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { newId } from './ids.ts';
 import type { EmbeddingProvider, VectorIndex } from './vector-index.ts';
+import type { AsyncVectorIndex } from './pgvector-index.ts';
 import type {
   ForgetReceipt,
   ForgetSelector,
@@ -110,12 +111,14 @@ export class MemoryHub implements MemoryProvider {
   readonly outbox = new Outbox();
   private readonly embedding?: EmbeddingProvider;
   private readonly vectorIndex?: VectorIndex;
+  private readonly asyncVectorIndex?: AsyncVectorIndex;
 
-  constructor(opts: { provider: MemoryProvider; workspace?: string; embedding?: EmbeddingProvider; vectorIndex?: VectorIndex }) {
+  constructor(opts: { provider: MemoryProvider; workspace?: string; embedding?: EmbeddingProvider; vectorIndex?: VectorIndex; asyncVectorIndex?: AsyncVectorIndex }) {
     this.provider = opts.provider;
     this.relations = new RelationStore(opts.workspace);
     this.embedding = opts.embedding;
     this.vectorIndex = opts.vectorIndex;
+    this.asyncVectorIndex = opts.asyncVectorIndex;
     this.id = 'memoryhub+' + opts.provider.id;
   }
 
@@ -124,14 +127,17 @@ export class MemoryHub implements MemoryProvider {
     for (const receipt of receipts) {
       if (receipt.status === 'committed') this.outbox.enqueue({ type: 'memory.written', memoryId: receipt.id, version: receipt.version });
     }
-    if (this.embedding && this.vectorIndex) {
+    if (this.embedding && (this.vectorIndex || this.asyncVectorIndex)) {
       const committed = receipts.filter((receipt) => receipt.status === 'committed').map((receipt) => receipt.id);
       const recordsToIndex = records.filter((record) => committed.includes(record.id));
       if (recordsToIndex.length > 0) {
         const vectors = await this.embedding.embed(recordsToIndex.map((record) => record.content));
-        recordsToIndex.forEach((record, index) => {
-          if (vectors[index]) this.vectorIndex!.add(record.id, vectors[index]);
-        });
+        for (let index = 0; index < recordsToIndex.length; index += 1) {
+          const vector = vectors[index];
+          if (!vector) continue;
+          this.vectorIndex?.add(recordsToIndex[index].id, vector);
+          if (this.asyncVectorIndex) await this.asyncVectorIndex.add(recordsToIndex[index].id, vector);
+        }
       }
     }
     for (const relation of relations) this.relations.add(relation);
@@ -142,10 +148,13 @@ export class MemoryHub implements MemoryProvider {
     const base = await this.provider.search(query);
     const seen = new Set(base.map((hit) => hit.record.id));
     const expanded: MemoryHit[] = [...base];
-    if (this.embedding && this.vectorIndex) {
+    if (this.embedding && (this.vectorIndex || this.asyncVectorIndex)) {
       const [vector] = await this.embedding.embed([query.text]);
-      if (vector) {
-        for (const candidate of this.vectorIndex.search(vector, query.topK ?? 5)) {
+      const candidates = vector
+        ? [...(this.vectorIndex?.search(vector, query.topK ?? 5) ?? []), ...(this.asyncVectorIndex ? await this.asyncVectorIndex.search(vector, query.topK ?? 5) : [])]
+        : [];
+      if (true) {
+        for (const candidate of candidates) {
           if (seen.has(candidate.id)) continue;
           const record = await this.provider.get(candidate.id, query.scope);
           if (!record || record.status !== 'active') continue;
@@ -180,6 +189,7 @@ export class MemoryHub implements MemoryProvider {
     const receipt = await this.provider.forget(selector);
     for (const id of selector.ids ?? []) {
       this.vectorIndex?.remove(id);
+      if (this.asyncVectorIndex) await this.asyncVectorIndex.remove(id);
       this.outbox.enqueue({ type: 'memory.forgotten', memoryId: id, version: 1 });
     }
     return receipt;
