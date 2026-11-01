@@ -3,6 +3,8 @@ import type { IncomingMessage, Server, ServerResponse } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import type { MemoryProvider, MemoryRecord, MemoryScope } from './memory.ts';
 import type { MemoryHub } from './memory-hub.ts';
+import { handleMemoryMcp } from './memoryhub-mcp.ts';
+import type { McpRequest } from './memoryhub-mcp.ts';
 
 export interface MemoryHubServerOptions {
   provider: MemoryProvider | MemoryHub;
@@ -67,6 +69,13 @@ export function createMemoryHubServer(opts: MemoryHubServerOptions): Server {
       const url = new URL(req.url ?? '/', 'http://localhost');
       if (req.method === 'GET' && url.pathname === '/health') {
         json(res, 200, await opts.provider.health());
+        return;
+      }
+
+      if (req.method === 'POST' && url.pathname === '/mcp') {
+        const body = JSON.parse(await readBody(req, maxBodyBytes)) as McpRequest;
+        const response = await handleMemoryMcp(opts.provider, body, scopeFrom(req));
+        json(res, 200, response);
         return;
       }
 
