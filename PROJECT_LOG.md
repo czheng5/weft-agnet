@@ -11,7 +11,7 @@
 | 里程碑 | 状态 | 进度 | 说明 |
 |---|---|---|---|
 | M0 Foundation | ✅ 完成（骨架） | 100% | 事件日志/请求分区/权限/审批缓存/workspace 守卫/SQLite Memory/KB/TUI/测试 |
-| M1 Safety & Memory skeleton | ◐ 进行中 | ~90% | Guardian、CUA、usage、WSL/Docker backend + auto-start、Docker conformance PASS、HTTP/Postgres Memory、Memory 巩固/注入/RBAC、local/http/web/mcp KB；真实 PG/Windows/WSL/缓存未完成 |
+| M1 Safety & Memory skeleton | ◐ 进行中 | ~95% | Guardian、CUA、usage、Docker conformance、Memory 巩固/注入/RBAC、local/http/web/mcp KB、metrics；真实 PG/Windows/WSL/cache/Guardian 模型未完成 |
 | M2 Long-horizon | ◐ 进行中 | ~15% | Work Graph/Goal/Plan/Task DAG/Todo 投影已落地；Actor/Scheduler/Event Bus/压缩未开始 |
 | M3 Memory & v1.0 | ⏳ 未开始 | 0% | PG MemoryHub 完整/治理/评测/v1.0 gate |
 | M4 v1.5 | ⏳ 未开始 | 0% | 收口/多租户/技能演化/CUA driver/Polyglot 契约 |
@@ -48,6 +48,7 @@
 | Memory 注入（M1-G） | MemoryInjector：作用域内 search、topK/minScore、maxChars、memory/injected 事件 | 记忆只在工具里，不进入模型上下文 | 2 个测试；Agent 首轮注入，失败降级 |
 | Memory 治理（M1-H） | MemoryGovernance：viewer/editor/admin、tenant/project、审计 | 只有 scope，没有 RBAC | 2 个测试；越权抛 MemoryAccessDenied |
 | KB 适配器（M1-I） | WebKnowledgeBaseProvider + McpKnowledgeBaseProvider + HttpMcpTransport | KB 只有 local/http | 4 个测试；`--kb-kind web|mcp` 可切；citation |
+| Metrics（M1-J） | computeMetrics/formatMetrics：审批/工具/cache/guardian/延迟 P50/P95；TUI /metrics | 没有仪表 | 1 个测试；/metrics 可见 |
 | Work Graph（M2-A） | Goal/Task DAG/依赖/ready/todo/持久化；TUI /goal /task /tasks /start /done | 长任务没有单一任务图，Todo 容易变第二任务表 | 3 个测试；Todo 是 Work Graph 投影；JSON 落盘 |
 | 文档/接口 | PRD/ROADMAP/M0 status/interfaces/appendix/README | 范围漂移、实现无契约 | PRD/ROADMAP FROZEN；接口契约可测试 |
 
@@ -73,13 +74,14 @@
 | 2026-11-01 | M1-G | Memory 检索/注入 | 40 tests pass；Agent 上下文含 MEMORY；memory/injected | 73978a0 |
 | 2026-11-01 | M1-H | Memory RBAC/治理 | 42 tests pass；viewer/editor/admin；越权拒绝 | 16328af |
 | 2026-11-01 | M1-I | web/MCP KB 适配器 | 46 tests pass；local/http/web/mcp 可切 | 77eaa49 |
+| 2026-11-01 | M1-J | metrics/TUI | 47 tests pass；审批/工具/cache/guardian/延迟 | 656f693 |
 
 ---
 
 ## 4. 当前可验证结果
 
 ~~~text
-46 tests, 46 pass, 0 fail
+47 tests, 47 pass, 0 fail
 
 Weft M0 complete: file written, shell verified, memory stored and recalled, knowledge base searched.
 steps=7 toolCalls=6 cacheStable=6 cacheReadTokens=0

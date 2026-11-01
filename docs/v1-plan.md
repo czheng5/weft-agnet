@@ -20,7 +20,7 @@
 | 2 | F-MF-003 | 记忆检索/注入 | ✅ search + Agent 自动注入 | 作用域内召回并进入上下文 |
 | 3 | F-MF-004 | 治理 scope/RBAC/审计/删除 | ✅ RBAC + scope/audit/tombstone | 越权拒绝，删除可传播 |
 | 4 | F-KB-002 | local/web/MCP KB 适配器 | ✅ local/http/web/mcp | 四个适配器可切换 |
-| 5 | F-OB-001 | 指标/评测 | ⏳ | cache/打断/延迟可见 |
+| 5 | F-OB-001 | 指标/评测 | ✅ TUI /metrics；审批/工具/cache/延迟 | cache/打断/延迟可见 |
 | 6 | F-CX-003 | 缓存命中观测 | ◐ usage 事件已有；真实 provider 待接 | cacheReadTokens > 0 |
 | 7 | F-PS-003 | Guardian | ◐ 规则 shadow 已有；模型 reviewer 未做 | shadow 对比记录 |
 | 8 | F-PS-001 | OS 沙箱 | ◐ Docker Linux PASS；Windows/WSL 最后统一验证 | 至少一个 OS 后端 |
