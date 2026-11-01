@@ -9,8 +9,10 @@ import { EventBus } from '../src/core/event-bus.ts';
 import { Scheduler } from '../src/core/scheduler.ts';
 import { CapabilityRegistry } from '../src/core/capabilities.ts';
 import { SqliteMemoryProvider } from '../src/core/memory.ts';
+import { createPostgresMemoryProvider } from '../src/core/memory-postgres.ts';
 import { MemoryHub } from '../src/core/memory-hub.ts';
 import { InMemoryVectorIndex } from '../src/core/vector-index.ts';
+import { PgVectorIndex } from '../src/core/pgvector-index.ts';
 import type { MemoryRecord } from '../src/core/memory.ts';
 
 function delay(ms: number): Promise<void> {
@@ -39,16 +41,24 @@ function record(id: string, content: string): MemoryRecord {
 
 async function main(): Promise<void> {
   const dir = mkdtempSync(join(tmpdir(), 'weft-v1-demo-'));
-  const provider = new SqliteMemoryProvider(join(dir, 'memory.db'));
+  const pgUrl = process.env.WEFT_PG_URL;
+  const provider = pgUrl
+    ? await createPostgresMemoryProvider({ connectionString: pgUrl, id: 'v1-demo-pg' })
+    : new SqliteMemoryProvider(join(dir, 'memory.db'));
   const hub = new MemoryHub({
     provider,
     workspace: dir,
     embedding: {
       async embed(texts) {
-        return texts.map((text) => text.includes('alpha') ? [1, 0] : [0, 1]);
+        return texts.map((text) => {
+          const vector = new Array(1536).fill(0);
+          vector[text.includes('alpha') ? 0 : 1] = 1;
+          return vector;
+        });
       }
     },
-    vectorIndex: new InMemoryVectorIndex()
+    vectorIndex: pgUrl ? undefined : new InMemoryVectorIndex(),
+    asyncVectorIndex: pgUrl ? new PgVectorIndex({ pool: (provider as { pool: never }).pool }) : undefined
   });
   try {
     const graph = new WorkGraph('ship Weft v1.0 demo');
