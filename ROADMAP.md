@@ -59,7 +59,7 @@
 
 ## 2. M1 · Safety & Memory skeleton（4–8 周）
 
-> 2026-11-01：M1-A/B 部分落地（Guardian shadow + 熔断、CUA 策略、model usage、WSL/Docker sandbox backend + conformance 脚本、HTTP KB、HTTP/Postgres MemoryHub、Memory 巩固/注入/RBAC、local/http/web/mcp KB、metrics、cache 映射、模型 Guardian、Actor/Scheduler/Event Bus、Capability、Context Projection、Goal evaluator/Plan、Docker 自启动 + Docker Linux conformance PASS；66 tests）。真实 Docker/WSL/Windows OS conformance、PG MemoryHub、真实缓存仍待完成。详见 [PROJECT_LOG.md](PROJECT_LOG.md)。
+> 2026-11-01：M1-A/B 部分落地（Guardian shadow + 熔断、CUA 策略、model usage、WSL/Docker sandbox backend + conformance 脚本、HTTP KB、HTTP/Postgres MemoryHub、Memory 巩固/注入/RBAC、local/http/web/mcp KB、metrics、cache 映射、模型 Guardian、Actor/Scheduler/Event Bus、Capability、Context Projection、Goal evaluator/Plan/Checkpoint、MemoryHub graph/outbox、Docker 自启动 + Docker Linux conformance PASS；68 tests）。真实 Docker/WSL/Windows OS conformance、PG MemoryHub、真实缓存仍待完成。详见 [PROJECT_LOG.md](PROJECT_LOG.md)。
 
 ### 目标
 

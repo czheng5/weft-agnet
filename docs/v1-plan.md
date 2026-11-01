@@ -31,7 +31,7 @@
 |---|---|---|---|
 | 1 | F-WG-001 | Goal 契约 + evaluator | ✅ task+evidence evaluator |
 | 2 | F-WG-002 | Plan 工件（落盘/审阅/重注入） | ✅ PlanArtifact/PlanStore/renderPlan |
-| 3 | F-WG-003 | Work Graph 节点/边/证据 | ◐ Task DAG + evidence；Checkpoint 未做 |
+| 3 | F-WG-003 | Work Graph 节点/边/证据 | ✅ Task DAG + evidence + Checkpoint |
 | 4 | F-AR-001 | Actor Runtime | ✅ spawn/wait/stop/children/mailbox |
 | 5 | F-SC-001 | Scheduler cron/wakeup/monitor | ✅ wakeup/interval/monitor + restore |
 | 6 | F-EB-001 | Event Bus + Hooks | ✅ subscribe/publish/wildcard/history/replay |
