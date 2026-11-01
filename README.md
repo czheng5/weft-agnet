@@ -30,7 +30,7 @@
 | [docs/postgres-live.md](docs/postgres-live.md) | 真实 PostgreSQL 契约 PASS（postgres:16-alpine / 55432） |
 | [docs/pgvector-live.md](docs/pgvector-live.md) | pgvector v0.8.0 编译/HNSW/cosine + PgVectorIndex PASS |
 | [docs/guardian-50.md](docs/guardian-50.md) | Guardian 50 动作 shadow harness（fake model；真实 key 待接） |
-| [docs/wsl-conformance.md](docs/wsl-conformance.md) | WSL 基础 conformance：root/default PASS，非 root SKIP |
+| [docs/wsl-conformance.md](docs/wsl-conformance.md) | WSL 专用 weft-sandbox + 非 root PASS |
 | [appendix/polyglot-hub.md](appendix/polyglot-hub.md) | 附录 A：未来 Polyglot 记忆 provider |
 | [report/README.md](report/README.md) | 四家源码研究、融合架构、推导审计、集合审计、Memory 研究 |
 | [brand/README.md](brand/README.md) | Weft 品牌、Weft Cyan、TUI 模板 |

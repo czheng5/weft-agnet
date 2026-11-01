@@ -1,13 +1,24 @@
-# WSL Conformance (Root / Default User)
+# WSL Conformance (Dedicated Distro / Non-root)
 
 > 日期：2026-11-01  
-> 环境：WSL2 Ubuntu，默认 root 用户  
-> 结果：**基础 PASS；非 root 检查 SKIP**
+> 环境：WSL2 weft-sandbox（Ubuntu 24.04 rootfs 导入），用户 weft uid=1001  
+> 结果：**PASS（基础）**
+
+## 构建
+
+~~~powershell
+docker pull ubuntu:24.04
+docker create --name weft-rootfs ubuntu:24.04
+docker export weft-rootfs -o D:\dsh_env\tmp\weft-rootfs.tar
+New-Item -ItemType Directory -Force D:\dsh_env\wsl\weft-sandbox | Out-Null
+wsl --import weft-sandbox D:\dsh_env\wsl\weft-sandbox D:\dsh_env\tmp\weft-rootfs.tar --version 2
+wsl -d weft-sandbox -- useradd -m -s /bin/bash weft
+~~~
 
 ## 命令
 
 ~~~powershell
-node --experimental-strip-types scripts/sandbox-conformance.ts   --backend wsl --wsl-distro Ubuntu --wsl-user default   --wsl-mount /mnt/d/dsh_env/workspaces/codex_claude_dsh_comb_mod
+node --experimental-strip-types scripts/sandbox-conformance.ts --backend wsl --wsl-distro weft-sandbox --wsl-user weft --wsl-mount /mnt/d/dsh_env/workspaces/codex_claude_dsh_comb_mod
 ~~~
 
 ## 结果
@@ -17,25 +28,22 @@ WEFT SANDBOX CONFORMANCE backend=wsl
   PASS path escape is rejected — guard rejected ../weft-escape.txt
   PASS workspace is reachable — /mnt/d/dsh_env/workspaces/codex_claude_dsh_comb_mod
   PASS workspace write works — weft-ok
-  SKIP non-root identity — not applicable to this backend
+  PASS non-root identity — uid=1001
   SKIP network egress is denied — not applicable to this backend
   SKIP write outside workspace is denied — not applicable to this backend
 
-RESULT: PASS (docker checks limited to container backend)
+RESULT: PASS
 ~~~
 
 ## 覆盖
 
-- WSL2 VM 内 pwd / 工作区可达
-- 工作区 bind 视图内写入
+- 专用 WSL2 distro：weft-sandbox
+- 非 root 用户 weft（uid=1001）
+- 工作区 bind 视图可达、可写
 - WorkspaceGuard 路径逃逸拒绝
 
-## 未覆盖 / 限制
+## 限制
 
-- **以 root 运行**：非 root 检查被跳过，不能宣称“非 root 隔离”已验证。
-- 网络出站/越界写检查对 WSL 后端跳过；WSL 本身不提供 per-command 网络隔离。
+- WSL 后端不提供 per-command 网络隔离；network/write-outside 检查 SKIP。
 - 未覆盖 Windows 原生 backend/CUA。
-- --wsl-user cz0919 报 WSL_E_USER_NOT_FOUND；这是 WSL 用户映射问题，不是路径检查失败。
-- 尝试在 Ubuntu 内创建 weft 用户后，wsl -d Ubuntu -u weft 仍报 WSL_E_USER_NOT_FOUND；非 root 路径未打通。
-- 改用 WSL 内 runuser（不经 wsl -u）后，Ubuntu/Kali 的 useradd 均报 Permission denied，仍无法创建非 root 用户。
-- sudo -n id -u 仍返回 1000（无免密 root），无法通过 sudo 创建用户。
+- WSL 使用 runuser 降权；默认入口需为 root 或具备 runuser 权限。
