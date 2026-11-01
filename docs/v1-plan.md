@@ -40,6 +40,8 @@
 
 ## M3（v1.0 gate）
 
+- 已落地：MemoryHub facade、graph、outbox、hybrid vector、HTTP API（--serve-memory）。
+
 - F-MF-001/002/003/004 完整：PG+pgvector+graph、outbox、混合召回、治理。
 - F-MF-005 默认 provider 契约测试。
 - F-KB-002 三适配器集成。
