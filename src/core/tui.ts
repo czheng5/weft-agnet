@@ -43,7 +43,8 @@ export class Tui {
     stdout.write(banner + '\n');
     stdout.write('  /help  /status  /plan  /events  /memory <q>  /kb <q>  /demo  /quit\n\n');
 
-    while (true) {
+    try {
+      while (true) {
       const line = (await this.rl.question('weft> ')).trim();
       if (!line) continue;
       if (line === '/quit' || line === '/exit') break;
@@ -104,7 +105,11 @@ export class Tui {
       const result = await agent.run(line);
       stdout.write('\n' + result.content + '\n');
       stdout.write('  steps=' + result.steps + ' toolCalls=' + result.toolCalls + ' cacheStable=' + result.cacheReused + '\n\n');
+      }
+    } catch (error) {
+      if (!(error instanceof Error) || error.name !== 'AbortError') throw error;
+    } finally {
+      this.rl.close();
     }
-    this.rl.close();
   }
 }
