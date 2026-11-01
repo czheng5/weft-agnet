@@ -10,6 +10,7 @@ import { PolicyEngine, ApprovalService } from './core/permissions.ts';
 import { GuardianService } from './core/guardian.ts';
 import { SqliteMemoryProvider } from './core/memory.ts';
 import { LocalDocsProvider } from './core/kb.ts';
+import { HttpKnowledgeBaseProvider } from './core/kb-http.ts';
 import { ScriptedModel, OpenAICompatibleModel } from './core/model.ts';
 import type { ModelProvider } from './core/model.ts';
 import { Tui } from './core/tui.ts';
@@ -23,6 +24,8 @@ interface Args {
   approval: 'untrusted' | 'on-request' | 'never';
   sandbox: SandboxBackendKind;
   dockerImage?: string;
+  kbUrl?: string;
+  kbToken?: string;
 }
 
 function parseArgs(argv: string[]): Args {
@@ -31,6 +34,8 @@ function parseArgs(argv: string[]): Args {
   let approval: Args['approval'] = 'on-request';
   let sandbox: SandboxBackendKind = 'workspace-guard';
   let dockerImage: string | undefined;
+  let kbUrl: string | undefined = process.env.WEFT_KB_URL;
+  let kbToken: string | undefined = process.env.WEFT_KB_TOKEN;
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === '--workspace' && argv[i + 1]) { workspace = resolve(argv[++i]); }
@@ -38,6 +43,8 @@ function parseArgs(argv: string[]): Args {
     else if (arg === '--approval' && argv[i + 1]) { approval = argv[++i] as Args['approval']; }
     else if (arg === '--sandbox' && argv[i + 1]) { sandbox = argv[++i] as SandboxBackendKind; }
     else if (arg === '--docker-image' && argv[i + 1]) { dockerImage = argv[++i]; }
+    else if (arg === '--kb-url' && argv[i + 1]) { kbUrl = argv[++i]; }
+    else if (arg === '--kb-token' && argv[i + 1]) { kbToken = argv[++i]; }
   }
   return {
     demo: argv.includes('--demo'),
@@ -46,7 +53,9 @@ function parseArgs(argv: string[]): Args {
     mode,
     approval,
     sandbox,
-    dockerImage
+    dockerImage,
+    kbUrl,
+    kbToken
   };
 }
 
@@ -95,8 +104,9 @@ async function main(): Promise<void> {
   }, guardian);
   const sandbox = await createShellRunner(args.sandbox, guard, args.mode, { dockerImage: args.dockerImage });
   const memory = new SqliteMemoryProvider(join(workspace, '.weft', 'memory.db'));
-  const kbRoots = [join(workspace, 'docs'), join(workspace, 'report'), join(workspace, 'appendix')].filter((p) => existsSync(p));
-  const kb = new LocalDocsProvider(kbRoots);
+  const kb = args.kbUrl
+    ? new HttpKnowledgeBaseProvider({ baseUrl: args.kbUrl, token: args.kbToken })
+    : new LocalDocsProvider([join(workspace, 'docs'), join(workspace, 'report'), join(workspace, 'appendix')].filter((p) => existsSync(p)));
   const scope = { tenantId: 'local', userId: 'default', projectId: 'weft' };
   const toolContext: ToolContext = { session, guard, sandbox, approvals, memory, kb, guardian, scope, workspace };
 

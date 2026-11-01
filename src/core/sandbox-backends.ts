@@ -169,7 +169,7 @@ export class DockerSandboxBackend implements ShellRunner {
 
   constructor(opts: DockerOptions) {
     this.opts = {
-      dockerPath: opts.dockerPath ?? 'docker.exe',
+      dockerPath: opts.dockerPath ?? (process.platform === 'win32' ? 'docker.exe' : 'docker'),
       image: opts.image ?? process.env.WEFT_DOCKER_IMAGE ?? 'node:24-bookworm-slim',
       workspace: opts.workspace,
       user: opts.user ?? '1000:1000',
