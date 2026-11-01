@@ -9,8 +9,8 @@
 |---|---|---|
 | M0 | ✅ | 事件日志/请求四区/权限/审批/沙箱守卫/TUI/接口 |
 | M1 | ◐ | Docker Linux OS 边界 PASS；Memory/KB/Guardian/CUA/metrics 未收口 |
-| M2 | ◐ | Work Graph 地基；Actor/Scheduler/EventBus/Capability/压缩未做 |
-| M3 | ⏳ | MemoryHub 完整/v1.0 gate 未开始 |
+| M2 | ✅ 代码/单测 | Work Graph/Actor/Scheduler/EventBus/Capability/压缩 |
+| M3 | ◐ | MemoryHub facade/hybrid 已有；真实 PG/pgvector/API/v1.0 gate 未完成 |
 
 ## M1 剩余（按顺序）
 
