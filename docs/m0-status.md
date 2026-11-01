@@ -23,7 +23,7 @@
 | Agent 循环 | src/core/agent.ts | 请求冻结、缓存前缀稳定性、工具循环、turn/step 事件 |
 | TUI | src/core/tui.ts | Weft banner、/status、/plan、/events、/memory、/kb、/demo、审批提示 |
 | CLI | src/cli.ts | --demo、--yes、--workspace、--mode、--approval |
-| 测试 | tests/ | 51 个测试：request/permissions/memory/memory-http/memory-postgres/memory-consolidation/memory-injection/memory-governance/kb/kb-http/kb-web/kb-mcp/metrics/model-usage/guardian-model/eventlog/agent/guardian/cua/sandbox/workgraph |
+| 测试 | tests/ | 55 个测试：request/permissions/memory/memory-http/memory-postgres/memory-consolidation/memory-injection/memory-governance/kb/kb-http/kb-web/kb-mcp/metrics/model-usage/guardian-model/actors/eventlog/agent/guardian/cua/sandbox/workgraph |
 
 ---
 

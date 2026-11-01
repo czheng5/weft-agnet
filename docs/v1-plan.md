@@ -32,7 +32,7 @@
 | 1 | F-WG-001 | Goal 契约 + evaluator | ◐ Goal 有；evaluator 未做 |
 | 2 | F-WG-002 | Plan 工件（落盘/审阅/重注入） | ◐ JSON 有；独立 Plan/审阅未做 |
 | 3 | F-WG-003 | Work Graph 节点/边/证据 | ◐ Task DAG 有；Evidence/Checkpoint 未做 |
-| 4 | F-AR-001 | Actor Runtime | ⏳ |
+| 4 | F-AR-001 | Actor Runtime | ✅ spawn/wait/stop/children/mailbox |
 | 5 | F-SC-001 | Scheduler cron/wakeup/monitor | ⏳ |
 | 6 | F-EB-001 | Event Bus + Hooks | ◐ 日志有；订阅/hook 未做 |
 | 7 | F-CP-001 | Capability Package registry | ⏳ |

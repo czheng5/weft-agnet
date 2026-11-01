@@ -12,7 +12,7 @@
 |---|---|---|---|
 | M0 Foundation | ✅ 完成（骨架） | 100% | 事件日志/请求分区/权限/审批缓存/workspace 守卫/SQLite Memory/KB/TUI/测试 |
 | M1 Safety & Memory skeleton | ◐ 进行中 | ~95% | Guardian（规则/模型 shadow）、CUA、usage/cache 映射、Docker conformance、Memory 巩固/注入/RBAC、四路 KB、metrics；真实 PG/Windows/WSL/真实 key 未完成 |
-| M2 Long-horizon | ◐ 进行中 | ~15% | Work Graph/Goal/Plan/Task DAG/Todo 投影已落地；Actor/Scheduler/Event Bus/压缩未开始 |
+| M2 Long-horizon | ◐ 进行中 | ~25% | Work Graph + Actor Runtime 已落地；Scheduler/Event Bus/Capability/压缩未开始 |
 | M3 Memory & v1.0 | ⏳ 未开始 | 0% | PG MemoryHub 完整/治理/评测/v1.0 gate |
 | M4 v1.5 | ⏳ 未开始 | 0% | 收口/多租户/技能演化/CUA driver/Polyglot 契约 |
 | M5 v2.0 | ⏳ 未开始 | 0% | 自有协议/Weft Bench/插件生态 |
@@ -52,6 +52,7 @@
 | Cache 映射（M1-K） | OpenAI cached_tokens → cacheReadTokens；fetch 注入测试 | provider usage 不可测 | 1 个测试；mock 返回 80 cached；真实 key 待接 |
 | Guardian 模型版（M1-L） | ModelGuardian JSON 评审 + GuardianShadow 对比；`--guardian model` | 只有规则版，无模型对比 | 3 个测试；shadow 返回规则决策并记录 mismatch |
 | Work Graph（M2-A） | Goal/Task DAG/依赖/ready/todo/持久化；TUI /goal /task /tasks /start /done | 长任务没有单一任务图，Todo 容易变第二任务表 | 3 个测试；Todo 是 Work Graph 投影；JSON 落盘 |
+| Actor Runtime（M2-B） | ActorRuntime：spawn/wait/stop/list/children/mailbox/event | 无后台子代理生命周期 | 4 个测试；父子/停止/失败可观察 |
 | 文档/接口 | PRD/ROADMAP/M0 status/interfaces/appendix/README | 范围漂移、实现无契约 | PRD/ROADMAP FROZEN；接口契约可测试 |
 
 ---
@@ -71,6 +72,7 @@
 | 2026-11-01 | M1-B | Docker conformance 6 项 | PASS：/workspace、write、uid=1000、network none、read-only /etc 拒绝 | 14cfcef |
 | 2026-11-01 | M1-D | HTTP MemoryHub provider | 31 tests pass；--memory-url 可切；远程 MemoryProvider 契约 | 87dac81 |
 | 2026-11-01 | M2-A | Work Graph foundation | 34 tests pass；Goal/Task DAG/ready/todo；TUI 命令 | 4a368f7 |
+| 2026-11-01 | M2-B | Actor Runtime | 55 tests pass；spawn/wait/stop/children/mailbox | cc15527 |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |
 | 2026-11-01 | M1-G | Memory 检索/注入 | 40 tests pass；Agent 上下文含 MEMORY；memory/injected | 73978a0 |
@@ -84,7 +86,7 @@
 ## 4. 当前可验证结果
 
 ~~~text
-51 tests, 51 pass, 0 fail
+55 tests, 55 pass, 0 fail
 
 Weft M0 complete: file written, shell verified, memory stored and recalled, knowledge base searched.
 steps=7 toolCalls=6 cacheStable=6 cacheReadTokens=0
