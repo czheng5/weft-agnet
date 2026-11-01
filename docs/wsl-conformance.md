@@ -36,3 +36,4 @@ RESULT: PASS (docker checks limited to container backend)
 - 网络出站/越界写检查对 WSL 后端跳过；WSL 本身不提供 per-command 网络隔离。
 - 未覆盖 Windows 原生 backend/CUA。
 - --wsl-user cz0919 报 WSL_E_USER_NOT_FOUND；这是 WSL 用户映射问题，不是路径检查失败。
+- 尝试在 Ubuntu 内创建 weft 用户后，wsl -d Ubuntu -u weft 仍报 WSL_E_USER_NOT_FOUND；非 root 路径未打通。
