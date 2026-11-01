@@ -12,8 +12,8 @@
 |---|---|---|---|
 | M0 Foundation | ✅ 完成（骨架） | 100% | 事件日志/请求分区/权限/审批缓存/workspace 守卫/SQLite Memory/KB/TUI/测试 |
 | M1 Safety & Memory skeleton | ◐ 进行中 | ~95% | Guardian（规则/模型 shadow）、CUA、usage/cache 映射、Docker conformance、Memory 巩固/注入/RBAC、四路 KB、metrics；真实 PG/Windows/WSL/真实 key 未完成 |
-| M2 Long-horizon | ◐ 进行中 | ~95% | Work Graph/Goal/Plan/Evidence/Checkpoint/Actor/Scheduler/EventBus/Capability/Projection；Actor fork/exit 对照待收口 |
-| M3 Memory & v1.0 | ◐ 进行中 | ~10% | MemoryHub facade：graph expansion + outbox；PG+pgvector 真实服务未接 |
+| M2 Long-horizon | ✅ 代码/单测 | 100% | Work Graph/Goal/Plan/Evidence/Checkpoint/Actor fork/Scheduler/EventBus/Capability/Projection |
+| M3 Memory & v1.0 | ◐ 进行中 | ~20% | MemoryHub facade + hybrid vector index；PG+pgvector 真实服务/MCP/API/v1.0 gate 未接 |
 | M4 v1.5 | ⏳ 未开始 | 0% | 收口/多租户/技能演化/CUA driver/Polyglot 契约 |
 | M5 v2.0 | ⏳ 未开始 | 0% | 自有协议/Weft Bench/插件生态 |
 
@@ -60,6 +60,7 @@
 | Goal/Plan（M2-G） | GoalEvaluator（任务+evidence）、PlanArtifact/PlanStore、renderPlan | Goal 无独立判定，计划无工件 | 2 个测试；evidence 缺失/失败可判定 |
 | Checkpoint（M2-H） | Checkpoint/CheckpointStore：plan 快照、list/latest/restore | 执行前无恢复点 | 1 个测试；快照可恢复 |
 | MemoryHub facade（M3-A） | MemoryHub：graph expansion + Outbox + RelationStore | MemoryProvider 之上缺图/outbox | 1 个测试；graph 命中 + outbox drain |
+| Hybrid recall（M3-B） | EmbeddingProvider + InMemoryVectorIndex + MemoryHub vector search；Actor fork prefix | 只有 lexical/graph，无向量；fork 无前缀 | 2 个测试；vector matchedBy + fork prefix 复用 |
 | 文档/接口 | PRD/ROADMAP/M0 status/interfaces/appendix/README | 范围漂移、实现无契约 | PRD/ROADMAP FROZEN；接口契约可测试 |
 
 ---
@@ -84,6 +85,7 @@
 | 2026-11-01 | M2-E/F | Capability + Context Projection | 64 tests pass；install/uninstall、压缩/restore | f284aa4 |
 | 2026-11-01 | M2-G | Goal evaluator + Plan artifact | 66 tests pass；evidence/plan 落盘 | e94b2b1 |
 | 2026-11-01 | M2-H/M3-A | Checkpoint + MemoryHub facade | 68 tests pass；restore/graph/outbox | ee9d7c1 |
+| 2026-11-01 | M2-I/M3-B | Actor fork + hybrid vector | 70 tests pass；prefix 复用 + vector recall | 5d573b0 |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |
 | 2026-11-01 | M1-G | Memory 检索/注入 | 40 tests pass；Agent 上下文含 MEMORY；memory/injected | 73978a0 |
@@ -97,7 +99,7 @@
 ## 4. 当前可验证结果
 
 ~~~text
-68 tests, 68 pass, 0 fail
+70 tests, 70 pass, 0 fail
 
 Weft M0 complete: file written, shell verified, memory stored and recalled, knowledge base searched.
 steps=7 toolCalls=6 cacheStable=6 cacheReadTokens=0
