@@ -130,12 +130,120 @@ export class WslSandboxBackend implements ShellRunner {
   }
 }
 
-export async function createShellRunner(kind: SandboxBackendKind, guard: WorkspaceGuard, mode: string): Promise<ShellRunner> {
+export interface DockerOptions {
+  dockerPath?: string;
+  image?: string;
+  workspace: string;
+  user?: string;
+  memory?: string;
+  cpus?: string;
+  pidsLimit?: number;
+}
+
+export function buildDockerArgs(opts: Required<DockerOptions> & { command: string }): string[] {
+  return [
+    'run',
+    '--rm',
+    '-i',
+    '--network', 'none',
+    '--read-only',
+    '--cap-drop', 'ALL',
+    '--security-opt', 'no-new-privileges',
+    '--pids-limit', String(opts.pidsLimit),
+    '--memory', opts.memory,
+    '--cpus', opts.cpus,
+    '--tmpfs', '/tmp:rw,noexec,nosuid,size=64m',
+    '--user', opts.user,
+    '--mount', 'type=bind,source=' + opts.workspace + ',target=/workspace',
+    '-w', '/workspace',
+    opts.image,
+    'sh', '-lc', opts.command
+  ];
+}
+
+export class DockerSandboxBackend implements ShellRunner {
+  readonly kind: SandboxBackendKind = 'docker';
+  readonly info: SandboxInfo;
+  readonly opts: Required<DockerOptions>;
+  private probed?: SandboxProbeResult;
+
+  constructor(opts: DockerOptions) {
+    this.opts = {
+      dockerPath: opts.dockerPath ?? 'docker.exe',
+      image: opts.image ?? process.env.WEFT_DOCKER_IMAGE ?? 'node:24-bookworm-slim',
+      workspace: opts.workspace,
+      user: opts.user ?? '1000:1000',
+      memory: opts.memory ?? '512m',
+      cpus: opts.cpus ?? '1',
+      pidsLimit: opts.pidsLimit ?? 256
+    };
+    this.info = {
+      backend: 'docker',
+      mode: 'linux-container',
+      osBoundary: true,
+      limitations: [
+        'Linux container via Docker Desktop; Windows GUI/CUA not available.',
+        'Requires Docker daemon and image; unavailable => fail closed.',
+        'Workspace is bind-mounted read-write; use a dedicated image and non-root user.',
+        'Network is disabled with --network none; package installs need a prebuilt image.'
+      ]
+    };
+  }
+
+  async probe(): Promise<SandboxProbeResult> {
+    const version = await runProcess(this.opts.dockerPath, ['version', '--format', '{{.Server.Version}}'], 8000);
+    if (version.code !== 0) {
+      this.probed = {
+        kind: 'docker',
+        available: false,
+        reason: 'docker daemon unavailable',
+        details: (version.stderr || version.stdout).trim()
+      };
+      return this.probed;
+    }
+    const image = await runProcess(this.opts.dockerPath, ['image', 'inspect', this.opts.image], 8000);
+    if (image.code !== 0) {
+      this.probed = {
+        kind: 'docker',
+        available: false,
+        reason: 'docker image not present: ' + this.opts.image,
+        details: (image.stderr || image.stdout).trim()
+      };
+      return this.probed;
+    }
+    this.probed = {
+      kind: 'docker',
+      available: true,
+      reason: 'docker ' + version.stdout.trim() + ' image ' + this.opts.image
+    };
+    return this.probed;
+  }
+
+  async run(command: string, timeoutMs = 30000): Promise<ShellResult> {
+    const probe = this.probed ?? await this.probe();
+    if (!probe.available) throw new SandboxUnavailableError('docker', probe.reason);
+    return runProcess(this.opts.dockerPath, buildDockerArgs({ ...this.opts, command }), timeoutMs);
+  }
+}
+
+export interface ShellRunnerOptions {
+  dockerImage?: string;
+  dockerPath?: string;
+  wsl?: WslOptions;
+}
+
+export async function createShellRunner(kind: SandboxBackendKind, guard: WorkspaceGuard, mode: string, options: ShellRunnerOptions = {}): Promise<ShellRunner> {
   if (kind === 'workspace-guard') return new ShellSandbox(guard, mode);
   if (kind === 'wsl') {
-    const backend = new WslSandboxBackend();
+    const backend = new WslSandboxBackend(options.wsl);
     const probe = await backend.probe();
     if (!probe.available) throw new SandboxUnavailableError('wsl', probe.reason + (probe.details ? ': ' + probe.details : ''));
+    return backend;
+  }
+  if (kind === 'docker') {
+    const backend = new DockerSandboxBackend({ workspace: guard.workspace, image: options.dockerImage, dockerPath: options.dockerPath });
+    const probe = await backend.probe();
+    if (!probe.available) throw new SandboxUnavailableError('docker', probe.reason + (probe.details ? ': ' + probe.details : ''));
     return backend;
   }
   throw new SandboxUnavailableError(kind, 'backend not implemented in M1; fail closed');

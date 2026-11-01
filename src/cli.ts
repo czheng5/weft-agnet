@@ -22,6 +22,7 @@ interface Args {
   mode: 'read-only' | 'workspace-write' | 'danger-full-access';
   approval: 'untrusted' | 'on-request' | 'never';
   sandbox: SandboxBackendKind;
+  dockerImage?: string;
 }
 
 function parseArgs(argv: string[]): Args {
@@ -29,12 +30,14 @@ function parseArgs(argv: string[]): Args {
   let mode: Args['mode'] = 'workspace-write';
   let approval: Args['approval'] = 'on-request';
   let sandbox: SandboxBackendKind = 'workspace-guard';
+  let dockerImage: string | undefined;
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === '--workspace' && argv[i + 1]) { workspace = resolve(argv[++i]); }
     else if (arg === '--mode' && argv[i + 1]) { mode = argv[++i] as Args['mode']; }
     else if (arg === '--approval' && argv[i + 1]) { approval = argv[++i] as Args['approval']; }
     else if (arg === '--sandbox' && argv[i + 1]) { sandbox = argv[++i] as SandboxBackendKind; }
+    else if (arg === '--docker-image' && argv[i + 1]) { dockerImage = argv[++i]; }
   }
   return {
     demo: argv.includes('--demo'),
@@ -42,7 +45,8 @@ function parseArgs(argv: string[]): Args {
     workspace,
     mode,
     approval,
-    sandbox
+    sandbox,
+    dockerImage
   };
 }
 
@@ -89,7 +93,7 @@ async function main(): Promise<void> {
     if (!tui) return 'deny';
     return tui.approve(action, reason);
   }, guardian);
-  const sandbox = await createShellRunner(args.sandbox, guard, args.mode);
+  const sandbox = await createShellRunner(args.sandbox, guard, args.mode, { dockerImage: args.dockerImage });
   const memory = new SqliteMemoryProvider(join(workspace, '.weft', 'memory.db'));
   const kbRoots = [join(workspace, 'docs'), join(workspace, 'report'), join(workspace, 'appendix')].filter((p) => existsSync(p));
   const kb = new LocalDocsProvider(kbRoots);

@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, rmSync, statSync } from 'node:fs';
 import { dirname, join, relative, resolve, isAbsolute } from 'node:path';
 import { spawn } from 'node:child_process';
 
@@ -79,29 +79,49 @@ export class ShellSandbox implements ShellRunner {
   }
 
   run(command: string, timeoutMs = 30000): Promise<ShellResult> {
+    const tempDir = join(this.guard.workspace, '.weft', 'tmp');
+    mkdirSync(tempDir, { recursive: true });
+    const base = 'run-' + process.pid + '-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+    const outFile = join(tempDir, base + '.out');
+    const errFile = join(tempDir, base + '.err');
+    const quote = (path: string): string => '"' + path.replace(/"/g, '\"') + '"';
+    const full = command + ' > ' + quote(outFile) + ' 2> ' + quote(errFile);
+
     return new Promise((resolvePromise) => {
-      const child = spawn(command, {
-        cwd: this.guard.workspace,
-        shell: true,
-        windowsHide: true,
-        env: { ...process.env, WEFT_SANDBOX: 'workspace-guard' }
-      });
-      let stdout = '';
-      let stderr = '';
+      let child;
+      try {
+        child = spawn(full, {
+          cwd: this.guard.workspace,
+          shell: true,
+          stdio: 'ignore',
+          windowsHide: true,
+          env: { ...process.env, WEFT_SANDBOX: 'workspace-guard' }
+        });
+      } catch (error) {
+        resolvePromise({ code: null, stdout: '', stderr: String(error), timedOut: false });
+        return;
+      }
       let timedOut = false;
+      const cleanup = (): { stdout: string; stderr: string } => {
+        const stdout = existsSync(outFile) ? readFileSync(outFile, 'utf8') : '';
+        const stderr = existsSync(errFile) ? readFileSync(errFile, 'utf8') : '';
+        try { rmSync(outFile, { force: true }); } catch { /* ignore */ }
+        try { rmSync(errFile, { force: true }); } catch { /* ignore */ }
+        return { stdout, stderr };
+      };
       const timer = setTimeout(() => {
         timedOut = true;
         child.kill('SIGKILL');
       }, timeoutMs);
-      child.stdout?.on('data', (buf) => { stdout += String(buf); });
-      child.stderr?.on('data', (buf) => { stderr += String(buf); });
       child.on('error', (err) => {
         clearTimeout(timer);
-        resolvePromise({ code: null, stdout, stderr: stderr + String(err), timedOut });
+        const captured = cleanup();
+        resolvePromise({ code: null, stdout: captured.stdout, stderr: captured.stderr + String(err), timedOut });
       });
       child.on('close', (code) => {
         clearTimeout(timer);
-        resolvePromise({ code, stdout, stderr, timedOut });
+        const captured = cleanup();
+        resolvePromise({ code, stdout: captured.stdout, stderr: captured.stderr, timedOut });
       });
     });
   }

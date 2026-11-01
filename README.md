@@ -48,7 +48,9 @@ Work Graph · Actor Runtime · Scheduler · Event Bus · Capability Package · M
 - 工具层 + ScriptedModel/OpenAI-compatible + Weft TUI
 - Guardian shadow + CUA 策略 + model usage/cacheReadTokens（M1-A）
 - WSL sandbox backend（M1-B）：probe/命令构造/fail-closed；`--sandbox wsl` 在 DSH 内显式失败，不静默降级
-- 18 个测试通过；`node --experimental-strip-types src/cli.ts --demo`
+- Docker Linux container backend：`--network none`、`--read-only`、`--cap-drop ALL`、非 root、资源限制；`--sandbox docker`
+- `conformance.cmd`：workspace-guard / docker 的边界 canary 脚本
+- 25 个测试通过；`node --experimental-strip-types src/cli.ts --demo`
 
 细节与限制见 [docs/m0-status.md](docs/m0-status.md)。
 

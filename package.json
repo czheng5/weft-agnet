@@ -7,6 +7,8 @@
   "scripts": {
     "start": "node --experimental-strip-types src/cli.ts",
     "demo": "node --experimental-strip-types src/cli.ts --demo",
+    "conformance:guard": "node --experimental-strip-types scripts/sandbox-conformance.ts --backend workspace-guard",
+    "conformance:docker": "node --experimental-strip-types scripts/sandbox-conformance.ts --backend docker",
     "test": "node --test --test-isolation=none --experimental-strip-types tests/all.test.ts"
   },
   "engines": {

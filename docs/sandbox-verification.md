@@ -107,6 +107,34 @@
 
 ---
 
-## 7. 一句话
+## 7. 当前实现与运行方式
+
+已实现：
+
+- workspace-guard conformance：通过（路径逃逸/工作区可达/工作区写入）。
+- WSL backend：probe/命令构造/fail-closed；DSH 内不可用。
+- Docker backend：DockerSandboxBackend，默认镜像 node:24-bookworm-slim。
+- conformance.cmd：可在外层 Windows Terminal 跑 Docker canary。
+
+Docker 运行命令（外层终端，Docker Desktop 已启动且镜像已拉取）：
+
+~~~powershell
+docker pull node:24-bookworm-slim
+.\conformance.cmd --backend docker
+~~~
+
+或：
+
+~~~powershell
+node --experimental-strip-types scripts/sandbox-conformance.ts --backend docker --docker-image node:24-bookworm-slim
+~~~
+
+注意：在 DSH 内，Node 的 child_process 管道会被外层沙箱限制（EPERM），所以 Docker conformance 要放到外层终端跑；这不是 Docker 的问题。
+
+当前 Docker daemon 状态：com.docker.service 为 Stopped，尚未做真实容器 conformance。启动 Docker Desktop 后再跑；不能把“脚本存在”当成“已验证”。
+
+---
+
+## 8. 一句话
 
 **WSL 只是 OS 边界 backend 的一个候选；完整验证靠“契约 + 可丢弃 OS 环境 + 红队 + CI”，而不是靠某一个命令。**
