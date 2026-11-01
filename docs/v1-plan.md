@@ -41,6 +41,8 @@
 ## M3（v1.0 gate）
 
 - 已落地：MemoryHub facade、graph、outbox、hybrid vector、HTTP API/MCP（--serve-memory）。
+- 已落地：真实 PostgreSQL 契约（postgres:16-alpine / 55432）。
+- 未落地：pgvector/HNSW 真实执行。
 
 - F-MF-001/002/003/004 完整：PG+pgvector+graph、outbox、混合召回、治理。
 - F-MF-005 默认 provider 契约测试。
