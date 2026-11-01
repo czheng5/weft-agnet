@@ -5,6 +5,7 @@ import type { AgentLoop } from './agent.ts';
 import type { ModelProvider } from './model.ts';
 import type { Session } from './session.ts';
 import type { ToolContext } from './tools.ts';
+import { WorkGraph, WorkGraphStore } from './workgraph.ts';
 
 export interface TuiOptions {
   session: Session;
@@ -16,9 +17,13 @@ export interface TuiOptions {
 export class Tui {
   private readonly rl = createInterface({ input: stdin, output: stdout });
   private readonly opts: TuiOptions;
+  private readonly wgStore: WorkGraphStore;
+  private graph: WorkGraph | null;
 
   constructor(opts: TuiOptions) {
     this.opts = opts;
+    this.wgStore = new WorkGraphStore(opts.workspace);
+    this.graph = this.wgStore.load();
   }
 
   async approve(action: { kind: string; path?: string; command?: string; reason?: string }, reason: string): Promise<'allow-once' | 'allow-session' | 'deny'> {
@@ -49,7 +54,7 @@ export class Tui {
       if (!line) continue;
       if (line === '/quit' || line === '/exit') break;
       if (line === '/help') {
-        stdout.write('  /status  show runtime state\n  /plan  show M0 plan\n  /events  last events\n  /memory <q>  search memory\n  /kb <q>  search knowledge base\n  /demo  run scripted M0 demo\n  /quit  exit\n');
+        stdout.write('  /status  show runtime state\n  /plan  show Work Graph/plan\n  /goal <text>  create goal\n  /task <title>  add task\n  /tasks  list tasks\n  /start <id>  start task\n  /done <id> [result]  complete task\n  /events  last events\n  /memory <q>  search memory\n  /kb <q>  search knowledge base\n  /demo  run scripted M0 demo\n  /quit  exit\n');
         continue;
       }
       if (line === '/status') {
@@ -68,12 +73,53 @@ export class Tui {
         continue;
       }
       if (line === '/plan') {
-        stdout.write('  M0 plan:\n');
-        stdout.write('  1. event log + request zones + frozen requests\n');
-        stdout.write('  2. workspace sandbox + approval ladder + session cache\n');
-        stdout.write('  3. SQLite MemoryProvider + local KnowledgeBaseProvider\n');
-        stdout.write('  4. Weft TUI + demo task + cache/approval events\n');
-        stdout.write('  5. tests: request, permissions, memory, KB, agent\n');
+        if (this.graph) {
+          stdout.write('  goal: ' + this.graph.goal.text + ' [' + this.graph.goal.status + ']\n');
+          for (const task of this.graph.allTasks()) {
+            const deps = task.dependsOn.length > 0 ? ' <- ' + task.dependsOn.map((d) => d.slice(0, 8)).join(',') : '';
+            stdout.write('  ' + task.status.padEnd(11) + ' ' + task.id.slice(0, 8) + '  ' + task.title + deps + '\n');
+          }
+        } else {
+          stdout.write('  no Work Graph yet; /goal <text> to create one\n');
+        }
+        continue;
+      }
+      if (line.startsWith('/goal ')) {
+        this.graph = new WorkGraph(line.slice(6));
+        this.wgStore.save(this.graph);
+        this.opts.session.append('workgraph/created', { goal: this.graph.goal });
+        stdout.write('  goal ' + this.graph.goal.id.slice(0, 8) + ' created\n');
+        continue;
+      }
+      if (line.startsWith('/task ')) {
+        if (!this.graph) { stdout.write('  create a goal first: /goal <text>\n'); continue; }
+        const task = this.graph.addTask({ title: line.slice(6) });
+        this.wgStore.save(this.graph);
+        this.opts.session.append('workgraph/task_added', { task });
+        stdout.write('  task ' + task.id.slice(0, 8) + ' added\n');
+        continue;
+      }
+      if (line === '/tasks') {
+        if (!this.graph) { stdout.write('  no Work Graph\n'); continue; }
+        const ready = new Set(this.graph.nextReady().map((t) => t.id));
+        for (const task of this.graph.allTasks()) {
+          stdout.write('  ' + task.status.padEnd(11) + ' ' + task.id.slice(0, 8) + '  ' + task.title + (ready.has(task.id) ? '  READY' : '') + '\n');
+        }
+        continue;
+      }
+      if (line.startsWith('/start ') || line.startsWith('/done ')) {
+        if (!this.graph) { stdout.write('  no Work Graph\n'); continue; }
+        const done = line.startsWith('/done ');
+        const rest = line.slice(done ? 6 : 7).trim();
+        const space = rest.indexOf(' ');
+        const prefix = space >= 0 ? rest.slice(0, space) : rest;
+        const result = space >= 0 ? rest.slice(space + 1) : undefined;
+        const matches = this.graph.allTasks().filter((t) => t.id === prefix || t.id.startsWith(prefix));
+        if (matches.length !== 1) { stdout.write('  task prefix matches ' + matches.length + ' tasks\n'); continue; }
+        const task = done ? this.graph.completeTask(matches[0].id, result) : this.graph.startTask(matches[0].id);
+        this.wgStore.save(this.graph);
+        this.opts.session.append(done ? 'workgraph/task_done' : 'workgraph/task_started', { task });
+        stdout.write('  ' + task.id.slice(0, 8) + ' -> ' + task.status + '\n');
         continue;
       }
       if (line === '/events') {
