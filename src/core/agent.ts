@@ -19,6 +19,7 @@ export interface AgentResult {
   steps: number;
   cacheReused: number;
   toolCalls: number;
+  cacheReadTokens: number;
 }
 
 const SYSTEM_PROMPT = [
@@ -47,6 +48,7 @@ export class AgentLoop {
     let steps = 0;
     let cacheReused = 0;
     let toolCalls = 0;
+    let cacheReadTokens = 0;
     let final = '';
     let lastHistory: ModelMessage[] | undefined;
     let lastSystemHash = '';
@@ -94,6 +96,10 @@ export class AgentLoop {
         tools: request.tools,
         messages: request.messages
       });
+      if (response.usage) {
+        cacheReadTokens += response.usage.cacheReadTokens ?? 0;
+        session.append('model/usage', response.usage);
+      }
       session.append('assistant/message', {
         content: response.content,
         toolCalls: response.toolCalls
@@ -121,7 +127,8 @@ export class AgentLoop {
       sessionId: session.log.sessionId,
       steps: steps + 1,
       cacheReused,
-      toolCalls
+      toolCalls,
+      cacheReadTokens
     };
   }
 }

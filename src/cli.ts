@@ -5,6 +5,7 @@ import { AgentLoop } from './core/agent.ts';
 import { Session } from './core/session.ts';
 import { WorkspaceGuard, ShellSandbox } from './core/sandbox.ts';
 import { PolicyEngine, ApprovalService } from './core/permissions.ts';
+import { GuardianService } from './core/guardian.ts';
 import { SqliteMemoryProvider } from './core/memory.ts';
 import { LocalDocsProvider } from './core/kb.ts';
 import { ScriptedModel, OpenAICompatibleModel } from './core/model.ts';
@@ -65,19 +66,29 @@ async function main(): Promise<void> {
 
   const guard = new WorkspaceGuard(workspace);
   const policy = new PolicyEngine({ workspace, mode: args.mode, approvalPolicy: args.approval });
+  const guardian = new GuardianService({
+    mode: 'shadow',
+    onAssessment: (assessment, action) => session.append('guardian/assessment', {
+      actionKind: action.kind,
+      actionPath: action.path,
+      command: action.command,
+      ...assessment
+    }),
+    onInterrupt: (info, action) => session.append('guardian/interrupt', { info, action })
+  });
   let tui: Tui | undefined;
   const auto = args.demo || args.yes;
   const approvals = new ApprovalService(policy, async (action, reason) => {
     if (auto) return 'allow-session';
     if (!tui) return 'deny';
     return tui.approve(action, reason);
-  });
+  }, guardian);
   const sandbox = new ShellSandbox(guard, args.mode);
   const memory = new SqliteMemoryProvider(join(workspace, '.weft', 'memory.db'));
   const kbRoots = [join(workspace, 'docs'), join(workspace, 'report'), join(workspace, 'appendix')].filter((p) => existsSync(p));
   const kb = new LocalDocsProvider(kbRoots);
   const scope = { tenantId: 'local', userId: 'default', projectId: 'weft' };
-  const toolContext: ToolContext = { session, guard, sandbox, approvals, memory, kb, scope, workspace };
+  const toolContext: ToolContext = { session, guard, sandbox, approvals, memory, kb, guardian, scope, workspace };
 
   const model = args.demo ? new ScriptedModel() : (liveModel() ?? new ScriptedModel());
 
@@ -96,7 +107,7 @@ async function main(): Promise<void> {
     const result = await agent.run('M0 demo: write a file, verify it with a shell command, store a memory, recall it, and search the knowledge base.');
     process.stdout.write(result.content + '\n');
     process.stdout.write('  session=' + result.sessionId + '\n');
-    process.stdout.write('  steps=' + result.steps + ' toolCalls=' + result.toolCalls + ' cacheStable=' + result.cacheReused + '\n');
+    process.stdout.write('  steps=' + result.steps + ' toolCalls=' + result.toolCalls + ' cacheStable=' + result.cacheReused + ' cacheReadTokens=' + result.cacheReadTokens + '\n');
     process.stdout.write('  ' + summarize(session) + '\n');
     const lastRequests = session.events().filter((e) => e.type === 'request/frozen').slice(-3) as Array<{ data: { cachePrefixStable: boolean; messageCount: number } }>;
     for (const req of lastRequests) {

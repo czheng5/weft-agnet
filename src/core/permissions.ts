@@ -1,4 +1,5 @@
 import { isAbsolute, relative, resolve } from 'node:path';
+import type { GuardianService } from './guardian.ts';
 
 export type SandboxMode = 'read-only' | 'workspace-write' | 'danger-full-access';
 export type ApprovalPolicy = 'untrusted' | 'on-request' | 'never';
@@ -160,13 +161,25 @@ export class ApprovalService {
   readonly store = new ApprovalStore();
   private readonly ask: AskFn;
   readonly policy: PolicyEngine;
+  private readonly guardian?: GuardianService;
 
-  constructor(policy: PolicyEngine, ask: AskFn) {
+  constructor(policy: PolicyEngine, ask: AskFn, guardian?: GuardianService) {
     this.policy = policy;
     this.ask = ask;
+    this.guardian = guardian;
   }
 
   async authorize(action: Action): Promise<{ allowed: boolean; reason: string; source: string }> {
+    if (this.guardian) {
+      const assessment = await this.guardian.review(action, {
+        workspace: this.policy.ctx.workspace,
+        mode: this.policy.ctx.mode,
+        trust: 'trusted'
+      });
+      if (this.guardian.mode === 'enforce' && assessment.outcome === 'deny') {
+        return { allowed: false, reason: 'guardian: ' + assessment.rationale, source: 'guardian' };
+      }
+    }
     const decision = this.policy.evaluate(action);
     if (decision.type === 'allow') return { allowed: true, reason: decision.reason, source: 'policy' };
     if (decision.type === 'deny') return { allowed: false, reason: decision.reason, source: 'policy' };

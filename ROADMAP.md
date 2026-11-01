@@ -59,6 +59,8 @@
 
 ## 2. M1 · Safety & Memory skeleton（4–8 周）
 
+> 2026-11-01：M1-A 部分落地（Guardian shadow + 熔断、CUA 策略、model usage/cacheReadTokens；18 tests）。OS 沙箱/PG MemoryHub/真实缓存仍待完成。详见 [PROJECT_LOG.md](PROJECT_LOG.md)。
+
 ### 目标
 
 权限“顺”且可审计；记忆能写能读；KB 只读可用。

@@ -2,7 +2,7 @@
 
 > 日期：2026-11-01  
 > 范围：[ROADMAP.md](../ROADMAP.md) 的 M0（0–4 周）。  
-> 结论：**M0 可运行骨架已落地**；真实 Windows OS 沙箱、PG MemoryHub、Guardian、CUA 治理属于 M1/M3，未在 M0 冒充完成。
+> 结论：**M0 可运行骨架已落地**；真实 Windows OS 沙箱、PG MemoryHub、Guardian、CUA 治理属于 M1/M3，未在 M0 冒充完成。M1-A 的 Guardian shadow/CUA 策略/usage 指标已追加，见 [PROJECT_LOG.md](../PROJECT_LOG.md)。
 
 ---
 

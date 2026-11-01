@@ -8,9 +8,17 @@ export interface ModelToolCall {
   arguments: Record<string, unknown>;
 }
 
+export interface ModelUsage {
+  inputTokens?: number;
+  outputTokens?: number;
+  cacheReadTokens?: number;
+  cacheWriteTokens?: number;
+}
+
 export interface ModelResponse {
   content: string;
   toolCalls: ModelToolCall[];
+  usage?: ModelUsage;
 }
 
 export interface ModelRequest {
@@ -90,7 +98,8 @@ export class ScriptedModel implements ModelProvider {
 
   async complete(): Promise<ModelResponse> {
     const next = this.steps.shift();
-    return next ?? { content: 'Scripted model has no more steps.', toolCalls: [] };
+    const response = next ?? { content: 'Scripted model has no more steps.', toolCalls: [] };
+    return { ...response, usage: response.usage ?? { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0 } };
   }
 }
 
@@ -144,6 +153,7 @@ export class OpenAICompatibleModel implements ModelProvider {
     if (!response.ok) throw new Error('model HTTP ' + response.status + ': ' + await response.text());
     const json = await response.json() as {
       choices?: Array<{ message?: { content?: string; tool_calls?: Array<{ id: string; function: { name: string; arguments: string } }> } }>;
+      usage?: { prompt_tokens?: number; completion_tokens?: number; prompt_tokens_details?: { cached_tokens?: number } };
     };
     const message = json.choices?.[0]?.message;
     const toolCalls = (message?.tool_calls ?? []).map((t) => ({
@@ -151,6 +161,14 @@ export class OpenAICompatibleModel implements ModelProvider {
       name: t.function.name,
       arguments: JSON.parse(t.function.arguments || '{}') as Record<string, unknown>
     }));
-    return { content: message?.content ?? '', toolCalls };
+    return {
+      content: message?.content ?? '',
+      toolCalls,
+      usage: {
+        inputTokens: json.usage?.prompt_tokens ?? 0,
+        outputTokens: json.usage?.completion_tokens ?? 0,
+        cacheReadTokens: json.usage?.prompt_tokens_details?.cached_tokens ?? 0
+      }
+    };
   }
 }

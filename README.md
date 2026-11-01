@@ -20,6 +20,7 @@
 | [ROADMAP.md](ROADMAP.md) | M0–M5、exit criteria、依赖、回滚、Feature → Milestone |
 | [docs/interfaces.md](docs/interfaces.md) | MemoryProvider / KnowledgeBaseProvider 契约 |
 | [docs/m0-status.md](docs/m0-status.md) | M0 实现状态、运行命令、限制、M1 下一步 |
+| [PROJECT_LOG.md](PROJECT_LOG.md) | 项目管理台账：模块/问题/效果、时间线、缺口、下一步 |
 | [appendix/polyglot-hub.md](appendix/polyglot-hub.md) | 附录 A：未来 Polyglot 记忆 provider |
 | [report/README.md](report/README.md) | 四家源码研究、融合架构、推导审计、集合审计、Memory 研究 |
 | [brand/README.md](brand/README.md) | Weft 品牌、Weft Cyan、TUI 模板 |
@@ -37,13 +38,14 @@ Work Graph · Actor Runtime · Scheduler · Event Bus · Capability Package · M
 5. 先安全执行，再长程规划，再记忆成长。
 6. v1.0 缝合、v1.5 收口、v2.0 自有形状。
 
-## M0 已落地
+## M0 已落地 + M1-A 部分落地
 
 - 事件日志/消息投影/请求四区/冻结请求
 - 权限阶梯 + 会话审批缓存 + workspace 守卫
 - SQLite MemoryProvider + local-docs KBProvider
 - 工具层 + ScriptedModel/OpenAI-compatible + Weft TUI
-- 12 个测试通过；`node --experimental-strip-types src/cli.ts --demo`
+- Guardian shadow + CUA 策略 + model usage/cacheReadTokens（M1-A）
+- 18 个测试通过；`node --experimental-strip-types src/cli.ts --demo`
 
 细节与限制见 [docs/m0-status.md](docs/m0-status.md)。
 

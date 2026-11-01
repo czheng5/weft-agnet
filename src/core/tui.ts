@@ -58,9 +58,13 @@ export class Tui {
         stdout.write('  workspace: ' + this.opts.workspace + '\n');
         stdout.write('  sandbox: ' + this.opts.toolContext.sandbox.info.backend + ' mode=' + this.opts.toolContext.sandbox.info.mode + ' osBoundary=' + this.opts.toolContext.sandbox.info.osBoundary + '\n');
         stdout.write('  approvals: ' + this.opts.toolContext.approvals.policy.ctx.approvalPolicy + ' cache=' + this.opts.toolContext.approvals.store.size() + '\n');
+        stdout.write('  guardian: ' + (this.opts.toolContext.guardian?.mode ?? 'off') + '\n');
         stdout.write('  memory: ' + this.opts.toolContext.memory.id + '\n');
         stdout.write('  knowledge: ' + this.opts.toolContext.kb.id + '\n');
+        const usage = events.filter((e) => e.type === 'model/usage') as Array<{ data: { cacheReadTokens?: number } }>;
+        const cacheRead = usage.reduce((sum, e) => sum + (e.data.cacheReadTokens ?? 0), 0);
         stdout.write('  events: ' + events.length + '\n');
+        stdout.write('  cacheReadTokens: ' + cacheRead + '\n');
         continue;
       }
       if (line === '/plan') {
@@ -93,7 +97,7 @@ export class Tui {
         const agent = new AgentLoop({ model: new ScriptedModel(), session: this.opts.session, toolContext: this.opts.toolContext });
         const result = await agent.run('M0 demo: write a file, verify it with a shell command, store a memory, recall it, and search the knowledge base.');
         stdout.write('\n' + result.content + '\n');
-        stdout.write('  steps=' + result.steps + ' toolCalls=' + result.toolCalls + ' cacheStable=' + result.cacheReused + '\n\n');
+        stdout.write('  steps=' + result.steps + ' toolCalls=' + result.toolCalls + ' cacheStable=' + result.cacheReused + ' cacheReadTokens=' + result.cacheReadTokens + '\n\n');
         continue;
       }
       if (this.opts.model.id === 'scripted') {

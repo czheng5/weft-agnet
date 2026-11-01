@@ -4,6 +4,7 @@ import type { WorkspaceGuard, ShellSandbox } from './sandbox.ts';
 import type { ApprovalService } from './permissions.ts';
 import type { MemoryProvider, MemoryScope, MemoryRecord } from './memory.ts';
 import type { KnowledgeBaseProvider } from './kb.ts';
+import type { GuardianService } from './guardian.ts';
 
 export interface ToolContext {
   session: Session;
@@ -12,6 +13,7 @@ export interface ToolContext {
   approvals: ApprovalService;
   memory: MemoryProvider;
   kb: KnowledgeBaseProvider;
+  guardian?: GuardianService;
   scope: MemoryScope;
   workspace: string;
 }
