@@ -95,6 +95,8 @@
 
 ## 3. M2 · Long-horizon core（8–14 周）
 
+> 2026-11-01：M2-A Work Graph 地基已落地（Goal/Task DAG/依赖/ready/todo/持久化；TUI 命令；34 tests）。Actor/Scheduler/Event Bus/压缩未开始。
+
 ### 目标
 
 长任务有计划、有任务图、有 Actor、有调度、有事件、有技能包、有压缩。

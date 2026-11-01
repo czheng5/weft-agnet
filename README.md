@@ -41,7 +41,7 @@ Work Graph · Actor Runtime · Scheduler · Event Bus · Capability Package · M
 5. 先安全执行，再长程规划，再记忆成长。
 6. v1.0 缝合、v1.5 收口、v2.0 自有形状。
 
-## M0 已落地 + M1-A 部分落地
+## M0 + M1-A + M2 地基
 
 - 事件日志/消息投影/请求四区/冻结请求
 - 权限阶梯 + 会话审批缓存 + workspace 守卫
@@ -53,7 +53,8 @@ Work Graph · Actor Runtime · Scheduler · Event Bus · Capability Package · M
 - HTTP KB 适配器：`--kb-url` / `WEFT_KB_URL`，Bearer + scope headers + timeout；只读、不自动入 Memory
 - HTTP MemoryHub 适配器：`--memory-url` / `WEFT_MEMORY_URL`，远程 MemoryProvider；默认仍是 SQLite dev
 - `conformance.cmd`：workspace-guard / docker 的边界 canary 脚本
-- 31 个测试通过；`node --experimental-strip-types src/cli.ts --demo`
+- M2 Work Graph 地基：Goal/Task DAG/依赖/ready/todo 投影；TUI `/goal` `/task` `/tasks` `/start` `/done`
+- 34 个测试通过；`node --experimental-strip-types src/cli.ts --demo`
 
 细节与限制见 [docs/m0-status.md](docs/m0-status.md)。
 
