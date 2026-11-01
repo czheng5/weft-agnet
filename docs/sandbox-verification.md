@@ -135,6 +135,38 @@ node --experimental-strip-types scripts/sandbox-conformance.ts --backend docker 
 
 ---
 
-## 8. 一句话
+## 8. Docker Desktop GUI 的限制
+
+Docker Desktop 的 “Run a new container” 对话框只暴露：
+
+- container name
+- ports
+- volumes
+- environment variables
+
+它**不暴露**：
+
+- command / entrypoint
+- --network none
+- --read-only
+- --cap-drop ALL
+- --security-opt no-new-privileges
+- --user / pids / memory / cpus
+
+所以 GUI 可以验证 engine、image、container 启动和日志，但不能单独完成 OS 边界 conformance。完整 canary 需要 Docker Desktop 的 Terminal（当前显示 Enable Docker terminal）或 CLI；两者都不是“另开一个外部终端”的必要条件。
+
+---
+
+## 9. DSH 外层对 Docker 的限制
+
+即使 Docker Desktop GUI 已开：
+
+- DSH 里的 Node/Weft 进程连接 dockerDesktopLinuxEngine 仍可能 permission denied（named pipe ACL）。
+- GUI 的 Run 对话框可以绕过 CLI，但不能传 conformance 参数。
+- 因此“产品自启动 Docker”必须在正常主机上验收；在 DSH 内只能验证 GUI/外层终端，不应把外层限制当成产品缺陷。
+
+---
+
+## 10. 一句话
 
 **WSL 只是 OS 边界 backend 的一个候选；完整验证靠“契约 + 可丢弃 OS 环境 + 红队 + CI”，而不是靠某一个命令。**
