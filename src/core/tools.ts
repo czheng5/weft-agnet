@@ -5,6 +5,7 @@ import type { ApprovalService } from './permissions.ts';
 import type { MemoryProvider, MemoryScope, MemoryRecord } from './memory.ts';
 import type { KnowledgeBaseProvider } from './kb.ts';
 import type { GuardianService } from './guardian.ts';
+import type { MemoryConsolidator } from './memory-consolidation.ts';
 
 export interface ToolContext {
   session: Session;
@@ -12,6 +13,7 @@ export interface ToolContext {
   sandbox: ShellRunner;
   approvals: ApprovalService;
   memory: MemoryProvider;
+  memoryConsolidator?: MemoryConsolidator;
   kb: KnowledgeBaseProvider;
   guardian?: GuardianService;
   scope: MemoryScope;
@@ -154,6 +156,10 @@ const definitions: ToolDefinition[] = [
         createdAt: now,
         updatedAt: now
       };
+      if (ctx.memoryConsolidator) {
+        const result = await ctx.memoryConsolidator.consolidate(record);
+        return JSON.stringify(result);
+      }
       const receipts = await ctx.memory.write([record]);
       return JSON.stringify(receipts[0]);
     }

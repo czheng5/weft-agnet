@@ -10,6 +10,7 @@ import { PolicyEngine, ApprovalService } from './core/permissions.ts';
 import { GuardianService } from './core/guardian.ts';
 import { SqliteMemoryProvider } from './core/memory.ts';
 import { HttpMemoryProvider } from './core/memory-http.ts';
+import { MemoryConsolidator } from './core/memory-consolidation.ts';
 import { createPostgresMemoryProvider } from './core/memory-postgres.ts';
 import { LocalDocsProvider } from './core/kb.ts';
 import { HttpKnowledgeBaseProvider } from './core/kb-http.ts';
@@ -134,7 +135,8 @@ async function main(): Promise<void> {
     ? new HttpKnowledgeBaseProvider({ baseUrl: args.kbUrl, token: args.kbToken })
     : new LocalDocsProvider([join(workspace, 'docs'), join(workspace, 'report'), join(workspace, 'appendix')].filter((p) => existsSync(p)));
   const scope = { tenantId: 'local', userId: 'default', projectId: 'weft' };
-  const toolContext: ToolContext = { session, guard, sandbox, approvals, memory, kb, guardian, scope, workspace };
+  const memoryConsolidator = new MemoryConsolidator(memory);
+  const toolContext: ToolContext = { session, guard, sandbox, approvals, memory, memoryConsolidator, kb, guardian, scope, workspace };
 
   const model = args.demo ? new ScriptedModel() : (liveModel() ?? new ScriptedModel());
 
