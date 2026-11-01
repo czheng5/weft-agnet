@@ -49,7 +49,7 @@
 | Memory 治理（M1-H） | MemoryGovernance：viewer/editor/admin、tenant/project、审计 | 只有 scope，没有 RBAC | 2 个测试；越权抛 MemoryAccessDenied |
 | KB 适配器（M1-I） | WebKnowledgeBaseProvider + McpKnowledgeBaseProvider + HttpMcpTransport | KB 只有 local/http | 4 个测试；`--kb-kind web|mcp` 可切；citation |
 | Metrics（M1-J） | computeMetrics/formatMetrics：审批/工具/cache/guardian/延迟 P50/P95；TUI /metrics | 没有仪表 | 1 个测试；/metrics 可见 |
-| Cache 映射（M1-K） | OpenAI cached_tokens → cacheReadTokens；fetch 注入测试 | provider usage 不可测 | 1 个测试；mock 返回 80 cached；真实 key 待接 |
+| Cache 映射（M1-K） | OpenAI cached_tokens → cacheReadTokens；fetch 注入测试 | provider usage 不可测 | 2 个测试；local HTTP mock 128 cached；真实 key 待接 |
 | Guardian 模型版（M1-L） | ModelGuardian JSON 评审 + GuardianShadow 对比；`--guardian model` | 只有规则版，无模型对比 | 3 个测试；shadow 返回规则决策并记录 mismatch |
 | Work Graph（M2-A） | Goal/Task DAG/依赖/ready/todo/持久化；TUI /goal /task /tasks /start /done | 长任务没有单一任务图，Todo 容易变第二任务表 | 3 个测试；Todo 是 Work Graph 投影；JSON 落盘 |
 | Actor Runtime（M2-B） | ActorRuntime：spawn/wait/stop/list/children/mailbox/event | 无后台子代理生命周期 | 4 个测试；父子/停止/失败可观察 |
@@ -71,6 +71,7 @@
 | pgvector live（M3-J） | 源码编译 v0.8.0 + CREATE EXTENSION + vector(1536) + HNSW + cosine query | pgvector 只在文档里 | **PASS**：索引创建 + 距离查询 |
 | PgVectorIndex（M3-K） | PgVectorIndex + MemoryHub asyncVectorIndex | 向量检索仍走内存索引 | **PASS**：真实 PG vectorHit beta-live score=1.00 |
 | Model HTTP（M1-L） | 本地 OpenAI-compatible HTTP server 测试；cached_tokens 24 | 只有 fake fetch，无 HTTP 端到端 | 1 个测试；HTTP 路径通过 |
+| Agent HTTP（M1-N） | Agent+OpenAICompatibleModel+本地 server+tool call | 没有 agent HTTP 端到端 | 1 个测试；cacheReadTokens=128，file 写入 |
 | Guardian 50（M1-M） | 50 动作 rule/model shadow harness | 无 50 动作对比证据 | harness PASS；fake model；真实 key 待接 |
 | 文档/接口 | PRD/ROADMAP/M0 status/interfaces/appendix/README | 范围漂移、实现无契约 | PRD/ROADMAP FROZEN；接口契约可测试 |
 
@@ -106,6 +107,7 @@
 | 2026-11-01 | M3-J | pgvector live | PASS；extension/vector/HNSW/cosine | 575bd13 |
 | 2026-11-01 | M3-K | PgVectorIndex + MemoryHub | PASS；真实 vector search | 128f614 |
 | 2026-11-01 | M1-L/M | local HTTP model + Guardian 50 harness | 76 tests；50 actions 0 mismatch | cb0bf2c |
+| 2026-11-01 | M1-N | agent HTTP integration | 77 tests；cacheReadTokens=128 | 8522da9 |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |
 | 2026-11-01 | M1-G | Memory 检索/注入 | 40 tests pass；Agent 上下文含 MEMORY；memory/injected | 73978a0 |
@@ -119,7 +121,7 @@
 ## 4. 当前可验证结果
 
 ~~~text
-76 tests, 76 pass, 0 fail；v1 demo PASS；real PG/pgvector PASS；gate 未过（真实 key/OS）
+77 tests, 77 pass, 0 fail；v1 demo PASS；real PG/pgvector PASS；gate 未过（真实 key/OS）
 
 Weft M0 complete: file written, shell verified, memory stored and recalled, knowledge base searched.
 steps=7 toolCalls=6 cacheStable=6 cacheReadTokens=0
