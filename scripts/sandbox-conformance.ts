@@ -9,6 +9,9 @@ interface Args {
   workspace: string;
   dockerImage?: string;
   timeoutMs: number;
+  wslDistro?: string;
+  wslUser?: string;
+  wslMount?: string;
 }
 
 function parseArgs(argv: string[]): Args {
@@ -16,14 +19,20 @@ function parseArgs(argv: string[]): Args {
   let workspace = process.cwd();
   let dockerImage: string | undefined;
   let timeoutMs = 20000;
+  let wslDistro: string | undefined;
+  let wslUser: string | undefined;
+  let wslMount: string | undefined;
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === '--backend' && argv[i + 1]) backend = argv[++i] as SandboxBackendKind;
     else if (arg === '--workspace' && argv[i + 1]) workspace = resolve(argv[++i]);
     else if (arg === '--docker-image' && argv[i + 1]) dockerImage = argv[++i];
     else if (arg === '--timeout' && argv[i + 1]) timeoutMs = Number(argv[++i]);
+    else if (arg === '--wsl-distro' && argv[i + 1]) wslDistro = argv[++i];
+    else if (arg === '--wsl-user' && argv[i + 1]) wslUser = argv[++i];
+    else if (arg === '--wsl-mount' && argv[i + 1]) wslMount = argv[++i];
   }
-  return { backend, workspace, dockerImage, timeoutMs };
+  return { backend, workspace, dockerImage, timeoutMs, wslDistro, wslUser, wslMount };
 }
 
 interface Result {
@@ -36,7 +45,10 @@ async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
   const workspace = resolve(args.workspace);
   const guard = new WorkspaceGuard(workspace);
-  const runner = await createShellRunner(args.backend, guard, 'workspace-write', { dockerImage: args.dockerImage });
+  const runner = await createShellRunner(args.backend, guard, 'workspace-write', {
+    dockerImage: args.dockerImage,
+    wsl: { distro: args.wslDistro, user: args.wslUser, workspaceMount: args.wslMount }
+  });
   const results: Result[] = [];
 
   async function check(name: string, fn: () => Promise<string>, skip = false): Promise<void> {
@@ -62,7 +74,9 @@ async function main(): Promise<void> {
   });
 
   await check('workspace is reachable', async () => {
-    const expected = args.backend === 'workspace-guard' ? workspace.replace(/\\/g, '/') : '/workspace';
+    const expected = args.backend === 'workspace-guard'
+      ? workspace.replace(/\\/g, '/')
+      : args.backend === 'wsl' && args.wslMount ? args.wslMount : '/workspace';
     const result = await runner.run('node -e "console.log(process.cwd())"', args.timeoutMs);
     if (result.code !== 0) throw new Error('pwd failed: ' + result.stderr);
     if (!result.stdout.replace(/\\/g, '/').includes(expected.replace(/\\/g, '/'))) {

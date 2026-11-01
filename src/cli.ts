@@ -42,6 +42,9 @@ interface Args {
   guardianMode: 'rule' | 'model';
   serveMemory: boolean;
   port: number;
+  wslDistro?: string;
+  wslUser?: string;
+  wslMount?: string;
 }
 
 function parseArgs(argv: string[]): Args {
@@ -59,6 +62,9 @@ function parseArgs(argv: string[]): Args {
   let pgUrl: string | undefined = process.env.WEFT_PG_URL;
   let guardianMode: Args['guardianMode'] = (process.env.WEFT_GUARDIAN as Args['guardianMode']) ?? 'rule';
   let port = Number(process.env.WEFT_PORT ?? 4780);
+  let wslDistro: string | undefined;
+  let wslUser: string | undefined;
+  let wslMount: string | undefined;
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === '--workspace' && argv[i + 1]) { workspace = resolve(argv[++i]); }
@@ -75,6 +81,9 @@ function parseArgs(argv: string[]): Args {
     else if (arg === '--pg-url' && argv[i + 1]) { pgUrl = argv[++i]; }
     else if (arg === '--guardian' && argv[i + 1]) { guardianMode = argv[++i] as Args['guardianMode']; }
     else if (arg === '--port' && argv[i + 1]) { port = Number(argv[++i]); }
+    else if (arg === '--wsl-distro' && argv[i + 1]) { wslDistro = argv[++i]; }
+    else if (arg === '--wsl-user' && argv[i + 1]) { wslUser = argv[++i]; }
+    else if (arg === '--wsl-mount' && argv[i + 1]) { wslMount = argv[++i]; }
   }
   return {
     demo: argv.includes('--demo'),
@@ -93,7 +102,10 @@ function parseArgs(argv: string[]): Args {
     pgUrl,
     guardianMode,
     serveMemory: argv.includes('--serve-memory'),
-    port
+    port,
+    wslDistro,
+    wslUser,
+    wslMount
   };
 }
 
@@ -149,7 +161,8 @@ async function main(): Promise<void> {
   const sandbox = await createShellRunner(args.sandbox, guard, args.mode, {
     dockerImage: args.dockerImage,
     autoStartDocker: args.autoStartDocker,
-    onDockerEvent: (event) => session.append('sandbox/launch', event)
+    onDockerEvent: (event) => session.append('sandbox/launch', event),
+    wsl: { distro: args.wslDistro, user: args.wslUser, workspaceMount: args.wslMount }
   });
   const memory = args.pgUrl
     ? await createPostgresMemoryProvider({ connectionString: args.pgUrl })
