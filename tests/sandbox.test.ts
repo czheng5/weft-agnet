@@ -17,7 +17,7 @@ test('workspace shell captures output without pipes', async () => {
 
 test('WSL command builder keeps workspace and user explicit', () => {
   const args = buildWslArgs({ distro: 'weft-sandbox', user: 'weft', workspaceMount: '/workspace', command: 'echo hi' });
-  assert.deepEqual(args, ['-d', 'weft-sandbox', '-u', 'weft', '--cd', '/workspace', '--', 'bash', '-lc', 'echo hi']);
+  assert.deepEqual(args, ['-d', 'weft-sandbox', '--cd', '/workspace', '--', 'runuser', '-u', 'weft', '--', 'bash', '-lc', 'echo hi']);
 });
 
 

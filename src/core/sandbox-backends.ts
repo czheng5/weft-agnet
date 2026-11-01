@@ -38,9 +38,13 @@ export function decodeWslList(buffer: Buffer): string[] {
 }
 
 export function buildWslArgs(opts: { distro: string; user: string; workspaceMount: string; command: string }): string[] {
-  const args = ['-d', opts.distro];
-  if (opts.user && opts.user !== 'default') args.push('-u', opts.user);
-  args.push('--cd', opts.workspaceMount, '--', 'bash', '-lc', opts.command);
+  const args = ['-d', opts.distro, '--cd', opts.workspaceMount];
+  if (opts.user && opts.user !== 'default') {
+    // WSL 3.x -u can fail with WSL_E_USER_NOT_FOUND; drop privileges inside the distro instead.
+    args.push('--', 'runuser', '-u', opts.user, '--', 'bash', '-lc', opts.command);
+  } else {
+    args.push('--', 'bash', '-lc', opts.command);
+  }
   return args;
 }
 
