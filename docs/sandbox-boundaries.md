@@ -60,6 +60,27 @@
 
 ---
 
-## 5. 一句话
+## 5. WSL 诊断（2026-11-01）
+
+实测结论：
+
+- **Windows Terminal 外层**：wsl --status 正常，默认分发 Kali，默认版本 2。
+- **DSH 内层**：wsl --status / wsl -l -v 返回 Wsl/E_ACCESSDENIED。
+- DSH 内层的 USERPROFILE/LOCALAPPDATA/APPDATA/HOME 被重定向到 D:dsh_env...；真实用户 profile 下 WSL 包和 .wslconfig 都存在。
+- 即使把 env 指回真实 profile，DSH 内仍然 E_ACCESSDENIED；说明不只是路径问题，外层 sandbox 的 token/服务/管道访问限制也在起作用。
+
+判断：**WSL 本身没坏，是 DSH 外层 sandbox 下的嵌套访问被限制。** 这不是 Weft 的 bug，也不是必须修的阻塞项。
+
+可选处理：
+
+1. **推荐**：WSL 相关命令放到 Windows Terminal 外层跑；Weft 代码继续在 workspace 内开发。
+2. 给 DSH 增加一条窄例外（WSL 包、Program Files\WSL、WSL service 管道）；这是安全策略变更，会削弱隔离，不建议只为测试做。
+3. 用一次性 danger-full-access 提权跑 WSL；这等于绕过沙箱，不建议作为常规方案。
+
+对 Weft 产品：WSL 仍可作为未来沙箱 backend 的候选，但必须在正常主机上做 conformance，不应该依赖“在 DSH 沙箱里嵌套 WSL”来证明。
+
+---
+
+## 6. 一句话
 
 **外层沙箱是“限制我”的；内层沙箱是“Weft 限制它自己执行”的。前者不用改，后者要在 Weft 里实现；当前环境能写代码和单测，但不能完整验证 OS 边界，所以不能靠改授权来冒充完成。**
