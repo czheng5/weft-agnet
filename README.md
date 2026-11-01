@@ -6,6 +6,7 @@
 
 ## 当前状态
 
+- **Weft v1.0.0：RELEASED**（2026-11-01）
 - **PRD v1.0：FROZEN**（2026-11-01）
 - **Roadmap v1.0：FROZEN**（2026-11-01）
 - 默认 Memory：**Red Hat 型 MemoryHub**（PG + pgvector + 图 / Valkey / MinIO / MCP / Auth）
@@ -24,8 +25,9 @@
 | [docs/sandbox-boundaries.md](docs/sandbox-boundaries.md) | 外层 DSH 沙箱 vs 内层 Weft 沙箱；为什么不需改授权 |
 | [docs/sandbox-verification.md](docs/sandbox-verification.md) | OS 边界完整验证：VM/容器/Windows Sandbox/CI/红队方法与矩阵 |
 | [docs/docker-conformance.md](docs/docker-conformance.md) | Docker Linux backend conformance 结果（6 项 PASS） |
-| [docs/v1.0-gate.md](docs/v1.0-gate.md) | v1.0 gate 对照：已过/未过、证据、真实环境缺口 |
-| [docs/v1.0-rc.md](docs/v1.0-rc.md) | v1.0 RC 功能矩阵、证据、外部验证缺口 |
+| [docs/v1.0-gate.md](docs/v1.0-gate.md) | v1.0 gate：PASS（IN 范围），证据与外部/部署项 |
+| [docs/v1.0-release.md](docs/v1.0-release.md) | v1.0.0 发布说明、快速运行、已知限制 |
+| [docs/v1.0-rc.md](docs/v1.0-rc.md) | v1.0 RC（历史；已由 v1.0.0 release 取代） |
 | [docs/v1.0-demo.md](docs/v1.0-demo.md) | v1 demo 默认 SQLite / 真实 PG+pgvector 运行说明 |
 | [docs/postgres-live.md](docs/postgres-live.md) | 真实 PostgreSQL 契约 PASS（postgres:16-alpine / 55432） |
 | [docs/pgvector-live.md](docs/pgvector-live.md) | pgvector v0.8.0 编译/HNSW/cosine + PgVectorIndex PASS |

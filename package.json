@@ -1,9 +1,9 @@
 {
   "name": "weft",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Weft M0: policy-governed, cache-first agent harness",
+  "description": "Weft v1.0: policy-governed, cache-first agent harness",
   "scripts": {
     "start": "node --experimental-strip-types src/cli.ts",
     "demo": "node --experimental-strip-types src/cli.ts --demo",
