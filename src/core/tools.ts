@@ -1,6 +1,6 @@
 import { newId } from './ids.ts';
 import type { Session } from './session.ts';
-import type { WorkspaceGuard, ShellSandbox } from './sandbox.ts';
+import type { WorkspaceGuard, ShellRunner } from './sandbox.ts';
 import type { ApprovalService } from './permissions.ts';
 import type { MemoryProvider, MemoryScope, MemoryRecord } from './memory.ts';
 import type { KnowledgeBaseProvider } from './kb.ts';
@@ -9,7 +9,7 @@ import type { GuardianService } from './guardian.ts';
 export interface ToolContext {
   session: Session;
   guard: WorkspaceGuard;
-  sandbox: ShellSandbox;
+  sandbox: ShellRunner;
   approvals: ApprovalService;
   memory: MemoryProvider;
   kb: KnowledgeBaseProvider;

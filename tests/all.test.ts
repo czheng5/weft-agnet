@@ -5,4 +5,5 @@ import './kb.test.ts';
 import './eventlog.test.ts';
 import './guardian.test.ts';
 import './cua.test.ts';
+import './sandbox.test.ts';
 import './agent.test.ts'

@@ -77,7 +77,7 @@
 2. 给 DSH 增加一条窄例外（WSL 包、Program Files\WSL、WSL service 管道）；这是安全策略变更，会削弱隔离，不建议只为测试做。
 3. 用一次性 danger-full-access 提权跑 WSL；这等于绕过沙箱，不建议作为常规方案。
 
-对 Weft 产品：WSL 仍可作为未来沙箱 backend 的候选，但必须在正常主机上做 conformance，不应该依赖“在 DSH 沙箱里嵌套 WSL”来证明。
+对 Weft 产品：WSL 是**内层 OS 边界 backend 的候选**（不是测试通道）。M1-B 已实现 WslSandboxBackend 的 probe/命令构造/fail-closed 选择；在当前 DSH 内 probe 返回 EPERM/E_ACCESSDENIED，因此选择 wsl 会显式失败，不会静默降级。实际 conformance 必须在正常主机/外层终端做。
 
 ---
 

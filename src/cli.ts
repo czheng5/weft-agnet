@@ -3,7 +3,9 @@ import { join, resolve } from 'node:path';
 import { renderBanner } from '../brand/tui-banner.mjs';
 import { AgentLoop } from './core/agent.ts';
 import { Session } from './core/session.ts';
-import { WorkspaceGuard, ShellSandbox } from './core/sandbox.ts';
+import { WorkspaceGuard } from './core/sandbox.ts';
+import { createShellRunner } from './core/sandbox-backends.ts';
+import type { SandboxBackendKind } from './core/sandbox-backends.ts';
 import { PolicyEngine, ApprovalService } from './core/permissions.ts';
 import { GuardianService } from './core/guardian.ts';
 import { SqliteMemoryProvider } from './core/memory.ts';
@@ -19,24 +21,28 @@ interface Args {
   workspace: string;
   mode: 'read-only' | 'workspace-write' | 'danger-full-access';
   approval: 'untrusted' | 'on-request' | 'never';
+  sandbox: SandboxBackendKind;
 }
 
 function parseArgs(argv: string[]): Args {
   let workspace = process.cwd();
   let mode: Args['mode'] = 'workspace-write';
   let approval: Args['approval'] = 'on-request';
+  let sandbox: SandboxBackendKind = 'workspace-guard';
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === '--workspace' && argv[i + 1]) { workspace = resolve(argv[++i]); }
     else if (arg === '--mode' && argv[i + 1]) { mode = argv[++i] as Args['mode']; }
     else if (arg === '--approval' && argv[i + 1]) { approval = argv[++i] as Args['approval']; }
+    else if (arg === '--sandbox' && argv[i + 1]) { sandbox = argv[++i] as SandboxBackendKind; }
   }
   return {
     demo: argv.includes('--demo'),
     yes: argv.includes('--yes'),
     workspace,
     mode,
-    approval
+    approval,
+    sandbox
   };
 }
 
@@ -62,7 +68,7 @@ async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
   const workspace = args.workspace;
   const session = new Session(workspace);
-  session.append('session/created', { workspace, mode: args.mode, approval: args.approval });
+  session.append('session/created', { workspace, mode: args.mode, approval: args.approval, sandbox: args.sandbox });
 
   const guard = new WorkspaceGuard(workspace);
   const policy = new PolicyEngine({ workspace, mode: args.mode, approvalPolicy: args.approval });
@@ -83,7 +89,7 @@ async function main(): Promise<void> {
     if (!tui) return 'deny';
     return tui.approve(action, reason);
   }, guardian);
-  const sandbox = new ShellSandbox(guard, args.mode);
+  const sandbox = await createShellRunner(args.sandbox, guard, args.mode);
   const memory = new SqliteMemoryProvider(join(workspace, '.weft', 'memory.db'));
   const kbRoots = [join(workspace, 'docs'), join(workspace, 'report'), join(workspace, 'appendix')].filter((p) => existsSync(p));
   const kb = new LocalDocsProvider(kbRoots);

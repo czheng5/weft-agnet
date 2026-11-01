@@ -56,7 +56,12 @@ export interface ShellResult {
   timedOut: boolean;
 }
 
-export class ShellSandbox {
+export interface ShellRunner {
+  readonly info: SandboxInfo;
+  run(command: string, timeoutMs?: number): Promise<ShellResult>;
+}
+
+export class ShellSandbox implements ShellRunner {
   readonly guard: WorkspaceGuard;
   readonly info: SandboxInfo;
 
