@@ -7,6 +7,7 @@ import './memory-consolidation.test.ts'
 import './memory-injection.test.ts'
 import './memory-governance.test.ts'
 import './memory-hub.test.ts'
+import './memoryhub-server.test.ts'
 import './kb.test.ts';
 import './kb-http.test.ts'
 import './kb-web.test.ts'

@@ -12,6 +12,8 @@ import { ModelGuardian, GuardianShadow } from './core/guardian-model.ts';
 import { SqliteMemoryProvider } from './core/memory.ts';
 import { HttpMemoryProvider } from './core/memory-http.ts';
 import { MemoryConsolidator } from './core/memory-consolidation.ts';
+import { MemoryHub } from './core/memory-hub.ts';
+import { startMemoryHubServer } from './core/memoryhub-server.ts';
 import { createPostgresMemoryProvider } from './core/memory-postgres.ts';
 import { LocalDocsProvider } from './core/kb.ts';
 import { HttpKnowledgeBaseProvider } from './core/kb-http.ts';
@@ -38,6 +40,8 @@ interface Args {
   memoryToken?: string;
   pgUrl?: string;
   guardianMode: 'rule' | 'model';
+  serveMemory: boolean;
+  port: number;
 }
 
 function parseArgs(argv: string[]): Args {
@@ -54,6 +58,7 @@ function parseArgs(argv: string[]): Args {
   let memoryToken: string | undefined = process.env.WEFT_MEMORY_TOKEN;
   let pgUrl: string | undefined = process.env.WEFT_PG_URL;
   let guardianMode: Args['guardianMode'] = (process.env.WEFT_GUARDIAN as Args['guardianMode']) ?? 'rule';
+  let port = Number(process.env.WEFT_PORT ?? 4780);
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === '--workspace' && argv[i + 1]) { workspace = resolve(argv[++i]); }
@@ -69,6 +74,7 @@ function parseArgs(argv: string[]): Args {
     else if (arg === '--memory-token' && argv[i + 1]) { memoryToken = argv[++i]; }
     else if (arg === '--pg-url' && argv[i + 1]) { pgUrl = argv[++i]; }
     else if (arg === '--guardian' && argv[i + 1]) { guardianMode = argv[++i] as Args['guardianMode']; }
+    else if (arg === '--port' && argv[i + 1]) { port = Number(argv[++i]); }
   }
   return {
     demo: argv.includes('--demo'),
@@ -85,7 +91,9 @@ function parseArgs(argv: string[]): Args {
     memoryUrl,
     memoryToken,
     pgUrl,
-    guardianMode
+    guardianMode,
+    serveMemory: argv.includes('--serve-memory'),
+    port
   };
 }
 
@@ -158,6 +166,19 @@ async function main(): Promise<void> {
   const scope = { tenantId: 'local', userId: 'default', projectId: 'weft' };
   const memoryConsolidator = new MemoryConsolidator(memory);
   const toolContext: ToolContext = { session, guard, sandbox, approvals, memory, memoryConsolidator, kb, guardian, scope, workspace };
+
+  if (args.serveMemory) {
+    const hub = new MemoryHub({ provider: memory, workspace });
+    const running = await startMemoryHubServer({ provider: hub, token: args.memoryToken, port: args.port });
+    process.stdout.write('memoryhub listening ' + running.url + '\n');
+    await new Promise<void>((resolve) => {
+      process.once('SIGINT', () => resolve());
+      process.once('SIGTERM', () => resolve());
+    });
+    await running.close();
+    await hub.close();
+    return;
+  }
 
   if (args.demo) {
     const banner = renderBanner({
