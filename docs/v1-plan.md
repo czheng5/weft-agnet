@@ -17,7 +17,7 @@
 | 顺序 | F-ID | 功能 | 状态 | 验收 |
 |---|---|---|---|---|
 | 1 | F-MF-002 | 记忆写入/巩固/冲突消解 | ✅ duplicate/new-wins/manual | 冲突可解释，旧记录 superseded |
-| 2 | F-MF-003 | 记忆检索/注入 | ◐ search 已有；Agent 自动注入未做 | 作用域内召回并进入上下文 |
+| 2 | F-MF-003 | 记忆检索/注入 | ✅ search + Agent 自动注入 | 作用域内召回并进入上下文 |
 | 3 | F-MF-004 | 治理 scope/RBAC/审计/删除 | ◐ scope/audit/tombstone 已有；RBAC 未做 | 越权拒绝，删除可传播 |
 | 4 | F-KB-002 | local/web/MCP KB 适配器 | ◐ local/http 已有；web/mcp 未做 | 三个适配器可切换 |
 | 5 | F-OB-001 | 指标/评测 | ⏳ | cache/打断/延迟可见 |
