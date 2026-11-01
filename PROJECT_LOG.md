@@ -11,7 +11,7 @@
 | 里程碑 | 状态 | 进度 | 说明 |
 |---|---|---|---|
 | M0 Foundation | ✅ 完成（骨架） | 100% | 事件日志/请求分区/权限/审批缓存/workspace 守卫/SQLite Memory/KB/TUI/测试 |
-| M1 Safety & Memory skeleton | ◐ 进行中 | ~45% | Guardian、CUA、usage、WSL backend、Docker backend + conformance 脚本已落地；真实 OS conformance/PG/缓存未完成 |
+| M1 Safety & Memory skeleton | ◐ 进行中 | ~50% | Guardian、CUA、usage、WSL/Docker backend + conformance、HTTP KB 已落地；真实 OS conformance/PG/缓存未完成 |
 | M2 Long-horizon | ⏳ 未开始 | 0% | Work Graph/Actor/Scheduler/Event Bus/Capability/Context |
 | M3 Memory & v1.0 | ⏳ 未开始 | 0% | PG MemoryHub 完整/治理/评测/v1.0 gate |
 | M4 v1.5 | ⏳ 未开始 | 0% | 收口/多租户/技能演化/CUA driver/Polyglot 契约 |
@@ -40,6 +40,7 @@
 | WSL sandbox backend（M1-B） | WslSandboxBackend：probe/命令构造/超时/fail-closed；`--sandbox wsl` | 没有内层 OS 边界 backend | probe 失败显式报错；sandbox 测试；DSH 内 EPERM/E_ACCESSDENIED，不静默降级 |
 | Docker Linux backend（M1-B） | DockerSandboxBackend：network none/read-only/cap-drop/non-root/pids/memory/cpus；`--sandbox docker` | 需要一个可用的 Linux OS 边界 | 命令构造/测试通过；conformance.cmd 可跑；当前 daemon Stopped，真实容器验收待跑 |
 | Shell 输出捕获修复 | ShellSandbox 从 pipe 改为临时文件重定向 | DSH 内 Node child_process pipe 报 EPERM，demo 的 shell 实际失败 | demo 现在真正拿到 stdout=2；新增 capture 测试 |
+| HTTP KB（M1-C） | HttpKnowledgeBaseProvider：/search、/docs、/health、Bearer、scope headers、timeout | KB 只有本地文件，无法接外部知识库 | 2 个测试；`--kb-url` 可切；只读、不自动入 Memory |
 | 文档/接口 | PRD/ROADMAP/M0 status/interfaces/appendix/README | 范围漂移、实现无契约 | PRD/ROADMAP FROZEN；接口契约可测试 |
 
 ---
@@ -54,13 +55,14 @@
 | 2026-11-01 | M1-A | Guardian shadow + 熔断、CUA 策略、usage/cacheReadTokens | 18 tests pass；guardian/assessment=6；model/usage=7 | 137d0d6 |
 | 2026-11-01 | M1-B | WSL sandbox backend：probe/命令构造/fail-closed | 22 tests pass；`--sandbox wsl` 在 DSH 内显式失败 | 2bea213 |
 | 2026-11-01 | M1-B | Docker Linux backend + conformance + shell capture fix | 25 tests pass；guard conformance PASS；docker daemon Stopped | 45081f3 |
+| 2026-11-01 | M1-C | HTTP KB adapter | 27 tests pass；--kb-url 可切；外部 KB 只读接入 | c411761 |
 
 ---
 
 ## 4. 当前可验证结果
 
 ~~~text
-25 tests, 25 pass, 0 fail
+27 tests, 27 pass, 0 fail
 
 Weft M0 complete: file written, shell verified, memory stored and recalled, knowledge base searched.
 steps=7 toolCalls=6 cacheStable=6 cacheReadTokens=0
@@ -80,7 +82,7 @@ request cachePrefixStable=true ...
 | P0 | 真实 provider cache 未接 | cacheReadTokens 恒 0 | M1：接真实模型 usage |
 | P1 | Guardian 只有规则版 | 无模型评审/多模态 | M1：模型 reviewer + shadow 对比 |
 | P1 | CUA 无 driver | 只有策略 | M1/M4：MCP/native driver |
-| P1 | KB 只有 local-docs | web/mcp/http 未接 | M1：适配器 |
+| P1 | KB 适配器不全 | local-docs + http-kb 已有；web/mcp 未接 | M1：web/mcp 适配器 + 注入样本 |
 | P2 | Work Graph/Actor/Scheduler/Event Bus | M2 未开始 | M2 |
 | P2 | 多租户/审计/配额 | v1.5 | M4 |
 
