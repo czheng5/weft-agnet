@@ -6,6 +6,7 @@ import type { ModelProvider } from './model.ts';
 import type { Session } from './session.ts';
 import type { ToolContext } from './tools.ts';
 import { WorkGraph, WorkGraphStore } from './workgraph.ts';
+import { computeMetrics, formatMetrics } from './metrics.ts';
 
 export interface TuiOptions {
   session: Session;
@@ -54,7 +55,7 @@ export class Tui {
       if (!line) continue;
       if (line === '/quit' || line === '/exit') break;
       if (line === '/help') {
-        stdout.write('  /status  show runtime state\n  /plan  show Work Graph/plan\n  /goal <text>  create goal\n  /task <title>  add task\n  /tasks  list tasks\n  /start <id>  start task\n  /done <id> [result]  complete task\n  /events  last events\n  /memory <q>  search memory\n  /kb <q>  search knowledge base\n  /demo  run scripted M0 demo\n  /quit  exit\n');
+        stdout.write('  /status  show runtime state\n  /plan  show Work Graph/plan\n  /goal <text>  create goal\n  /task <title>  add task\n  /tasks  list tasks\n  /start <id>  start task\n  /done <id> [result]  complete task\n  /metrics  show metrics\n  /events  last events\n  /memory <q>  search memory\n  /kb <q>  search knowledge base\n  /demo  run scripted M0 demo\n  /quit  exit\n');
         continue;
       }
       if (line === '/status') {
@@ -120,6 +121,10 @@ export class Tui {
         this.wgStore.save(this.graph);
         this.opts.session.append(done ? 'workgraph/task_done' : 'workgraph/task_started', { task });
         stdout.write('  ' + task.id.slice(0, 8) + ' -> ' + task.status + '\n');
+        continue;
+      }
+      if (line === '/metrics') {
+        stdout.write(formatMetrics(computeMetrics(this.opts.session.events())) + '\n');
         continue;
       }
       if (line === '/events') {

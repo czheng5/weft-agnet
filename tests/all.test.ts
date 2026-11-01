@@ -16,3 +16,4 @@ import './cua.test.ts';
 import './sandbox.test.ts';
 import './agent.test.ts'
 import './workgraph.test.ts'
+import './metrics.test.ts'
