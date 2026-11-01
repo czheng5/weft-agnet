@@ -29,6 +29,7 @@
 - [ROADMAP.md](../ROADMAP.md) — **Weft Roadmap v1.0（FROZEN）**：M0–M5、exit criteria、依赖、回滚
 - [docs/interfaces.md](../docs/interfaces.md) — MemoryProvider / KnowledgeBaseProvider 契约
 - [appendix/polyglot-hub.md](../appendix/polyglot-hub.md) — 附录 A：未来 Polyglot 记忆 provider
+- [PROJECT_LOG.md](../PROJECT_LOG.md) — 项目管理台账：模块/问题/效果、时间线、缺口、下一步
 
 ## 研究文件
 
