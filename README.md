@@ -27,6 +27,7 @@
 | [docs/v1.0-gate.md](docs/v1.0-gate.md) | v1.0 gate 对照：已过/未过、证据、真实环境缺口 |
 | [docs/postgres-live.md](docs/postgres-live.md) | 真实 PostgreSQL 契约 PASS（postgres:16-alpine / 55432） |
 | [docs/pgvector-live.md](docs/pgvector-live.md) | pgvector v0.8.0 编译/HNSW/cosine + PgVectorIndex PASS |
+| [docs/guardian-50.md](docs/guardian-50.md) | Guardian 50 动作 shadow harness（fake model；真实 key 待接） |
 | [appendix/polyglot-hub.md](appendix/polyglot-hub.md) | 附录 A：未来 Polyglot 记忆 provider |
 | [report/README.md](report/README.md) | 四家源码研究、融合架构、推导审计、集合审计、Memory 研究 |
 | [brand/README.md](brand/README.md) | Weft 品牌、Weft Cyan、TUI 模板 |
@@ -58,7 +59,7 @@ Work Graph · Actor Runtime · Scheduler · Event Bus · Capability Package · M
 - Postgres MemoryProvider：`--pg-url` / `WEFT_PG_URL`，pg Pool + 契约实现；pg-mem 测试通过
 - `conformance.cmd`：workspace-guard / docker 的边界 canary 脚本
 - M2 Work Graph 地基：Goal/Task DAG/依赖/ready/todo 投影；TUI `/goal` `/task` `/tasks` `/start` `/done`
-- 75 个测试通过；`node --experimental-strip-types scripts/v1-demo.ts`（v1.0 demo PASS）
+- 76 个测试通过；`node --experimental-strip-types scripts/v1-demo.ts`（v1.0 demo PASS）
 - MemoryHub HTTP API/MCP：`--serve-memory --port 4780`；/memory/* + /mcp tools
 
 细节与限制见 [docs/m0-status.md](docs/m0-status.md)。

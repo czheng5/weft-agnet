@@ -13,7 +13,7 @@
 | M0 Foundation | ✅ 完成（骨架） | 100% | 事件日志/请求分区/权限/审批缓存/workspace 守卫/SQLite Memory/KB/TUI/测试 |
 | M1 Safety & Memory skeleton | ◐ 进行中 | ~95% | Guardian（规则/模型 shadow）、CUA、usage/cache 映射、Docker conformance、Memory 巩固/注入/RBAC、四路 KB、metrics；真实 PG/Windows/WSL/真实 key 未完成 |
 | M2 Long-horizon | ✅ 代码/单测 | 100% | Work Graph/Goal/Plan/Evidence/Checkpoint/Actor fork/Scheduler/EventBus/Capability/Projection |
-| M3 Memory & v1.0 | ◐ 进行中 | ~75% | facade/hybrid/HTTP/MCP + real PG + pgvector/HNSW + PgVectorIndex；真实 key/OS/v1.0 gate 未过 |
+| M3 Memory & v1.0 | ◐ 进行中 | ~78% | facade/hybrid/HTTP/MCP + real PG + pgvector/HNSW + PgVectorIndex + local HTTP model + Guardian 50 harness；真实 key/OS/v1.0 gate 未过 |
 | M4 v1.5 | ⏳ 未开始 | 0% | 收口/多租户/技能演化/CUA driver/Polyglot 契约 |
 | M5 v2.0 | ⏳ 未开始 | 0% | 自有协议/Weft Bench/插件生态 |
 
@@ -70,6 +70,8 @@
 | pgvector probe（M3-I） | probePgVector：查询 pg_extension.vector；2 个测试 | 无法判断实例是否支持 vector | fail-closed 探针；真实实例仍待跑 |
 | pgvector live（M3-J） | 源码编译 v0.8.0 + CREATE EXTENSION + vector(1536) + HNSW + cosine query | pgvector 只在文档里 | **PASS**：索引创建 + 距离查询 |
 | PgVectorIndex（M3-K） | PgVectorIndex + MemoryHub asyncVectorIndex | 向量检索仍走内存索引 | **PASS**：真实 PG vectorHit beta-live score=1.00 |
+| Model HTTP（M1-L） | 本地 OpenAI-compatible HTTP server 测试；cached_tokens 24 | 只有 fake fetch，无 HTTP 端到端 | 1 个测试；HTTP 路径通过 |
+| Guardian 50（M1-M） | 50 动作 rule/model shadow harness | 无 50 动作对比证据 | harness PASS；fake model；真实 key 待接 |
 | 文档/接口 | PRD/ROADMAP/M0 status/interfaces/appendix/README | 范围漂移、实现无契约 | PRD/ROADMAP FROZEN；接口契约可测试 |
 
 ---
@@ -103,6 +105,7 @@
 | 2026-11-01 | M3-I | pgvector probe | 74 tests pass；探针 fail-closed | a774864 |
 | 2026-11-01 | M3-J | pgvector live | PASS；extension/vector/HNSW/cosine | 575bd13 |
 | 2026-11-01 | M3-K | PgVectorIndex + MemoryHub | PASS；真实 vector search | 128f614 |
+| 2026-11-01 | M1-L/M | local HTTP model + Guardian 50 harness | 76 tests；50 actions 0 mismatch | cb0bf2c |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |
 | 2026-11-01 | M1-G | Memory 检索/注入 | 40 tests pass；Agent 上下文含 MEMORY；memory/injected | 73978a0 |
@@ -116,7 +119,7 @@
 ## 4. 当前可验证结果
 
 ~~~text
-75 tests, 75 pass, 0 fail；v1 demo PASS；real PG + pgvector + PgVectorIndex PASS；gate 未过（key/OS）
+76 tests, 76 pass, 0 fail；v1 demo PASS；real PG/pgvector PASS；gate 未过（真实 key/OS）
 
 Weft M0 complete: file written, shell verified, memory stored and recalled, knowledge base searched.
 steps=7 toolCalls=6 cacheStable=6 cacheReadTokens=0
