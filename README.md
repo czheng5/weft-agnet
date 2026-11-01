@@ -23,6 +23,7 @@
 | [PROJECT_LOG.md](PROJECT_LOG.md) | 项目管理台账：模块/问题/效果、时间线、缺口、下一步 |
 | [docs/sandbox-boundaries.md](docs/sandbox-boundaries.md) | 外层 DSH 沙箱 vs 内层 Weft 沙箱；为什么不需改授权 |
 | [docs/sandbox-verification.md](docs/sandbox-verification.md) | OS 边界完整验证：VM/容器/Windows Sandbox/CI/红队方法与矩阵 |
+| [docs/docker-conformance.md](docs/docker-conformance.md) | Docker Linux backend conformance 结果（6 项 PASS） |
 | [appendix/polyglot-hub.md](appendix/polyglot-hub.md) | 附录 A：未来 Polyglot 记忆 provider |
 | [report/README.md](report/README.md) | 四家源码研究、融合架构、推导审计、集合审计、Memory 研究 |
 | [brand/README.md](brand/README.md) | Weft 品牌、Weft Cyan、TUI 模板 |
@@ -48,7 +49,7 @@ Work Graph · Actor Runtime · Scheduler · Event Bus · Capability Package · M
 - 工具层 + ScriptedModel/OpenAI-compatible + Weft TUI
 - Guardian shadow + CUA 策略 + model usage/cacheReadTokens（M1-A）
 - WSL sandbox backend（M1-B）：probe/命令构造/fail-closed；`--sandbox wsl` 在 DSH 内显式失败，不静默降级
-- Docker Linux container backend：`--network none`、`--read-only`、`--cap-drop ALL`、非 root、资源限制；`--sandbox docker`
+- Docker Linux container backend：`--network none`、`--read-only`、`--cap-drop ALL`、非 root、资源限制；`--sandbox docker`；conformance 6 项 PASS
 - HTTP KB 适配器：`--kb-url` / `WEFT_KB_URL`，Bearer + scope headers + timeout；只读、不自动入 Memory
 - `conformance.cmd`：workspace-guard / docker 的边界 canary 脚本
 - 29 个测试通过；`node --experimental-strip-types src/cli.ts --demo`

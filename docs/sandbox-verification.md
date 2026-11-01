@@ -131,7 +131,7 @@ node --experimental-strip-types scripts/sandbox-conformance.ts --backend docker 
 
 注意：在 DSH 内，Node 的 child_process 管道会被外层沙箱限制（EPERM），所以 Docker conformance 要放到外层终端跑；这不是 Docker 的问题。
 
-当前 Docker daemon 状态：com.docker.service 为 Stopped，尚未做真实容器 conformance。启动 Docker Desktop 后再跑；不能把“脚本存在”当成“已验证”。
+Docker conformance 已实际跑通（Docker Desktop 4.89 / engine 29.7.2 / node:22-bookworm-slim）：路径逃逸、/workspace、写入、uid=1000、network none、read-only /etc 拒绝，6 项 PASS。详见 [docker-conformance.md](docker-conformance.md)。
 
 ---
 
