@@ -77,7 +77,7 @@ async function main(): Promise<void> {
     const expected = args.backend === 'workspace-guard'
       ? workspace.replace(/\\/g, '/')
       : args.backend === 'wsl' && args.wslMount ? args.wslMount : '/workspace';
-    const result = await runner.run('node -e "console.log(process.cwd())"', args.timeoutMs);
+    const result = await runner.run(args.backend === 'wsl' ? 'pwd' : 'node -e "console.log(process.cwd())"', args.timeoutMs);
     if (result.code !== 0) throw new Error('pwd failed: ' + result.stderr);
     if (!result.stdout.replace(/\\/g, '/').includes(expected.replace(/\\/g, '/'))) {
       throw new Error('pwd mismatch: ' + result.stdout.trim() + ' expected ' + expected);
@@ -89,7 +89,9 @@ async function main(): Promise<void> {
     const marker = '.weft-conformance.txt';
     const target = join(workspace, marker);
     if (existsSync(target)) rmSync(target, { force: true });
-    const code = 'node -e "require(\'fs\').writeFileSync(\'' + marker + '\',\'weft-ok\');process.stdout.write(require(\'fs\').readFileSync(\'' + marker + '\',\'utf8\'))"';
+    const code = args.backend === 'wsl'
+      ? 'printf weft-ok > ' + marker + ' && cat ' + marker
+      : 'node -e "require(\'fs\').writeFileSync(\'' + marker + '\',\'weft-ok\');process.stdout.write(require(\'fs\').readFileSync(\'' + marker + '\',\'utf8\'))"';
     const result = await runner.run(code, args.timeoutMs);
     if (result.code !== 0) throw new Error('write failed: ' + result.stderr);
     if (!result.stdout.includes('weft-ok')) throw new Error('unexpected content: ' + result.stdout);
