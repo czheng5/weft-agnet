@@ -1,4 +1,5 @@
 import './request.test.ts';
+import './env.test.ts'
 import './permissions.test.ts';
 import './memory.test.ts';
 import './memory-http.test.ts'

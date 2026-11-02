@@ -22,6 +22,7 @@ import { McpKnowledgeBaseProvider, HttpMcpTransport } from './core/kb-mcp.ts';
 import { ScriptedModel, OpenAICompatibleModel } from './core/model.ts';
 import type { ModelProvider } from './core/model.ts';
 import { Tui } from './core/tui.ts';
+import { loadEnvFile } from './core/env.ts';
 import type { ToolContext } from './core/tools.ts';
 
 interface Args {
@@ -141,6 +142,7 @@ function summarize(session: Session): string {
 }
 
 async function main(): Promise<void> {
+  loadEnvFile(process.env.WEFT_ENV ?? '.env');
   const args = parseArgs(process.argv.slice(2));
   const workspace = args.workspace;
   const session = new Session(workspace);

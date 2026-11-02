@@ -1,6 +1,6 @@
 {
   "name": "weft",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "type": "module",
   "description": "Weft v1.0: policy-governed, cache-first agent harness",
@@ -8,6 +8,7 @@
     "start": "node --experimental-strip-types src/cli.ts",
     "demo": "node --experimental-strip-types src/cli.ts --demo",
     "demo:v1": "node --experimental-strip-types scripts/v1-demo.ts",
+    "acceptance:long": "node --experimental-strip-types scripts/long-task-acceptance.ts",
     "conformance:guard": "node --experimental-strip-types scripts/sandbox-conformance.ts --backend workspace-guard",
     "conformance:docker": "node --experimental-strip-types scripts/sandbox-conformance.ts --backend docker",
     "test": "node --test --test-isolation=none --experimental-strip-types tests/all.test.ts"

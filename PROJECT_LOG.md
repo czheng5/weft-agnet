@@ -2,7 +2,7 @@
 
 > 用途：项目管理视角的独立台账。只记录“开发了什么 / 解决了什么问题 / 达到什么效果”，不写流水账、不替代 PRD/ROADMAP。  
 > 更新规则：每次提交追加一行；效果尽量给可验证证据（测试数、事件数、命令、commit）。  
-> 当前版本：v1.0.1 RELEASED（2026-11-02）；范围 M0–M3 IN。
+> 当前版本：v1.0.2 RELEASED（2026-11-02）；范围 M0–M3 IN。
 
 ---
 
@@ -74,7 +74,8 @@
 | Agent HTTP（M1-N） | Agent+OpenAICompatibleModel+本地 server+tool call | 没有 agent HTTP 端到端 | 1 个测试；cacheReadTokens=128，file 写入 |
 | Local model（M1-P） | CLI --model-base-url/model-name/model-key；无 key 时 local key | 本地 OpenAI-compatible 模型必须假装有 key | 可直接接本地模型；keyless 路径可用 |
 | v1 demo PG（M3-M） | v1-demo 支持 WEFT_PG_URL；真实 PG + PgVectorIndex | demo 只跑 SQLite | **PASS**：goal/actor/scheduler/memory 全链路 |
-| v1.0 release（M3-N） | gate PASS、版本 1.0.1、发布说明、tag | 无正式 release 口径 | v1.0.1 RELEASED |
+| v1.0 release（M3-N） | gate PASS、版本 1.0.2、发布说明、tag | 无正式 release 口径 | v1.0.2 RELEASED |
+| 长任务验收（M3-Q） | 50-step WorkGraph/Plan/Checkpoint/Evidence/Event replay；报告 JSON | 长任务不可逐步追溯 | PASS：50 steps/5 checkpoints/50 evidence/minConfidence=0.9 |
 | v1.0 RC（M3-L） | docs/v1.0-rc.md：功能矩阵/证据/外部缺口 | 无 RC 口径，易虚报 | RC 明确未发布 |
 | WSL conformance（M1-O） | 导入专用 weft-sandbox + weft uid=1001 + runuser | WSL 原发行版用户映射失败 | **PASS**：路径/工作区/写/非 root；network/write-outside SKIP |
 | Guardian 50（M1-M） | 50 动作 rule/model shadow harness | 无 50 动作对比证据 | harness PASS；fake model；真实 key 待接 |
@@ -118,6 +119,7 @@
 | 2026-11-01 | M3-N | v1.0.0 release | 77 tests；gate PASS；版本 1.0.0 | 0f1a9c7 |
 | 2026-11-02 | M3-O | 真实 DeepSeek 验收 + 真实 Guardian 50 | cacheReadTokens=2304；50 actions/0 mismatch | 579aa15 |
 | 2026-11-02 | M3-P | v1.0.1 release | gate PASS；真实模型验收 | 7e17718 |
+| 2026-11-02 | M3-Q | 50-step long-task acceptance | PASS；50 evidence/5 checkpoints | 待提交 |
 | 2026-11-01 | M1-O | WSL conformance | 77 tests；专用 distro + weft uid=1001 PASS | e548eba |
 | 2026-11-01 | M3-L | v1.0 RC | RC 代码完成；未发布 | 8bdb955 |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
@@ -133,7 +135,7 @@
 ## 4. 当前可验证结果
 
 ~~~text
-77 tests, 77 pass, 0 fail；v1 demo PASS；real PG/pgvector PASS；RC 未发布（真实 key/OS）
+78 tests, 78 pass, 0 fail；v1 demo PASS；real DeepSeek/PG/pgvector；v1.0.1 RELEASED
 
 Weft M0 complete: file written, shell verified, memory stored and recalled, knowledge base searched.
 steps=7 toolCalls=6 cacheStable=6 cacheReadTokens=0
