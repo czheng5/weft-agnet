@@ -19,7 +19,7 @@ Weft 把 Codex 的“手”、Claude 的“脑”、DSH 的“脊”、Hermes/Me
 | [ROADMAP.md](ROADMAP.md) | M0–M5、exit criteria、feature → milestone |
 | [PROJECT_LOG.md](PROJECT_LOG.md) | 项目管理台账：模块/问题/效果/时间线 |
 | [docs/v1.0-gate.md](docs/v1.0-gate.md) | v1.0 gate：PASS（IN 范围），证据与外部项 |
-| [docs/v1.0-release.md](docs/v1.0-release.md) | v1.0.1 发布说明 |
+| [docs/v1.0-release.md](docs/v1.0-release.md) | v1.0.2 发布说明 |
 | [docs/real-model-acceptance.md](docs/real-model-acceptance.md) | 真实 DeepSeek 验收 |
 | [docs/remaining-design.md](docs/remaining-design.md) | 完整设计剩余工作与优先级 |
 | [docs/acceptance-matrix.md](docs/acceptance-matrix.md) | 12 项验收机制 |
