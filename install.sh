@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-set -eu
+set -e
 
 REPO=$WEFT_REPO
 [ -n "$REPO" ] || REPO=https://github.com/czheng5/weft-agnet.git
