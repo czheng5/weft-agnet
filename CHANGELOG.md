@@ -10,6 +10,7 @@ All notable changes are documented here. Format follows Keep a Changelog; versio
 - Acceptance matrix for 12 hardening tracks.
 - 50-step long-task acceptance harness and report.
 - .env auto-loading, .env.example, install.ps1, install.sh.
+- One-line installers: curl -fsSL .../install.sh | sh and irm .../install.ps1 | iex.
 - Open-source repository configuration: MIT license, CI, Dependabot, security policy, contributing guide.
 
 ### Changed
