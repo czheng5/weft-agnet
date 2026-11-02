@@ -1,0 +1,54 @@
+{
+  "name": "weft",
+  "version": "1.0.2",
+  "private": true,
+  "type": "module",
+  "description": "Policy-governed, cache-first, long-horizon, memory-growing agent harness",
+  "license": "MIT",
+  "author": "Weft contributors",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/czheng5/weft-agnet.git"
+  },
+  "bugs": {
+    "url": "https://github.com/czheng5/weft-agnet/issues"
+  },
+  "homepage": "https://github.com/czheng5/weft-agnet#readme",
+  "keywords": [
+    "agent",
+    "harness",
+    "policy",
+    "sandbox",
+    "memory",
+    "pgvector",
+    "long-horizon"
+  ],
+  "scripts": {
+    "start": "node --experimental-strip-types src/cli.ts",
+    "demo": "node --experimental-strip-types src/cli.ts --demo",
+    "demo:v1": "node --experimental-strip-types scripts/v1-demo.ts",
+    "acceptance:long": "node --experimental-strip-types scripts/long-task-acceptance.ts",
+    "conformance:guard": "node --experimental-strip-types scripts/sandbox-conformance.ts --backend workspace-guard",
+    "conformance:docker": "node --experimental-strip-types scripts/sandbox-conformance.ts --backend docker",
+    "test": "node --test --test-isolation=none --experimental-strip-types tests/all.test.ts"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "files": [
+    "src/",
+    "scripts/",
+    "tests/",
+    "migrations/",
+    "docs/",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "dependencies": {
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "pg-mem": "^3.0.14"
+  }
+}

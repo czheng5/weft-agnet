@@ -1,0 +1,387 @@
+import { existsSync } from 'node:fs';
+import { spawn } from 'node:child_process';
+import type { ShellResult, ShellRunner, SandboxInfo, WorkspaceGuard } from './sandbox.ts';
+import { ShellSandbox } from './sandbox.ts';
+
+export type SandboxBackendKind = 'workspace-guard' | 'wsl' | 'windows-restricted-token' | 'docker' | 'none';
+
+export interface SandboxProbeResult {
+  kind: SandboxBackendKind;
+  available: boolean;
+  reason: string;
+  details?: string;
+}
+
+export class SandboxUnavailableError extends Error {
+  readonly kind: SandboxBackendKind;
+  readonly reason: string;
+
+  constructor(kind: SandboxBackendKind, reason: string) {
+    super('sandbox ' + kind + ' unavailable: ' + reason);
+    this.name = 'SandboxUnavailableError';
+    this.kind = kind;
+    this.reason = reason;
+  }
+}
+
+export interface WslOptions {
+  wslPath?: string;
+  distro?: string;
+  user?: string;
+  workspaceMount?: string;
+}
+
+export function decodeWslList(buffer: Buffer): string[] {
+  const utf16 = buffer.length >= 2 && buffer[1] === 0;
+  const text = buffer.toString(utf16 ? 'utf16le' : 'utf8');
+  return text.replace(/\0/g, '\n').split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+}
+
+export function buildWslArgs(opts: { distro: string; user: string; workspaceMount: string; command: string }): string[] {
+  const args = ['-d', opts.distro, '--cd', opts.workspaceMount];
+  if (opts.user && opts.user !== 'default') {
+    // WSL 3.x -u can fail with WSL_E_USER_NOT_FOUND; drop privileges inside the distro instead.
+    args.push('--', 'runuser', '-u', opts.user, '--', 'bash', '-lc', opts.command);
+  } else {
+    args.push('--', 'bash', '-lc', opts.command);
+  }
+  return args;
+}
+
+function runProcess(command: string, args: string[], timeoutMs: number): Promise<ShellResult> {
+  return new Promise((resolvePromise) => {
+    let child;
+    try {
+      child = spawn(command, args, { windowsHide: true });
+    } catch (error) {
+      resolvePromise({ code: null, stdout: '', stderr: String(error), timedOut: false });
+      return;
+    }
+    const stdout: Buffer[] = [];
+    const stderr: Buffer[] = [];
+    let timedOut = false;
+    const timer = setTimeout(() => {
+      timedOut = true;
+      child.kill('SIGKILL');
+    }, timeoutMs);
+    child.stdout?.on('data', (buf: Buffer) => stdout.push(buf));
+    child.stderr?.on('data', (buf: Buffer) => stderr.push(buf));
+    child.on('error', (error) => {
+      clearTimeout(timer);
+      resolvePromise({ code: null, stdout: Buffer.concat(stdout).toString('utf8'), stderr: String(error), timedOut });
+    });
+    child.on('close', (code) => {
+      clearTimeout(timer);
+      resolvePromise({
+        code,
+        stdout: Buffer.concat(stdout).toString('utf8'),
+        stderr: Buffer.concat(stderr).toString('utf8'),
+        timedOut
+      });
+    });
+  });
+}
+
+export class WslSandboxBackend implements ShellRunner {
+  readonly kind: SandboxBackendKind = 'wsl';
+  readonly info: SandboxInfo;
+  readonly opts: Required<WslOptions>;
+  private probed?: SandboxProbeResult;
+
+  constructor(opts: WslOptions = {}) {
+    this.opts = {
+      wslPath: opts.wslPath ?? 'wsl.exe',
+      distro: opts.distro ?? 'weft-sandbox',
+      user: opts.user ?? 'weft',
+      workspaceMount: opts.workspaceMount ?? '/workspace'
+    };
+    this.info = {
+      backend: 'wsl',
+      mode: 'wsl2',
+      osBoundary: true,
+      limitations: [
+        'WSL2 VM boundary, not a per-command container.',
+        'Workspace must be mounted at the configured path; /mnt access must be restricted inside the distro.',
+        'Network isolation requires in-WSL bwrap/unshare; WSL itself does not disable network per command.',
+        'Not suitable for Windows GUI/CUA.'
+      ]
+    };
+  }
+
+  async probe(): Promise<SandboxProbeResult> {
+    const result = await runProcess(this.opts.wslPath, ['-l', '-q'], 5000);
+    if (result.code !== 0) {
+      this.probed = {
+        kind: 'wsl',
+        available: false,
+        reason: 'wsl -l -q failed with code ' + result.code,
+        details: (result.stderr || result.stdout).trim()
+      };
+      return this.probed;
+    }
+    const distros = decodeWslList(Buffer.from(result.stdout, 'utf8'));
+    this.probed = distros.includes(this.opts.distro)
+      ? { kind: 'wsl', available: true, reason: 'distro ' + this.opts.distro + ' found', details: distros.join(', ') }
+      : { kind: 'wsl', available: false, reason: 'distro ' + this.opts.distro + ' not found', details: distros.join(', ') };
+    return this.probed;
+  }
+
+  async run(command: string, timeoutMs = 30000): Promise<ShellResult> {
+    const probe = this.probed ?? await this.probe();
+    if (!probe.available) throw new SandboxUnavailableError('wsl', probe.reason);
+    return runProcess(this.opts.wslPath, buildWslArgs({
+      distro: this.opts.distro,
+      user: this.opts.user,
+      workspaceMount: this.opts.workspaceMount,
+      command
+    }), timeoutMs);
+  }
+}
+
+export interface DockerOptions {
+  dockerPath?: string;
+  image?: string;
+  workspace: string;
+  user?: string;
+  memory?: string;
+  cpus?: string;
+  pidsLimit?: number;
+}
+
+export function buildDockerArgs(opts: Required<DockerOptions> & { command: string }): string[] {
+  return [
+    'run',
+    '--rm',
+    '-i',
+    '--network', 'none',
+    '--read-only',
+    '--cap-drop', 'ALL',
+    '--security-opt', 'no-new-privileges',
+    '--pids-limit', String(opts.pidsLimit),
+    '--memory', opts.memory,
+    '--cpus', opts.cpus,
+    '--tmpfs', '/tmp:rw,noexec,nosuid,size=64m',
+    '--user', opts.user,
+    '--mount', 'type=bind,source=' + opts.workspace + ',target=/workspace',
+    '-w', '/workspace',
+    opts.image,
+    'sh', '-lc', opts.command
+  ];
+}
+
+export type DockerLaunchStage = 'probe' | 'launch' | 'wait' | 'ready' | 'failed';
+
+export interface DockerLaunchEvent {
+  stage: DockerLaunchStage;
+  detail: string;
+}
+
+export interface DockerLauncherDeps {
+  probe: () => Promise<SandboxProbeResult>;
+  start: () => Promise<boolean>;
+  sleep?: (ms: number) => Promise<void>;
+  timeoutMs?: number;
+  pollMs?: number;
+  onEvent?: (event: DockerLaunchEvent) => void;
+}
+
+export interface DockerLauncherResult {
+  probe: SandboxProbeResult;
+  started: boolean;
+}
+
+export class DockerLauncher {
+  private readonly deps: Required<DockerLauncherDeps>;
+
+  constructor(deps: DockerLauncherDeps) {
+    this.deps = {
+      probe: deps.probe,
+      start: deps.start,
+      sleep: deps.sleep ?? ((ms) => new Promise((resolve) => setTimeout(resolve, ms))),
+      timeoutMs: deps.timeoutMs ?? 90000,
+      pollMs: deps.pollMs ?? 2000,
+      onEvent: deps.onEvent ?? (() => {})
+    };
+  }
+
+  async ensure(): Promise<DockerLauncherResult> {
+    let probe = await this.deps.probe();
+    if (probe.available) {
+      this.deps.onEvent({ stage: 'ready', detail: probe.reason });
+      return { probe, started: false };
+    }
+
+    this.deps.onEvent({ stage: 'probe', detail: probe.reason });
+    const started = await this.deps.start();
+    if (!started) {
+      this.deps.onEvent({ stage: 'failed', detail: 'could not start Docker Desktop' });
+      return { probe, started: false };
+    }
+
+    const deadline = Date.now() + this.deps.timeoutMs;
+    while (Date.now() < deadline) {
+      await this.deps.sleep(this.deps.pollMs);
+      this.deps.onEvent({ stage: 'wait', detail: 'waiting for Docker daemon' });
+      probe = await this.deps.probe();
+      if (probe.available) {
+        this.deps.onEvent({ stage: 'ready', detail: probe.reason });
+        return { probe, started: true };
+      }
+    }
+
+    this.deps.onEvent({ stage: 'failed', detail: 'Docker daemon did not become ready in ' + this.deps.timeoutMs + 'ms' });
+    return { probe, started: true };
+  }
+}
+
+export function findDockerDesktop(): string[] {
+  const candidates: string[] = [];
+  const programFiles = process.env.ProgramFiles ?? 'C:\\Program Files';
+  const programFilesX86 = process.env['ProgramFiles(x86)'] ?? 'C:\\Program Files (x86)';
+  const localAppData = process.env.LOCALAPPDATA ?? '';
+  candidates.push(programFiles + '\\Docker\\Docker\\Docker Desktop.exe');
+  candidates.push(programFilesX86 + '\\Docker\\Docker\\Docker Desktop.exe');
+  if (localAppData) candidates.push(localAppData + '\\Docker\\Docker Desktop.exe');
+  return candidates;
+}
+
+async function startDockerDesktop(dockerPath: string): Promise<boolean> {
+  const cli = await runProcess(dockerPath, ['desktop', 'start'], 30000);
+  if (cli.code === 0) return true;
+  for (const path of findDockerDesktop()) {
+    if (!existsSync(path)) continue;
+    try {
+      const child = spawn(path, [], { detached: true, stdio: 'ignore', windowsHide: false });
+      child.unref();
+      return true;
+    } catch {
+      // try next candidate
+    }
+  }
+  return false;
+}
+
+export interface DockerLauncherOptions {
+  workspace: string;
+  dockerPath?: string;
+  image?: string;
+  timeoutMs?: number;
+  pollMs?: number;
+  onEvent?: (event: DockerLaunchEvent) => void;
+}
+
+export function createDockerLauncher(opts: DockerLauncherOptions): DockerLauncher {
+  const backend = new DockerSandboxBackend({ workspace: opts.workspace, dockerPath: opts.dockerPath, image: opts.image });
+  return new DockerLauncher({
+    probe: () => backend.probe(),
+    start: () => startDockerDesktop(backend.opts.dockerPath),
+    timeoutMs: opts.timeoutMs,
+    pollMs: opts.pollMs,
+    onEvent: opts.onEvent
+  });
+}
+
+export class DockerSandboxBackend implements ShellRunner {
+  readonly kind: SandboxBackendKind = 'docker';
+  readonly info: SandboxInfo;
+  readonly opts: Required<DockerOptions>;
+  private probed?: SandboxProbeResult;
+
+  constructor(opts: DockerOptions) {
+    this.opts = {
+      dockerPath: opts.dockerPath ?? (process.platform === 'win32' ? 'docker.exe' : 'docker'),
+      image: opts.image ?? process.env.WEFT_DOCKER_IMAGE ?? 'node:24-bookworm-slim',
+      workspace: opts.workspace,
+      user: opts.user ?? '1000:1000',
+      memory: opts.memory ?? '512m',
+      cpus: opts.cpus ?? '1',
+      pidsLimit: opts.pidsLimit ?? 256
+    };
+    this.info = {
+      backend: 'docker',
+      mode: 'linux-container',
+      osBoundary: true,
+      limitations: [
+        'Linux container via Docker Desktop; Windows GUI/CUA not available.',
+        'Requires Docker daemon and image; unavailable => fail closed.',
+        'Workspace is bind-mounted read-write; use a dedicated image and non-root user.',
+        'Network is disabled with --network none; package installs need a prebuilt image.'
+      ]
+    };
+  }
+
+  async probe(): Promise<SandboxProbeResult> {
+    const version = await runProcess(this.opts.dockerPath, ['version', '--format', '{{.Server.Version}}'], 8000);
+    if (version.code !== 0) {
+      this.probed = {
+        kind: 'docker',
+        available: false,
+        reason: 'docker daemon unavailable',
+        details: (version.stderr || version.stdout).trim()
+      };
+      return this.probed;
+    }
+    const image = await runProcess(this.opts.dockerPath, ['image', 'inspect', this.opts.image], 8000);
+    if (image.code !== 0) {
+      this.probed = {
+        kind: 'docker',
+        available: false,
+        reason: 'docker image not present: ' + this.opts.image,
+        details: (image.stderr || image.stdout).trim()
+      };
+      return this.probed;
+    }
+    this.probed = {
+      kind: 'docker',
+      available: true,
+      reason: 'docker ' + version.stdout.trim() + ' image ' + this.opts.image
+    };
+    return this.probed;
+  }
+
+  async run(command: string, timeoutMs = 30000): Promise<ShellResult> {
+    const probe = this.probed ?? await this.probe();
+    if (!probe.available) throw new SandboxUnavailableError('docker', probe.reason);
+    return runProcess(this.opts.dockerPath, buildDockerArgs({ ...this.opts, command }), timeoutMs);
+  }
+}
+
+export interface ShellRunnerOptions {
+  dockerImage?: string;
+  dockerPath?: string;
+  autoStartDocker?: boolean;
+  onDockerEvent?: (event: DockerLaunchEvent) => void;
+  wsl?: WslOptions;
+}
+
+export async function createShellRunner(kind: SandboxBackendKind, guard: WorkspaceGuard, mode: string, options: ShellRunnerOptions = {}): Promise<ShellRunner> {
+  if (kind === 'workspace-guard') return new ShellSandbox(guard, mode);
+  if (kind === 'wsl') {
+    const backend = new WslSandboxBackend(options.wsl);
+    const probe = await backend.probe();
+    if (!probe.available) throw new SandboxUnavailableError('wsl', probe.reason + (probe.details ? ': ' + probe.details : ''));
+    return backend;
+  }
+  if (kind === 'docker') {
+    let backend = new DockerSandboxBackend({ workspace: guard.workspace, image: options.dockerImage, dockerPath: options.dockerPath });
+    let probe = await backend.probe();
+    if (!probe.available && options.autoStartDocker !== false) {
+      const launcher = createDockerLauncher({
+        workspace: guard.workspace,
+        image: options.dockerImage,
+        dockerPath: options.dockerPath,
+        onEvent: options.onDockerEvent
+      });
+      const launched = await launcher.ensure();
+      if (launched.started) {
+        backend = new DockerSandboxBackend({ workspace: guard.workspace, image: options.dockerImage, dockerPath: options.dockerPath });
+        probe = await backend.probe();
+      } else {
+        probe = launched.probe;
+      }
+    }
+    if (!probe.available) throw new SandboxUnavailableError('docker', probe.reason + (probe.details ? ': ' + probe.details : ''));
+    return backend;
+  }
+  throw new SandboxUnavailableError(kind, 'backend not implemented in M1; fail closed');
+}
