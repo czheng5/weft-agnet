@@ -155,7 +155,7 @@ export class OpenAICompatibleModel implements ModelProvider {
     if (!response.ok) throw new Error('model HTTP ' + response.status + ': ' + await response.text());
     const json = await response.json() as {
       choices?: Array<{ message?: { content?: string; tool_calls?: Array<{ id: string; function: { name: string; arguments: string } }> } }>;
-      usage?: { prompt_tokens?: number; completion_tokens?: number; prompt_tokens_details?: { cached_tokens?: number } };
+      usage?: { prompt_tokens?: number; completion_tokens?: number; prompt_tokens_details?: { cached_tokens?: number }; prompt_cache_hit_tokens?: number; prompt_cache_miss_tokens?: number };
     };
     const message = json.choices?.[0]?.message;
     const toolCalls = (message?.tool_calls ?? []).map((t) => ({
@@ -169,7 +169,7 @@ export class OpenAICompatibleModel implements ModelProvider {
       usage: {
         inputTokens: json.usage?.prompt_tokens ?? 0,
         outputTokens: json.usage?.completion_tokens ?? 0,
-        cacheReadTokens: json.usage?.prompt_tokens_details?.cached_tokens ?? 0
+        cacheReadTokens: json.usage?.prompt_tokens_details?.cached_tokens ?? json.usage?.prompt_cache_hit_tokens ?? 0
       }
     };
   }

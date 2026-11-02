@@ -1,5 +1,6 @@
 import { RuleBasedGuardian } from '../src/core/guardian.ts';
 import { ModelGuardian, GuardianShadow } from '../src/core/guardian-model.ts';
+import { OpenAICompatibleModel } from '../src/core/model.ts';
 import type { Action } from '../src/core/permissions.ts';
 import type { GuardianContext } from '../src/core/guardian.ts';
 
@@ -37,7 +38,16 @@ async function main(): Promise<void> {
   let mismatches = 0;
   let allow = 0;
   let deny = 0;
-  const shadow = new GuardianShadow(rule, new ModelGuardian({ model: fakeModel }), (comparison) => {
+  const apiKey = process.env.WEFT_MODEL_API_KEY;
+  const model = apiKey
+    ? new OpenAICompatibleModel({
+        baseUrl: process.env.WEFT_MODEL_BASE_URL ?? 'https://api.deepseek.com/v1',
+        apiKey,
+        model: process.env.WEFT_MODEL ?? 'deepseek-chat'
+      })
+    : fakeModel;
+  const note = apiKey ? 'real model' : 'fake model mirrors rule';
+  const shadow = new GuardianShadow(rule, new ModelGuardian({ model }), (comparison) => {
     if (comparison.mismatch) mismatches += 1;
   });
   for (const action of actions) {
@@ -47,7 +57,7 @@ async function main(): Promise<void> {
   }
   console.log('GUARDIAN 50 ACTION SHADOW PASS');
   console.log('  actions=' + actions.length + ' allow=' + allow + ' deny=' + deny + ' mismatches=' + mismatches);
-  console.log('  note=fake model mirrors rule; real model/key still required');
+  console.log('  note=' + note);
 }
 
 main().catch((error) => {
