@@ -29,6 +29,10 @@ jobs:
           cache: npm
       - name: Install
         run: npm ci --no-audit --no-fund
+      - name: Installer smoke
+        run: |
+          sh -n install.sh
+          sh install.sh --dry-run
       - name: Tests
         run: npm test
       - name: M0 demo
@@ -37,3 +41,14 @@ jobs:
         run: npm run demo:v1
       - name: Long-task acceptance
         run: npm run acceptance:long
+
+  installer-windows:
+    runs-on: windows-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Installer dry run
+        run: powershell -ExecutionPolicy Bypass -File .\install.ps1 -DryRun
