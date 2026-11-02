@@ -33,6 +33,13 @@ jobs:
         run: |
           sh -n install.sh
           sh install.sh --dry-run
+      - name: Installer bootstrap
+        run: |
+          mkdir -p "$RUNNER_TEMP/weft-bootstrap"
+          cp install.sh "$RUNNER_TEMP/weft-bootstrap/install.sh"
+          cd "$RUNNER_TEMP/weft-bootstrap"
+          sh install.sh --dir "$RUNNER_TEMP/weft-app" --bin "$RUNNER_TEMP/weft-bin"
+          "$RUNNER_TEMP/weft-bin/weft" --demo
       - name: Tests
         run: npm test
       - name: M0 demo
