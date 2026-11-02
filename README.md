@@ -8,6 +8,8 @@ Policy-governed · cache-first · long-horizon · memory-growing agent harness.
 ![tests](https://img.shields.io/badge/tests-78%20pass-22c55e)
 ![node](https://img.shields.io/badge/node-%3E%3D24-339933)
 ![status](https://img.shields.io/badge/status-v1.0%20released-0ea5e9)
+![CI](https://github.com/czheng5/weft-agnet/actions/workflows/ci.yml/badge.svg)
+![license](https://img.shields.io/badge/license-MIT-22c55e)
 
 Weft 把 Codex 的“手”、Claude 的“脑”、DSH 的“脊”、Hermes/MemoryHub 的“记忆”织成一个可运行、可审计、可替换的 Agent Harness。
 
@@ -128,10 +130,10 @@ Weft 不是一个“更会聊天的 Agent”，而是一个 **Agent 运行时**�
 
 ## 安装
 
-当前为**源码分发**，npm 包尚未发布。发布到 GitHub 后替换 repo-url 即可。
+当前为**源码分发**，npm 包尚未发布。
 
 ~~~powershell
-git clone <repo-url> weft; cd weft; npm install
+git clone https://github.com/czheng5/weft-agnet.git; cd weft-agnet; npm install
 ~~~
 
 Windows 一键脚本：
@@ -285,7 +287,14 @@ v1.0.1 tag：2026-11-02T02:52:33-05:00
 
 ## 许可
 
-License 尚未最终确定；公开发布前需补 LICENSE 文件。
+MIT © 2026 Weft contributors。见 [LICENSE](LICENSE)。
+
+## 贡献与安全
+
+- [CONTRIBUTING.md](CONTRIBUTING.md)
+- [SECURITY.md](SECURITY.md)
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- [CHANGELOG.md](CHANGELOG.md)
 
 ## 致谢
 

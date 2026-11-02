@@ -1,0 +1,36 @@
+name: Bug report
+description: Report a reproducible defect
+title: "[bug] "
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: Include the command, expected behavior, and actual behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction
+      description: Minimal steps or a fixture. Do not include secrets.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version / commit
+      placeholder: v1.0.2 or commit hash
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      placeholder: Windows 11, Node 24, Docker/WSL/PG
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Redact API keys, tokens, and private paths.

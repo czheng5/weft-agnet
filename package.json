@@ -3,7 +3,26 @@
   "version": "1.0.2",
   "private": true,
   "type": "module",
-  "description": "Weft v1.0: policy-governed, cache-first agent harness",
+  "description": "Policy-governed, cache-first, long-horizon, memory-growing agent harness",
+  "license": "MIT",
+  "author": "Weft contributors",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/czheng5/weft-agnet.git"
+  },
+  "bugs": {
+    "url": "https://github.com/czheng5/weft-agnet/issues"
+  },
+  "homepage": "https://github.com/czheng5/weft-agnet#readme",
+  "keywords": [
+    "agent",
+    "harness",
+    "policy",
+    "sandbox",
+    "memory",
+    "pgvector",
+    "long-horizon"
+  ],
   "scripts": {
     "start": "node --experimental-strip-types src/cli.ts",
     "demo": "node --experimental-strip-types src/cli.ts --demo",
@@ -16,6 +35,16 @@
   "engines": {
     "node": ">=24"
   },
+  "files": [
+    "src/",
+    "scripts/",
+    "tests/",
+    "migrations/",
+    "docs/",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
   "dependencies": {
     "pg": "^8.23.1"
   },

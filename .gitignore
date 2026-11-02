@@ -1,7 +1,38 @@
+# Secrets / local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Runtime state
 .weft/
+.weft-data/
+tmp/
+temp/
+*.tmp
+*.db
+*.sqlite
+*.sqlite3
+pgdata/
+
+# Node
 node_modules/
 dist/
+build/
+coverage/
+.npm-cache/
+
+# Logs
 *.log
+
+# Large / external
 repos/
 report/evidence/
-.npm-cache/
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
