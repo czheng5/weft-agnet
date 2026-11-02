@@ -43,7 +43,10 @@
     "docs/",
     "README.md",
     "LICENSE",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "install.sh",
+    "install.ps1",
+    ".env.example"
   ],
   "dependencies": {
     "pg": "^8.23.1"

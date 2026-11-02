@@ -130,22 +130,57 @@ Weft 不是一个“更会聊天的 Agent”，而是一个 **Agent 运行时**�
 
 ## 安装
 
-当前为**源码分发**，npm 包尚未发布。
+当前为**源码分发**，npm 包尚未发布。安装脚本会把 Weft 装到用户目录，不需要 sudo。
+
+### 一条命令
+
+Linux / macOS / WSL：
+
+~~~sh
+curl -fsSL https://raw.githubusercontent.com/czheng5/weft-agnet/main/install.sh | sh
+~~~
+
+Windows PowerShell：
+
+~~~powershell
+irm https://raw.githubusercontent.com/czheng5/weft-agnet/main/install.ps1 | iex
+~~~
+
+脚本会：
+
+- 检查 Node.js >= 24、git、npm
+- clone 到 ~/.weft/app（Windows: %LOCALAPPDATA%\Weft\app）
+- 执行 npm install
+- 复制 .env.example 为 .env
+- 生成 weft / weft.cmd 命令（Windows 自动加入用户 PATH）
+
+### 固定版本 / 先检查再执行
+
+不建议不看内容就直接 curl | sh。可以先下载：
+
+~~~sh
+curl -fsSL https://raw.githubusercontent.com/czheng5/weft-agnet/main/install.sh -o install.sh
+less install.sh
+sh install.sh
+~~~
+
+固定 tag：
+
+~~~sh
+curl -fsSL https://raw.githubusercontent.com/czheng5/weft-agnet/main/install.sh | sh -s -- --version v1.0.2
+~~~
+
+Windows 固定版本：
+
+~~~powershell
+irm https://raw.githubusercontent.com/czheng5/weft-agnet/main/install.ps1 -OutFile install.ps1
+.\install.ps1 -Version v1.0.2
+~~~
+
+### 源码安装（贡献者）
 
 ~~~powershell
 git clone https://github.com/czheng5/weft-agnet.git; cd weft-agnet; npm install
-~~~
-
-Windows 一键脚本：
-
-~~~powershell
-powershell -ExecutionPolicy Bypass -File .install.ps1
-~~~
-
-Unix：
-
-~~~sh
-sh ./install.sh
 ~~~
 
 要求：Node.js >= 24（使用原生 TypeScript type stripping，无需构建）。
