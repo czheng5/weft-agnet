@@ -117,6 +117,7 @@
 | 2026-11-01 | M3-M | v1 demo on real PG/pgvector | PASS；memoryHits=2 | e24affc |
 | 2026-11-01 | M3-N | v1.0.0 release | 77 tests；gate PASS；版本 1.0.0 | 0f1a9c7 |
 | 2026-11-02 | M3-O | 真实 DeepSeek 验收 + 真实 Guardian 50 | cacheReadTokens=2304；50 actions/0 mismatch | 579aa15 |
+| 2026-11-02 | M3-P | v1.0.1 release | gate PASS；真实模型验收 | 7e17718 |
 | 2026-11-01 | M1-O | WSL conformance | 77 tests；专用 distro + weft uid=1001 PASS | e548eba |
 | 2026-11-01 | M3-L | v1.0 RC | RC 代码完成；未发布 | 8bdb955 |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
