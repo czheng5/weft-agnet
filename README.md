@@ -137,14 +137,16 @@ Weft 不是一个“更会聊天的 Agent”，而是一个 **Agent 运行时**�
 Linux / macOS / WSL：
 
 ~~~sh
-curl -fsSL https://raw.githubusercontent.com/czheng5/weft-agnet/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/czheng5/weft-agnet/328d47afcda2287ab263270b7b37eeec099e979a/install.sh | sh
 ~~~
 
 Windows PowerShell：
 
 ~~~powershell
-irm https://raw.githubusercontent.com/czheng5/weft-agnet/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/czheng5/weft-agnet/328d47afcda2287ab263270b7b37eeec099e979a/install.ps1 | iex
 ~~~
+
+这里固定到 commit，避免 GitHub Raw 对 main 的缓存；升级 Weft 时替换 commit 即可。
 
 脚本会：
 
@@ -159,7 +161,7 @@ irm https://raw.githubusercontent.com/czheng5/weft-agnet/main/install.ps1 | iex
 不建议不看内容就直接 curl | sh。可以先下载：
 
 ~~~sh
-curl -fsSL https://raw.githubusercontent.com/czheng5/weft-agnet/main/install.sh -o install.sh
+curl -fsSL https://raw.githubusercontent.com/czheng5/weft-agnet/328d47afcda2287ab263270b7b37eeec099e979a/install.sh -o install.sh
 less install.sh
 sh install.sh
 ~~~
@@ -167,13 +169,13 @@ sh install.sh
 固定 tag：
 
 ~~~sh
-curl -fsSL https://raw.githubusercontent.com/czheng5/weft-agnet/main/install.sh | sh -s -- --version v1.0.2
+curl -fsSL https://raw.githubusercontent.com/czheng5/weft-agnet/328d47afcda2287ab263270b7b37eeec099e979a/install.sh | sh -s -- --version v1.0.2
 ~~~
 
 Windows 固定版本：
 
 ~~~powershell
-irm https://raw.githubusercontent.com/czheng5/weft-agnet/main/install.ps1 -OutFile install.ps1
+irm https://raw.githubusercontent.com/czheng5/weft-agnet/328d47afcda2287ab263270b7b37eeec099e979a/install.ps1 -OutFile install.ps1
 .\install.ps1 -Version v1.0.2
 ~~~
 
