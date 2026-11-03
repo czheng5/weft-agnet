@@ -127,7 +127,7 @@
 | 2026-11-01 | M1-O | WSL conformance | 77 tests；专用 distro + weft uid=1001 PASS | e548eba |
 | 2026-11-02 | M1-Q | sandboxed approval profile | 79 tests；docker/wsl 自动少打扰 | ec56e2b |
 | 2026-11-03 | M1-R | Arch VM conformance | 79 tests/demo/v1/long PASS | 5068288 |
-| 2026-11-03 | M1-S | bwrap Linux native backend | 81 tests；6 项 conformance PASS | 待提交 |
+| 2026-11-03 | M1-S | bwrap Linux native backend | 81 tests；6 项 conformance PASS | 9cc2143 |
 | 2026-11-01 | M3-L | v1.0 RC | RC 代码完成；未发布 | 8bdb955 |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |
