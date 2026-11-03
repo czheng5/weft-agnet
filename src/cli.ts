@@ -55,6 +55,7 @@ function parseArgs(argv: string[]): Args {
   let workspace = process.cwd();
   let mode: Args['mode'] = 'workspace-write';
   let approval: Args['approval'] = 'on-request';
+  let approvalExplicit = false;
   let sandbox: SandboxBackendKind = 'workspace-guard';
   let dockerImage: string | undefined;
   let kbUrl: string | undefined = process.env.WEFT_KB_URL;
@@ -76,7 +77,7 @@ function parseArgs(argv: string[]): Args {
     const arg = argv[i];
     if (arg === '--workspace' && argv[i + 1]) { workspace = resolve(argv[++i]); }
     else if (arg === '--mode' && argv[i + 1]) { mode = argv[++i] as Args['mode']; }
-    else if (arg === '--approval' && argv[i + 1]) { approval = argv[++i] as Args['approval']; }
+    else if (arg === '--approval' && argv[i + 1]) { approval = argv[++i] as Args['approval']; approvalExplicit = true; }
     else if (arg === '--sandbox' && argv[i + 1]) { sandbox = argv[++i] as SandboxBackendKind; }
     else if (arg === '--docker-image' && argv[i + 1]) { dockerImage = argv[++i]; }
     else if (arg === '--kb-url' && argv[i + 1]) { kbUrl = argv[++i]; }
@@ -95,6 +96,7 @@ function parseArgs(argv: string[]): Args {
     else if (arg === '--model-name' && argv[i + 1]) { modelName = argv[++i]; }
     else if (arg === '--model-key' && argv[i + 1]) { modelKey = argv[++i]; }
   }
+  if (!approvalExplicit && (sandbox === 'docker' || sandbox === 'wsl')) approval = 'sandboxed';
   return {
     demo: argv.includes('--demo'),
     yes: argv.includes('--yes'),
@@ -149,7 +151,7 @@ async function main(): Promise<void> {
   session.append('session/created', { workspace, mode: args.mode, approval: args.approval, sandbox: args.sandbox });
 
   const guard = new WorkspaceGuard(workspace);
-  const policy = new PolicyEngine({ workspace, mode: args.mode, approvalPolicy: args.approval });
+  const policy = new PolicyEngine({ workspace, mode: args.mode, approvalPolicy: args.approval, sandboxEnforced: args.sandbox === 'docker' || args.sandbox === 'wsl' });
   const model = args.demo ? new ScriptedModel() : (liveModel({ baseUrl: args.modelBaseUrl, modelName: args.modelName, apiKey: args.modelKey }) ?? new ScriptedModel());
   const ruleGuardian = new RuleBasedGuardian();
   const guardianImpl = args.guardianMode === 'model' && model.id !== 'scripted'

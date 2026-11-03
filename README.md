@@ -5,7 +5,7 @@
 Policy-governed · cache-first · long-horizon · memory-growing agent harness.
 
 ![version](https://img.shields.io/badge/version-1.0.2-2dd4bf)
-![tests](https://img.shields.io/badge/tests-78%20pass-22c55e)
+![tests](https://img.shields.io/badge/tests-79%20pass-22c55e)
 ![node](https://img.shields.io/badge/node-%3E%3D24-339933)
 ![status](https://img.shields.io/badge/status-v1.0%20released-0ea5e9)
 ![CI](https://github.com/czheng5/weft-agnet/actions/workflows/ci.yml/badge.svg)
@@ -195,7 +195,7 @@ node --experimental-strip-types scripts/v1-demo.ts
 node --test --test-isolation=none --experimental-strip-types tests/all.test.ts
 ~~~
 
-预期：78 tests pass；v1 demo PASS。
+预期：79 tests pass；v1 demo PASS。
 
 ## 配置
 
@@ -250,9 +250,10 @@ node --experimental-strip-types src/cli.ts --serve-memory --port 4780
 
 ### 沙箱
 
-- --sandbox workspace-guard：开发默认，非 OS 边界。
-- --sandbox docker：Linux 容器，6 项 conformance PASS。
-- --sandbox wsl --wsl-distro weft-sandbox --wsl-user weft：WSL 非 root PASS。
+- --sandbox workspace-guard：开发默认，非 OS 边界；普通 exec 仍会询问。
+- --sandbox docker：Linux 容器，6 项 conformance PASS；自动使用 sandboxed 审批，工作区内 exec 不再逐条询问，危险命令仍 deny。
+- --sandbox wsl --wsl-distro weft-sandbox --wsl-user weft：WSL 非 root PASS；同样自动 sandboxed 审批。
+- 显式 --approval on-request / untrusted / never 可覆盖自动选择。
 
 ## 真实验收
 

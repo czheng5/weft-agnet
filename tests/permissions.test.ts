@@ -6,8 +6,8 @@ import { PolicyEngine, ApprovalService, pathInside, isDangerousCommand } from '.
 
 const workspace = join(tmpdir(), 'weft-perm-ws');
 
-function policy(mode: 'read-only' | 'workspace-write' | 'danger-full-access', approval: 'untrusted' | 'on-request' | 'never') {
-  return new PolicyEngine({ workspace, mode, approvalPolicy: approval });
+function policy(mode: 'read-only' | 'workspace-write' | 'danger-full-access', approval: 'untrusted' | 'on-request' | 'never' | 'sandboxed', enforced = false) {
+  return new PolicyEngine({ workspace, mode, approvalPolicy: approval, sandboxEnforced: enforced });
 }
 
 test('workspace containment', () => {
@@ -29,6 +29,12 @@ test('exec policy', () => {
   assert.equal(policy('workspace-write', 'on-request').evaluate({ kind: 'exec', command: 'node --version' }).type, 'allow');
   assert.equal(policy('workspace-write', 'on-request').evaluate({ kind: 'exec', command: 'curl http://x' }).type, 'ask');
   assert.equal(policy('workspace-write', 'never').evaluate({ kind: 'exec', command: 'curl http://x' }).type, 'deny');
+});
+
+test('sandboxed approval auto-allows exec only with enforced backend', () => {
+  assert.equal(policy('workspace-write', 'sandboxed', true).evaluate({ kind: 'exec', command: 'python script.py' }).type, 'allow');
+  assert.equal(policy('workspace-write', 'sandboxed', false).evaluate({ kind: 'exec', command: 'python script.py' }).type, 'ask');
+  assert.equal(policy('workspace-write', 'sandboxed', true).evaluate({ kind: 'exec', command: 'rm -rf /' }).type, 'deny');
 });
 
 test('approval cache avoids second ask', async () => {

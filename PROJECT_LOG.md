@@ -40,6 +40,7 @@
 | WSL sandbox backend（M1-B） | WslSandboxBackend：probe/命令构造/超时/fail-closed；`--sandbox wsl` | 没有内层 OS 边界 backend | probe 失败显式报错；sandbox 测试；DSH 内 EPERM/E_ACCESSDENIED，不静默降级 |
 | Docker Linux backend（M1-B） | DockerSandboxBackend：network none/read-only/cap-drop/non-root/pids/memory/cpus；`--sandbox docker` | 需要一个可用的 Linux OS 边界 | **conformance PASS**：路径/工作区/uid=1000/网络/越界写 6 项通过 |
 | Docker 自启动（M1-B） | DockerLauncher：`docker desktop start` / Docker Desktop.exe，轮询 daemon，事件 sandbox/launch，`--no-auto-start` | 不能要求用户手动开 Docker；产品要像 Codex 一样自启动 | 2 个 launcher 测试；默认自动启动；失败仍 fail-closed |
+| sandboxed 审批（M1-Q） | docker/wsl 后端自动使用 `sandboxed` 审批：常规 workspace exec 不再逐条询问；危险命令仍 deny；workspace-guard 仍逐条 ask | DSH 式频繁弹许可不可用；Codex 的沙箱应自己兜底 | 1 个测试；79 tests pass |
 | Shell 输出捕获修复 | ShellSandbox 从 pipe 改为临时文件重定向 | DSH 内 Node child_process pipe 报 EPERM，demo 的 shell 实际失败 | demo 现在真正拿到 stdout=2；新增 capture 测试 |
 | HTTP KB（M1-C） | HttpKnowledgeBaseProvider：/search、/docs、/health、Bearer、scope headers、timeout | KB 只有本地文件，无法接外部知识库 | 2 个测试；`--kb-url` 可切；只读、不自动入 Memory |
 | HTTP MemoryHub（M1-D） | HttpMemoryProvider：write/search/get/forget/health、Bearer、scope headers、timeout | 只有 SQLite dev，接不上远程 MemoryHub | 2 个测试；`--memory-url` 可切；默认仍 SQLite |
@@ -122,6 +123,7 @@
 | 2026-11-02 | M3-R | v1.0.2 release | README/验收矩阵/安装脚本 | b7401e3 |
 | 2026-11-02 | M3-Q | 50-step long-task acceptance | PASS；50 evidence/5 checkpoints | b7401e3 |
 | 2026-11-01 | M1-O | WSL conformance | 77 tests；专用 distro + weft uid=1001 PASS | e548eba |
+| 2026-11-02 | M1-Q | sandboxed approval profile | 79 tests；docker/wsl 自动少打扰 | 待提交 |
 | 2026-11-01 | M3-L | v1.0 RC | RC 代码完成；未发布 | 8bdb955 |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |
@@ -136,7 +138,7 @@
 ## 4. 当前可验证结果
 
 ~~~text
-78 tests, 78 pass, 0 fail；v1 demo PASS；real DeepSeek/PG/pgvector；v1.0.1 RELEASED
+79 tests, 79 pass, 0 fail；v1 demo PASS；real DeepSeek/PG/pgvector；v1.0.2 RELEASED
 
 Weft M0 complete: file written, shell verified, memory stored and recalled, knowledge base searched.
 steps=7 toolCalls=6 cacheStable=6 cacheReadTokens=0

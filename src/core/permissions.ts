@@ -2,7 +2,7 @@ import { isAbsolute, relative, resolve } from 'node:path';
 import type { GuardianService } from './guardian.ts';
 
 export type SandboxMode = 'read-only' | 'workspace-write' | 'danger-full-access';
-export type ApprovalPolicy = 'untrusted' | 'on-request' | 'never';
+export type ApprovalPolicy = 'untrusted' | 'on-request' | 'never' | 'sandboxed';
 export type ActionKind = 'read' | 'write' | 'exec' | 'memory' | 'kb';
 
 export interface Action {
@@ -24,6 +24,7 @@ export interface PolicyContext {
   workspace: string;
   mode: SandboxMode;
   approvalPolicy: ApprovalPolicy;
+  sandboxEnforced?: boolean;
 }
 
 const DANGEROUS = [
@@ -126,6 +127,9 @@ export class PolicyEngine {
     }
     if (isSafeCommand(command)) {
       return { type: 'allow', reason: 'safe command allowlist', key };
+    }
+    if (this.ctx.approvalPolicy === 'sandboxed' && this.ctx.sandboxEnforced) {
+      return { type: 'allow', reason: 'exec inside enforced sandbox', key };
     }
     if (this.ctx.approvalPolicy === 'never') {
       return { type: 'deny', reason: 'approval policy never', key };
