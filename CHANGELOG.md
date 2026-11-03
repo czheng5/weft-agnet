@@ -7,7 +7,8 @@ All notable changes are documented here. Format follows Keep a Changelog; versio
 ### Added
 
 - sandboxed approval profile: docker/wsl backends auto-allow routine workspace exec; dangerous commands still deny.
-- 79 tests.
+- bwrap native Linux backend: namespace isolation, read-only host, workspace bind, network disable.
+- 81 tests.
 
 ## [1.0.2] - 2026-11-02
 

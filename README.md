@@ -5,7 +5,7 @@
 Policy-governed · cache-first · long-horizon · memory-growing agent harness.
 
 ![version](https://img.shields.io/badge/version-1.0.2-2dd4bf)
-![tests](https://img.shields.io/badge/tests-79%20pass-22c55e)
+![tests](https://img.shields.io/badge/tests-81%20pass-22c55e)
 ![node](https://img.shields.io/badge/node-%3E%3D24-339933)
 ![status](https://img.shields.io/badge/status-v1.0%20released-0ea5e9)
 ![CI](https://github.com/czheng5/weft-agnet/actions/workflows/ci.yml/badge.svg)
@@ -29,7 +29,8 @@ Weft 把 Codex 的“手”、Claude 的“脑”、DSH 的“脊”、Hermes/Me
 | [docs/project-timeline.md](docs/project-timeline.md) | 立项→v1.0.1 总时间 |
 | [docs/docker-conformance.md](docs/docker-conformance.md) | Docker OS 边界 6 项 PASS |
 | [docs/wsl-conformance.md](docs/wsl-conformance.md) | WSL 非 root PASS |
-| [docs/arch-vm-conformance.md](docs/arch-vm-conformance.md) | Arch Linux VM：79 tests/demo/长任务 PASS |
+| [docs/arch-vm-conformance.md](docs/arch-vm-conformance.md) | Arch Linux VM：核心/长任务 PASS |
+| [docs/bwrap-conformance.md](docs/bwrap-conformance.md) | Bubblewrap Linux 原生边界：6 项 PASS |
 | [docs/pgvector-live.md](docs/pgvector-live.md) | pgvector/HNSW/PgVectorIndex PASS |
 | [docs/sandbox-verification.md](docs/sandbox-verification.md) | OS 边界验证方法矩阵 |
 | [docs/interfaces.md](docs/interfaces.md) | MemoryProvider / KBProvider 契约 |
@@ -196,7 +197,7 @@ node --experimental-strip-types scripts/v1-demo.ts
 node --test --test-isolation=none --experimental-strip-types tests/all.test.ts
 ~~~
 
-预期：79 tests pass；v1 demo PASS。
+预期：81 tests pass；v1 demo PASS。
 
 ## 配置
 
@@ -252,7 +253,8 @@ node --experimental-strip-types src/cli.ts --serve-memory --port 4780
 ### 沙箱
 
 - --sandbox workspace-guard：开发默认，非 OS 边界；普通 exec 仍会询问。
-- --sandbox docker：Linux 容器，6 项 conformance PASS；自动使用 sandboxed 审批，工作区内 exec 不再逐条询问，危险命令仍 deny。
+- --sandbox bwrap：Linux 原生 namespace 边界（bubblewrap）；6 项 conformance PASS；自动 sandboxed 审批。
+- --sandbox docker：Linux 容器，6 项 conformance PASS；自动使用 sandboxed 审批。
 - --sandbox wsl --wsl-distro weft-sandbox --wsl-user weft：WSL 非 root PASS；同样自动 sandboxed 审批。
 - 显式 --approval on-request / untrusted / never 可覆盖自动选择。
 
@@ -260,13 +262,14 @@ node --experimental-strip-types src/cli.ts --serve-memory --port 4780
 
 | 验收 | 结果 |
 |---|---|
-| 自动化测试 | 78 pass |
+| 自动化测试 | 81 pass |
 | 真实 DeepSeek 任务 | 6 tools / cacheReadTokens=2304 / PASS |
 | 真实 Guardian 50 | 50 actions / 0 mismatch |
 | 真实 PostgreSQL | write/get/search/forget/health PASS |
 | pgvector + HNSW + PgVectorIndex | PASS |
 | Docker Linux OS | 6 项 PASS |
 | WSL 非 root | uid=1001 PASS |
+| Bubblewrap Linux native | 6 项 PASS（network / /etc 拒绝） |
 | 长任务 | 50 steps / 5 checkpoints / 50 evidence PASS |
 
 详细证据：docs/v1.0-gate.md、docs/real-model-acceptance.md、docs/wsl-conformance.md。
@@ -278,7 +281,7 @@ src/core/        event log, request, permissions, sandbox, memory, KB,
                  workgraph, actors, scheduler, event-bus, capabilities,
                  context-projection, guardian, metrics, TUI
 src/cli.ts       CLI / TUI 入口
-tests/           78 个测试
+tests/           81 个测试
 scripts/         demo / acceptance / conformance
 migrations/      MemoryHub pgvector schema
 docs/            设计、gate、验收、沙箱、发布
@@ -321,7 +324,7 @@ v1.0.1 tag：2026-11-02T02:52:33-05:00
 
 - 先读 PRD.md、ROADMAP.md、docs/interfaces.md。
 - 新能力必须带测试和契约；不允许静默降级。
-- 提交前运行 78 tests。
+- 提交前运行 81 tests。
 - 安全相关改动必须更新 docs/v1.0-gate.md 或验收矩阵。
 
 ## 许可

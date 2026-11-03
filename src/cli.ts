@@ -96,7 +96,7 @@ function parseArgs(argv: string[]): Args {
     else if (arg === '--model-name' && argv[i + 1]) { modelName = argv[++i]; }
     else if (arg === '--model-key' && argv[i + 1]) { modelKey = argv[++i]; }
   }
-  if (!approvalExplicit && (sandbox === 'docker' || sandbox === 'wsl')) approval = 'sandboxed';
+  if (!approvalExplicit && (sandbox === 'docker' || sandbox === 'wsl' || sandbox === 'bwrap')) approval = 'sandboxed';
   return {
     demo: argv.includes('--demo'),
     yes: argv.includes('--yes'),
@@ -151,7 +151,7 @@ async function main(): Promise<void> {
   session.append('session/created', { workspace, mode: args.mode, approval: args.approval, sandbox: args.sandbox });
 
   const guard = new WorkspaceGuard(workspace);
-  const policy = new PolicyEngine({ workspace, mode: args.mode, approvalPolicy: args.approval, sandboxEnforced: args.sandbox === 'docker' || args.sandbox === 'wsl' });
+  const policy = new PolicyEngine({ workspace, mode: args.mode, approvalPolicy: args.approval, sandboxEnforced: args.sandbox === 'docker' || args.sandbox === 'wsl' || args.sandbox === 'bwrap' });
   const model = args.demo ? new ScriptedModel() : (liveModel({ baseUrl: args.modelBaseUrl, modelName: args.modelName, apiKey: args.modelKey }) ?? new ScriptedModel());
   const ruleGuardian = new RuleBasedGuardian();
   const guardianImpl = args.guardianMode === 'model' && model.id !== 'scripted'
