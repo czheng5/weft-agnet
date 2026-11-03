@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { WorkspaceGuard, ShellSandbox } from '../src/core/sandbox.ts';
-import { createShellRunner, buildWslArgs, buildDockerArgs, decodeWslList, WslSandboxBackend, DockerSandboxBackend, DockerLauncher, SandboxUnavailableError } from '../src/core/sandbox-backends.ts';
+import { createShellRunner, buildWslArgs, buildBwrapArgs, buildDockerArgs, decodeWslList, WslSandboxBackend, BwrapSandboxBackend, DockerSandboxBackend, DockerLauncher, SandboxUnavailableError } from '../src/core/sandbox-backends.ts';
 
 
 test('workspace shell captures output without pipes', async () => {
@@ -20,6 +20,24 @@ test('WSL command builder keeps workspace and user explicit', () => {
   assert.deepEqual(args, ['-d', 'weft-sandbox', '--cd', '/workspace', '--', 'runuser', '-u', 'weft', '--', 'bash', '-lc', 'echo hi']);
 });
 
+
+test('bwrap command builder isolates namespaces and workspace', () => {
+  const args = buildBwrapArgs({ workspace: '/home/czheng/weft', command: 'echo hi' });
+  assert.equal(args.includes('--unshare-all'), true);
+  assert.equal(args.includes('--ro-bind'), true);
+  assert.equal(args.includes('--bind'), true);
+  assert.equal(args[args.indexOf('--bind') + 1], '/home/czheng/weft');
+  assert.equal(args[args.indexOf('--cap-drop') + 1], 'ALL');
+  assert.equal(args[args.length - 3], '/bin/sh');
+  assert.equal(args[args.length - 2], '-lc');
+  assert.equal(args[args.length - 1], 'echo hi');
+});
+
+test('bwrap backend declares Linux namespace boundary', () => {
+  const backend = new BwrapSandboxBackend({ workspace: '/home/czheng/weft' });
+  assert.equal(backend.info.osBoundary, true);
+  assert.equal(backend.info.backend, 'bwrap');
+});
 
 test('Docker command builder hardens the container', () => {
   const args = buildDockerArgs({

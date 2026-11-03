@@ -3,7 +3,7 @@ import { spawn } from 'node:child_process';
 import type { ShellResult, ShellRunner, SandboxInfo, WorkspaceGuard } from './sandbox.ts';
 import { ShellSandbox } from './sandbox.ts';
 
-export type SandboxBackendKind = 'workspace-guard' | 'wsl' | 'windows-restricted-token' | 'docker' | 'none';
+export type SandboxBackendKind = 'workspace-guard' | 'wsl' | 'bwrap' | 'windows-restricted-token' | 'docker' | 'none';
 
 export interface SandboxProbeResult {
   kind: SandboxBackendKind;
@@ -346,7 +346,90 @@ export class DockerSandboxBackend implements ShellRunner {
   }
 }
 
+export interface BwrapOptions {
+  bwrapPath?: string;
+  workspace: string;
+}
+
+export function buildBwrapArgs(opts: { workspace: string; command: string }): string[] {
+  return [
+    '--die-with-parent',
+    '--new-session',
+    '--unshare-all',
+    '--ro-bind', '/', '/',
+    '--bind', opts.workspace, opts.workspace,
+    '--dev', '/dev',
+    '--proc', '/proc',
+    '--tmpfs', '/tmp',
+    '--chdir', opts.workspace,
+    '--setenv', 'HOME', opts.workspace,
+    '--cap-drop', 'ALL',
+    '--',
+    '/bin/sh', '-lc', opts.command
+  ];
+}
+
+export class BwrapSandboxBackend implements ShellRunner {
+  readonly kind: SandboxBackendKind = 'bwrap';
+  readonly info: SandboxInfo;
+  readonly opts: Required<BwrapOptions>;
+  private probed?: SandboxProbeResult;
+
+  constructor(opts: BwrapOptions) {
+    this.opts = { bwrapPath: opts.bwrapPath ?? 'bwrap', workspace: opts.workspace };
+    this.info = {
+      backend: 'bwrap',
+      mode: 'linux-namespaces',
+      osBoundary: true,
+      limitations: [
+        'Linux only; bubblewrap must be installed and user namespaces must work.',
+        'The host filesystem is read-only except the workspace bind mount.',
+        'Network is disabled with --unshare-all.',
+        'No GUI/CUA isolation; use CUA policy separately.'
+      ]
+    };
+  }
+
+  async probe(): Promise<SandboxProbeResult> {
+    const version = await runProcess(this.opts.bwrapPath, ['--version'], 5000);
+    if (version.code !== 0) {
+      this.probed = {
+        kind: 'bwrap',
+        available: false,
+        reason: 'bwrap --version failed with code ' + version.code,
+        details: (version.stderr || version.stdout).trim()
+      };
+      return this.probed;
+    }
+    const smoke = await runProcess(this.opts.bwrapPath, [
+      '--die-with-parent', '--unshare-all', '--ro-bind', '/', '/', '--', '/bin/true'
+    ], 8000);
+    if (smoke.code !== 0) {
+      this.probed = {
+        kind: 'bwrap',
+        available: false,
+        reason: 'bwrap namespace smoke test failed with code ' + smoke.code,
+        details: (smoke.stderr || smoke.stdout).trim()
+      };
+      return this.probed;
+    }
+    this.probed = {
+      kind: 'bwrap',
+      available: true,
+      reason: 'bwrap ' + version.stdout.trim() + ' namespace smoke PASS'
+    };
+    return this.probed;
+  }
+
+  async run(command: string, timeoutMs = 30000): Promise<ShellResult> {
+    const probe = this.probed ?? await this.probe();
+    if (!probe.available) throw new SandboxUnavailableError('bwrap', probe.reason);
+    return runProcess(this.opts.bwrapPath, buildBwrapArgs({ workspace: this.opts.workspace, command }), timeoutMs);
+  }
+}
+
 export interface ShellRunnerOptions {
+  bwrapPath?: string;
   dockerImage?: string;
   dockerPath?: string;
   autoStartDocker?: boolean;
@@ -356,6 +439,12 @@ export interface ShellRunnerOptions {
 
 export async function createShellRunner(kind: SandboxBackendKind, guard: WorkspaceGuard, mode: string, options: ShellRunnerOptions = {}): Promise<ShellRunner> {
   if (kind === 'workspace-guard') return new ShellSandbox(guard, mode);
+  if (kind === 'bwrap') {
+    const backend = new BwrapSandboxBackend({ workspace: guard.workspace, bwrapPath: options.bwrapPath });
+    const probe = await backend.probe();
+    if (!probe.available) throw new SandboxUnavailableError('bwrap', probe.reason + (probe.details ? ': ' + probe.details : ''));
+    return backend;
+  }
   if (kind === 'wsl') {
     const backend = new WslSandboxBackend(options.wsl);
     const probe = await backend.probe();
