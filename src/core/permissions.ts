@@ -82,6 +82,25 @@ export function pathInside(workspace: string, path: string): boolean {
   return rel === '' || (!rel.startsWith('..') && !isAbsolute(rel));
 }
 
+const SENSITIVE_EXTERNAL = [
+  /(^|[\\/])\.ssh([\\/]|$)/i,
+  /(^|[\\/])\.aws([\\/]|$)/i,
+  /(^|[\\/])\.gnupg([\\/]|$)/i,
+  /(^|[\\/])\.kube([\\/]|$)/i,
+  /(^|[\\/])\.docker([\\/]|$)/i,
+  /(^|[\\/])\.npmrc$/i,
+  /(^|[\\/])\.env([.]|$)/i,
+  /(^|[\\/])id_rsa([.]|$)/i,
+  /(^|[\\/])id_ed25519([.]|$)/i,
+  /(^|[\\/])credentials([.]|$)/i,
+  /(^|[\\/])shadow$/i,
+  /(^|[\\/])sudoers$/i
+];
+
+export function isSensitiveExternalPath(path: string): boolean {
+  return SENSITIVE_EXTERNAL.some((re) => re.test(path));
+}
+
 export class PolicyEngine {
   readonly ctx: PolicyContext;
 
@@ -99,6 +118,9 @@ export class PolicyEngine {
       if (pathInside(this.ctx.workspace, action.path ?? '.')) {
         return { type: 'allow', reason: 'read inside workspace', key };
       }
+      if (this.ctx.approvalPolicy === 'sandboxed' && this.ctx.sandboxEnforced && !isSensitiveExternalPath(action.path ?? '')) {
+        return { type: 'allow', reason: 'read outside workspace, read-only sandbox', key };
+      }
       return { type: 'ask', reason: 'read outside workspace', key };
     }
 
@@ -111,6 +133,9 @@ export class PolicyEngine {
       }
       if (this.ctx.mode === 'danger-full-access') {
         return { type: 'allow', reason: 'danger-full-access', key };
+      }
+      if (this.ctx.approvalPolicy === 'sandboxed' && this.ctx.sandboxEnforced) {
+        return { type: 'deny', reason: 'write outside enforced sandbox', key };
       }
       return { type: 'ask', reason: 'write outside workspace', key };
     }

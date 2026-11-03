@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { PolicyEngine, ApprovalService, pathInside, isDangerousCommand } from '../src/core/permissions.ts';
+import { PolicyEngine, ApprovalService, pathInside, isDangerousCommand, isSensitiveExternalPath } from '../src/core/permissions.ts';
 
 const workspace = join(tmpdir(), 'weft-perm-ws');
 
@@ -29,6 +29,15 @@ test('exec policy', () => {
   assert.equal(policy('workspace-write', 'on-request').evaluate({ kind: 'exec', command: 'node --version' }).type, 'allow');
   assert.equal(policy('workspace-write', 'on-request').evaluate({ kind: 'exec', command: 'curl http://x' }).type, 'ask');
   assert.equal(policy('workspace-write', 'never').evaluate({ kind: 'exec', command: 'curl http://x' }).type, 'deny');
+});
+
+test('sandboxed read allows non-secret external reads and denies external writes', () => {
+  const p = policy('workspace-write', 'sandboxed', true);
+  assert.equal(p.evaluate({ kind: 'read', path: '/etc/os-release' }).type, 'allow');
+  assert.equal(p.evaluate({ kind: 'read', path: '/home/czheng/.ssh/id_rsa' }).type, 'ask');
+  assert.equal(p.evaluate({ kind: 'write', path: '/etc/weft-test' }).type, 'deny');
+  assert.equal(isSensitiveExternalPath('/home/czheng/.aws/credentials'), true);
+  assert.equal(isSensitiveExternalPath('/etc/os-release'), false);
 });
 
 test('sandboxed approval auto-allows exec only with enforced backend', () => {
