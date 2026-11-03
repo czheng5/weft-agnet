@@ -74,7 +74,7 @@ async function main(): Promise<void> {
   });
 
   await check('workspace is reachable', async () => {
-    const expected = args.backend === 'workspace-guard'
+    const expected = args.backend === 'workspace-guard' || args.backend === 'bwrap'
       ? workspace.replace(/\\/g, '/')
       : args.backend === 'wsl' && args.wslMount ? args.wslMount : '/workspace';
     const result = await runner.run(args.backend === 'wsl' ? 'pwd' : 'node -e "console.log(process.cwd())"', args.timeoutMs);
@@ -112,14 +112,14 @@ async function main(): Promise<void> {
     const result = await runner.run(code, args.timeoutMs);
     if (result.code === 0) throw new Error('network egress succeeded');
     return 'exit=' + result.code;
-  }, args.backend !== 'docker');
+  }, args.backend === 'workspace-guard' || args.backend === 'wsl');
 
   await check('write outside workspace is denied', async () => {
     const code = 'node -e "require(\'fs\').writeFileSync(\'/etc/weft-conformance\',\'x\')"';
     const result = await runner.run(code, args.timeoutMs);
     if (result.code === 0) throw new Error('wrote /etc/weft-conformance');
     return 'exit=' + result.code;
-  }, args.backend !== 'docker');
+  }, args.backend === 'workspace-guard' || args.backend === 'wsl');
 
   const failed = results.filter((r) => r.status === 'FAIL');
   console.log('WEFT SANDBOX CONFORMANCE backend=' + args.backend + ' workspace=' + workspace);
@@ -130,7 +130,7 @@ async function main(): Promise<void> {
     process.exitCode = 1;
     return;
   }
-  console.log('RESULT: PASS (docker checks limited to container backend)');
+  console.log('RESULT: PASS');
 }
 
 main().catch((error) => {
