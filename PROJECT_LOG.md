@@ -79,6 +79,7 @@
 | 长任务验收（M3-Q） | 50-step WorkGraph/Plan/Checkpoint/Evidence/Event replay；报告 JSON | 长任务不可逐步追溯 | PASS：50 steps/5 checkpoints/50 evidence/minConfidence=0.9 |
 | v1.0 RC（M3-L） | docs/v1.0-rc.md：功能矩阵/证据/外部缺口 | 无 RC 口径，易虚报 | RC 明确未发布 |
 | WSL conformance（M1-O） | 导入专用 weft-sandbox + weft uid=1001 + runuser | WSL 原发行版用户映射失败 | **PASS**：路径/工作区/写/非 root；network/write-outside SKIP |
+| Arch VM conformance（M1-R） | VMware Arch 7.1.3 + Node 24.22.2；真实 Linux 用户态跑 79 tests/demo/v1/长任务/guard | Docker/WSL 不等于真实 Linux 宿主 | **PASS**：workspace-guard；无 Docker/native，限制已记录 |
 | Guardian 50（M1-M） | 50 动作 rule/model shadow harness | 无 50 动作对比证据 | harness PASS；fake model；真实 key 待接 |
 | 文档/接口 | PRD/ROADMAP/M0 status/interfaces/appendix/README | 范围漂移、实现无契约 | PRD/ROADMAP FROZEN；接口契约可测试 |
 
@@ -124,6 +125,7 @@
 | 2026-11-02 | M3-Q | 50-step long-task acceptance | PASS；50 evidence/5 checkpoints | b7401e3 |
 | 2026-11-01 | M1-O | WSL conformance | 77 tests；专用 distro + weft uid=1001 PASS | e548eba |
 | 2026-11-02 | M1-Q | sandboxed approval profile | 79 tests；docker/wsl 自动少打扰 | ec56e2b |
+| 2026-11-03 | M1-R | Arch VM conformance | 79 tests/demo/v1/long PASS | 待提交 |
 | 2026-11-01 | M3-L | v1.0 RC | RC 代码完成；未发布 | 8bdb955 |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |

@@ -29,6 +29,7 @@ Weft 把 Codex 的“手”、Claude 的“脑”、DSH 的“脊”、Hermes/Me
 | [docs/project-timeline.md](docs/project-timeline.md) | 立项→v1.0.1 总时间 |
 | [docs/docker-conformance.md](docs/docker-conformance.md) | Docker OS 边界 6 项 PASS |
 | [docs/wsl-conformance.md](docs/wsl-conformance.md) | WSL 非 root PASS |
+| [docs/arch-vm-conformance.md](docs/arch-vm-conformance.md) | Arch Linux VM：79 tests/demo/长任务 PASS |
 | [docs/pgvector-live.md](docs/pgvector-live.md) | pgvector/HNSW/PgVectorIndex PASS |
 | [docs/sandbox-verification.md](docs/sandbox-verification.md) | OS 边界验证方法矩阵 |
 | [docs/interfaces.md](docs/interfaces.md) | MemoryProvider / KBProvider 契约 |
