@@ -123,7 +123,7 @@
 | 2026-11-02 | M3-R | v1.0.2 release | README/验收矩阵/安装脚本 | b7401e3 |
 | 2026-11-02 | M3-Q | 50-step long-task acceptance | PASS；50 evidence/5 checkpoints | b7401e3 |
 | 2026-11-01 | M1-O | WSL conformance | 77 tests；专用 distro + weft uid=1001 PASS | e548eba |
-| 2026-11-02 | M1-Q | sandboxed approval profile | 79 tests；docker/wsl 自动少打扰 | 待提交 |
+| 2026-11-02 | M1-Q | sandboxed approval profile | 79 tests；docker/wsl 自动少打扰 | ec56e2b |
 | 2026-11-01 | M3-L | v1.0 RC | RC 代码完成；未发布 | 8bdb955 |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |
