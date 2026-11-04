@@ -7,6 +7,7 @@ import './runtime-store-postgres.test.ts';
 import './thread-workgraph.test.ts';
 import './v1-compat.test.ts';
 import './gateway.test.ts';
+import './worker-pool.test.ts';
 import './memory.test.ts';
 import './memory-http.test.ts'
 import './memory-postgres.test.ts'
