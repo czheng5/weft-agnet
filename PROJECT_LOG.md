@@ -151,7 +151,7 @@
 | 2026-11-04 | M4-F | v1 只读迁移 | 94 tests；原文件不变 | 4c5b11f |
 | 2026-11-04 | M4-G | 真 PG RuntimeStore 契约 | PASS；95 tests；scope 隔离 | c30e685 |
 | 2026-11-04 | M4-H | v1.5.0 release | 95 tests；真 PG；v1 迁移；tag | bd482a0 |
-| 2026-11-04 | M5-A | Agent Gateway 最小 API | 96 tests；threads/messages/events | 待提交 |
+| 2026-11-04 | M5-A | Agent Gateway 最小 API | 96 tests；threads/messages/events | 394521c |
 | 2026-11-01 | M3-L | v1.0 RC | RC 代码完成；未发布 | 8bdb955 |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |
