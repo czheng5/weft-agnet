@@ -10,7 +10,8 @@ All notable changes are documented here. Format follows Keep a Changelog; versio
 - bwrap native Linux backend: namespace isolation, read-only host, workspace bind, network disable.
 - M4 runtime schema/contract: Thread, WorkerLease, RuntimeEvent, Mandate, CapabilityManifest, Outbox; runtime-store interface; migration 002.
 - SQLite RuntimeStore adapter: threads, append-only events, leases, mandates, capabilities, outbox.
-- 89 tests.
+- Postgres RuntimeStore adapter (pg-mem contract).
+- 90 tests.
 
 ## [1.0.2] - 2026-11-02
 

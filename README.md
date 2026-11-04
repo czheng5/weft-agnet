@@ -5,7 +5,7 @@
 Policy-governed · cache-first · long-horizon · memory-growing agent harness.
 
 ![version](https://img.shields.io/badge/version-1.0.2-2dd4bf)
-![tests](https://img.shields.io/badge/tests-89%20pass-22c55e)
+![tests](https://img.shields.io/badge/tests-90%20pass-22c55e)
 ![node](https://img.shields.io/badge/node-%3E%3D24-339933)
 ![status](https://img.shields.io/badge/status-v1.0%20released-0ea5e9)
 ![CI](https://github.com/czheng5/weft-agnet/actions/workflows/ci.yml/badge.svg)
@@ -204,7 +204,7 @@ node --experimental-strip-types scripts/v1-demo.ts
 node --test --test-isolation=none --experimental-strip-types tests/all.test.ts
 ~~~
 
-预期：89 tests pass；v1 demo PASS。
+预期：90 tests pass；v1 demo PASS。
 
 ## 配置
 
@@ -278,7 +278,7 @@ sandboxed 档的自动判断：
 
 | 验收 | 结果 |
 |---|---|
-| 自动化测试 | 89 pass |
+| 自动化测试 | 90 pass |
 | 真实 DeepSeek 任务 | 6 tools / cacheReadTokens=2304 / PASS |
 | 真实 Guardian 50 | 50 actions / 0 mismatch |
 | 真实 PostgreSQL | write/get/search/forget/health PASS |
@@ -297,7 +297,7 @@ src/core/        event log, request, permissions, sandbox, memory, KB,
                  workgraph, actors, scheduler, event-bus, capabilities,
                  context-projection, guardian, metrics, TUI
 src/cli.ts       CLI / TUI 入口
-tests/           89 个测试
+tests/           90 个测试
 scripts/         demo / acceptance / conformance
 migrations/      MemoryHub pgvector schema
 docs/            设计、gate、验收、沙箱、发布
@@ -341,7 +341,7 @@ v1.0.1 tag：2026-11-02T02:52:33-05:00
 
 - 先读 PRD.md、ROADMAP.md、docs/interfaces.md。
 - 新能力必须带测试和契约；不允许静默降级。
-- 提交前运行 89 tests。
+- 提交前运行 90 tests。
 - 安全相关改动必须更新 docs/v1.0-gate.md 或验收矩阵。
 
 ## 许可

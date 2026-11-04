@@ -19,6 +19,9 @@
 - src/core/runtime-store-sqlite.ts
   - SQLite RuntimeStore：threads/events/leases/mandates/capabilities/outbox
   - append-only trigger；seq/idempotency；乐观版本
+- src/core/runtime-store-postgres.ts
+  - Postgres RuntimeStore：同一契约；pg-mem 测试
+  - 真实 PG 契约待补
 - migrations/002_runtime.sql
   - runtime_threads
   - runtime_events（append-only trigger）
@@ -30,6 +33,8 @@
   - scope 隔离、lease 时间、事件 seq、mandate 过期、capability sandbox
 - tests/runtime-store-sqlite.test.ts
   - thread 版本冲突、event idempotency/seq、lease 过期、outbox claim/complete/fail
+- tests/runtime-store-postgres.test.ts
+  - pg-mem 同契约：threads/events/lease/mandate/capability/outbox
 
 ## 2. 概念归属
 
@@ -56,13 +61,13 @@
 
 ## 4. M4 尚未完成
 
-- Postgres RuntimeStore 适配器（SQLite 已完成）
+- 真实 PostgreSQL RuntimeStore 契约（pg-mem 已完成）
 - EventLog/Outbox 的实际事务实现 ✅（SQLite）
 - v1.0 数据迁移与只读兼容
 - Thread/WorkGraph 的绑定规则
 - CapabilityManifest 与现有 CapabilityRegistry 的合并
 - 多租户查询/索引/配额
-- contract tests 对真实 DB
+- contract tests 对真实 PostgreSQL
 
 这些属于 M4 后续或 M5，不在本轮宣称完成。
 
@@ -70,7 +75,7 @@
 
 当前：
 
-- 89 tests pass
+- 90 tests pass
 - runtime-schema 单元测试覆盖核心不变量
 
 M4 完成条件：
