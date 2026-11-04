@@ -2,14 +2,16 @@
 
 All notable changes are documented here. Format follows Keep a Changelog; versions use SemVer.
 
-## [Unreleased]
+## [2.0.0] - 2026-11-04
 
 ### Added
 
 - M6-A self-contained Web Surface served by Gateway.
 - M6 Capability Registry API and BYOM ModelRegistry.
 - M6 RBAC principals, tenant scope isolation and thread/message quotas.
-- 111 tests.
+- M6 Weft Protocol weft/1 envelope and Weft Bench percentiles.
+- M6 Capability Marketplace checksum bundles.
+- 114 tests.
 
 ## [1.6.0] - 2026-11-04
 
