@@ -138,7 +138,7 @@
 | 2026-11-04 | M4-plan | v2 路线 checkpoint + release 纪律 | M4/M5/M6；附录未决问题 | a0ae3c7 |
 | 2026-11-04 | M4-A | runtime schema/contract | 87 tests；RuntimeStore 接口/002 SQL | eb34bb4 |
 | 2026-11-04 | M4-B | SQLite RuntimeStore | 89 tests；events/leases/outbox | 1673c6d |
-| 2026-11-04 | M4-C | Postgres RuntimeStore | 90 tests；pg-mem 契约 | 待提交 |
+| 2026-11-04 | M4-C | Postgres RuntimeStore | 90 tests；pg-mem 契约 | 8607f5f |
 | 2026-11-01 | M3-L | v1.0 RC | RC 代码完成；未发布 | 8bdb955 |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |
