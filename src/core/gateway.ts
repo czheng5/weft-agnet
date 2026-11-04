@@ -1,6 +1,7 @@
 import { createServer } from 'node:http';
 import type { IncomingMessage, Server, ServerResponse } from 'node:http';
 import { createThreadRecord } from './runtime-schema.ts';
+import { Router } from './router.ts';
 import type { RuntimeScope, ThreadRecord } from './runtime-schema.ts';
 import type { RuntimeStore } from './runtime-store.ts';
 
@@ -9,6 +10,7 @@ export interface AgentGatewayOptions {
   scope: RuntimeScope;
   host?: string;
   token?: string;
+  router?: Router;
 }
 
 export interface AgentGatewayAddress {
@@ -56,6 +58,7 @@ export class AgentGateway {
   readonly scope: RuntimeScope;
   readonly host: string;
   readonly token?: string;
+  private readonly router: Router;
   private server: Server;
   private address: AgentGatewayAddress | null = null;
 
@@ -64,6 +67,7 @@ export class AgentGateway {
     this.scope = opts.scope;
     this.host = opts.host ?? '127.0.0.1';
     this.token = opts.token;
+    this.router = opts.router ?? new Router({ store: this.store });
     this.server = createServer((req, res) => { void this.handle(req, res); });
   }
 
@@ -133,9 +137,9 @@ export class AgentGateway {
         const text = typeof body.text === 'string' ? body.text.trim() : '';
         if (!text) { sendJson(res, 400, { error: 'text is required' }); return; }
         const key = typeof req.headers['idempotency-key'] === 'string' ? req.headers['idempotency-key'] : undefined;
-        const event = await this.store.appendEvent({ threadId: thread.id, type: 'message.user', data: { text }, idempotencyKey: key });
-        const job = key ? undefined : await this.store.enqueueOutbox({ threadId: thread.id, topic: 'message.user', payload: { eventId: event.id } });
-        sendJson(res, 202, { threadId: thread.id, event, jobId: job?.id ?? null });
+        const result = await this.router.route(thread, text, { idempotencyKey: key });
+        if (!result.accepted) { sendJson(res, 403, { error: result.reason }); return; }
+        sendJson(res, 202, { threadId: thread.id, event: result.event, jobId: result.job?.id ?? null });
         return;
       }
       const eventsMatch = path.match(/^\/threads\/([^/]+)\/events$/);

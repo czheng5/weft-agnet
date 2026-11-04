@@ -49,7 +49,7 @@
 
 当前：
 
-- 98 tests pass
+- 100 tests pass
 - Gateway 单元测试覆盖
 
 M5 完成条件：

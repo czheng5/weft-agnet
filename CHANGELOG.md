@@ -8,7 +8,8 @@ All notable changes are documented here. Format follows Keep a Changelog; versio
 
 - M5 Agent Gateway: HTTP threads/messages/events, bearer auth, idempotency, outbox enqueue.
 - M5 WorkerPool: outbox claim, worker lease, heartbeat, complete/fail/backoff.
-- 98 tests.
+- M5 Router: admission, mandate capability/expiry, idempotent Outbox routing.
+- 100 tests.
 
 ## [1.5.0] - 2026-11-04
 

@@ -15,7 +15,7 @@
 | M2 Long-horizon | ✅ 代码/单测 | 100% | Work Graph/Goal/Plan/Evidence/Checkpoint/Actor fork/Scheduler/EventBus/Capability/Projection |
 | M3 Memory & v1.0 | ✅ | 100% | MemoryHub/PG/pgvector/PgVectorIndex/HTTP/MCP；v1.0 gate PASS |
 | M4 v1.5 | ✅ RELEASED | 100% | Runtime schema/store、PG/SQLite、v1 只读迁移、Capability 统一 |
-| M5 v1.6 | ◐ 进行中 | ~40% | Gateway + WorkerPool 完成；Router/SSE/Watchdog/AgentLoop 待做 |
+| M5 v1.6 | ◐ 进行中 | ~55% | Gateway + WorkerPool + Router/Mandate；SSE/Watchdog/AgentLoop 待做 |
 | M6 v2.0 | ⏳ 未开始 | 0% | Own Shape/协议/Bench/插件生态/Surface |
 
 ---
@@ -54,6 +54,7 @@
 | v1.5 release（M4-H） | 95 tests、真 PG、v1 迁移、Capability 统一；版本 1.5.0 | M4 没有正式发布口径 | v1.5.0 RELEASED；tag |
 | M5 Gateway（M5-A） | AgentGateway HTTP：threads/messages/events、Bearer、idempotency、Outbox | Agent 没有持久入口 | 96 tests；Gateway 单元测试 |
 | M5 WorkerPool（M5-B） | Outbox claim、WorkerLease、heartbeat、complete/fail/backoff、lease busy defer | 任务没有执行者 | 98 tests；success/busy 测试 |
+| M5 Router（M5-C） | admission、Mandate capability/expiry、message.user 持久化、worker.task 入队、幂等 | 消息没有准入边界 | 100 tests；Gateway 委托 Router |
 | Release 纪律（M4-plan） | RELEASE.md；gitignore 加固；版本 gate | 防止敏感日志/无关文件入库 | 发布前检查清单 |
 | 自动读判断（M1-T） | sandboxed 档：非敏感外部只读自动允许；外部写直接 deny；敏感路径仍 ask | 必要外部读取不应逐条弹窗，但 secrets 不能自动放行 | 1 个测试；82 tests pass |
 | Shell 输出捕获修复 | ShellSandbox 从 pipe 改为临时文件重定向 | DSH 内 Node child_process pipe 报 EPERM，demo 的 shell 实际失败 | demo 现在真正拿到 stdout=2；新增 capture 测试 |
@@ -154,6 +155,7 @@
 | 2026-11-04 | M4-H | v1.5.0 release | 95 tests；真 PG；v1 迁移；tag | bd482a0 |
 | 2026-11-04 | M5-A | Agent Gateway 最小 API | 96 tests；threads/messages/events | 394521c |
 | 2026-11-04 | M5-B | WorkerPool | 98 tests；claim/lease/complete/fail | d303db9 |
+| 2026-11-04 | M5-C | Router/Mandate | 100 tests；准入/过期/幂等 | 待提交 |
 | 2026-11-01 | M3-L | v1.0 RC | RC 代码完成；未发布 | 8bdb955 |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |
@@ -168,7 +170,7 @@
 ## 4. 当前可验证结果
 
 ~~~text
-98 tests, 98 pass, 0 fail；v1 demo PASS；real DeepSeek/PG/pgvector；v1.0.2 RELEASED
+100 tests, 100 pass, 0 fail；v1 demo PASS；real DeepSeek/PG/pgvector；v1.0.2 RELEASED
 
 Weft M0 complete: file written, shell verified, memory stored and recalled, knowledge base searched.
 steps=7 toolCalls=6 cacheStable=6 cacheReadTokens=0
