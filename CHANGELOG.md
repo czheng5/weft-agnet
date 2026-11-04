@@ -2,6 +2,13 @@
 
 All notable changes are documented here. Format follows Keep a Changelog; versions use SemVer.
 
+## [Unreleased]
+
+### Added
+
+- M5 Agent Gateway: HTTP threads/messages/events, bearer auth, idempotency, outbox enqueue.
+- 96 tests.
+
 ## [1.5.0] - 2026-11-04
 
 ### Added
