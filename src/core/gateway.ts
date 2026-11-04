@@ -2,6 +2,7 @@ import { createServer } from 'node:http';
 import type { IncomingMessage, Server, ServerResponse } from 'node:http';
 import { createThreadRecord } from './runtime-schema.ts';
 import { Router } from './router.ts';
+import { SURFACE_HTML } from './surface.ts';
 import type { RuntimeScope, ThreadRecord } from './runtime-schema.ts';
 import type { RuntimeStore } from './runtime-store.ts';
 
@@ -25,6 +26,11 @@ function sendJson(res: ServerResponse, status: number, body: unknown): void {
   const text = JSON.stringify(body);
   res.writeHead(status, { 'content-type': 'application/json; charset=utf-8', 'content-length': Buffer.byteLength(text) });
   res.end(text);
+}
+
+function sendHtml(res: ServerResponse, status: number, html: string): void {
+  res.writeHead(status, { 'content-type': 'text/html; charset=utf-8', 'content-length': Buffer.byteLength(html) });
+  res.end(html);
 }
 
 function sameScope(a: RuntimeScope, b: RuntimeScope): boolean {
@@ -134,6 +140,10 @@ export class AgentGateway {
       if (!this.authorized(req)) { sendJson(res, 401, { error: 'unauthorized' }); return; }
       const url = new URL(req.url ?? '/', 'http://localhost');
       const path = url.pathname.replace(/\/$/, '');
+      if (req.method === 'GET' && path === '') {
+        sendHtml(res, 200, SURFACE_HTML);
+        return;
+      }
       if (req.method === 'GET' && path === '/health') {
         sendJson(res, 200, { ok: true, service: 'weft-gateway' });
         return;

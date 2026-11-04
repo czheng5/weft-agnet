@@ -14,6 +14,7 @@ import './watchdog.test.ts';
 import './agent-worker.test.ts';
 import './eval-gate.test.ts'
 import './http-source.test.ts'
+import './surface.test.ts'
 import './memory.test.ts';
 import './memory-http.test.ts'
 import './memory-postgres.test.ts'
