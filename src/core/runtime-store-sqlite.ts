@@ -59,6 +59,8 @@ CREATE TABLE IF NOT EXISTS runtime_mandates (
 CREATE TABLE IF NOT EXISTS runtime_capabilities (
   name TEXT NOT NULL,
   version TEXT NOT NULL,
+  id TEXT,
+  instructions TEXT,
   description TEXT NOT NULL,
   tools_json TEXT NOT NULL,
   permissions_json TEXT NOT NULL,
@@ -105,7 +107,7 @@ interface MandateRow {
   capabilities_json: string; permissions_json: string; expires_at: number; version: number; created_at: number;
 }
 interface CapabilityRow {
-  name: string; version: string; description: string; tools_json: string; permissions_json: string;
+  name: string; version: string; id: string | null; instructions: string | null; description: string; tools_json: string; permissions_json: string;
   sandbox: string; evals_json: string; entry: string | null; created_at: number;
 }
 interface OutboxRow {
@@ -153,7 +155,8 @@ function mandateFromRow(row: MandateRow): MandateRecord {
 
 function capabilityFromRow(row: CapabilityRow): CapabilityManifest {
   return validateCapabilityManifest({
-    name: row.name, version: row.version, description: row.description,
+    name: row.name, version: row.version, id: row.id ?? undefined, instructions: row.instructions ?? undefined,
+    description: row.description,
     tools: JSON.parse(row.tools_json), permissions: JSON.parse(row.permissions_json),
     sandbox: row.sandbox, evals: JSON.parse(row.evals_json), entry: row.entry ?? undefined
   });
@@ -303,8 +306,8 @@ export class SqliteRuntimeStore implements RuntimeStore {
 
   async putCapability(capability: CapabilityManifest): Promise<CapabilityManifest> {
     const record = validateCapabilityManifest(capability);
-    this.db.prepare('INSERT INTO runtime_capabilities (name, version, description, tools_json, permissions_json, sandbox, evals_json, entry, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(name, version) DO UPDATE SET description=excluded.description, tools_json=excluded.tools_json, permissions_json=excluded.permissions_json, sandbox=excluded.sandbox, evals_json=excluded.evals_json, entry=excluded.entry')
-      .run(record.name, record.version, record.description, JSON.stringify(record.tools), JSON.stringify(record.permissions), record.sandbox, JSON.stringify(record.evals), record.entry ?? null, this.clock());
+    this.db.prepare('INSERT INTO runtime_capabilities (name, version, id, instructions, description, tools_json, permissions_json, sandbox, evals_json, entry, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(name, version) DO UPDATE SET id=excluded.id, instructions=excluded.instructions, description=excluded.description, tools_json=excluded.tools_json, permissions_json=excluded.permissions_json, sandbox=excluded.sandbox, evals_json=excluded.evals_json, entry=excluded.entry')
+      .run(record.name, record.version, record.id ?? null, record.instructions ?? null, record.description, JSON.stringify(record.tools), JSON.stringify(record.permissions), record.sandbox, JSON.stringify(record.evals), record.entry ?? null, this.clock());
     return record;
   }
 

@@ -57,6 +57,8 @@ CREATE TABLE IF NOT EXISTS runtime_mandates (
 CREATE TABLE IF NOT EXISTS runtime_capabilities (
   name TEXT NOT NULL,
   version TEXT NOT NULL,
+  id TEXT,
+  instructions TEXT,
   description TEXT NOT NULL,
   tools_json TEXT NOT NULL,
   permissions_json TEXT NOT NULL,
@@ -96,7 +98,7 @@ interface MandateRow {
   id: string; thread_id: string; tenant_id: string; project_id: string; workspace_id: string;
   capabilities_json: string; permissions_json: string; expires_at: string | number; version: number; created_at: string | number;
 }
-interface CapabilityRow { name: string; version: string; description: string; tools_json: string; permissions_json: string; sandbox: string; evals_json: string; entry: string | null; }
+interface CapabilityRow { name: string; version: string; id: string | null; instructions: string | null; description: string; tools_json: string; permissions_json: string; sandbox: string; evals_json: string; entry: string | null; }
 interface OutboxRow {
   id: string; thread_id: string; topic: string; payload_json: string; status: string;
   attempts: number; next_attempt_at: string | number; claimed_by: string | null; claimed_at: string | number | null;
@@ -120,7 +122,7 @@ function mandateFromRow(row: MandateRow): MandateRecord {
   return validateMandate({ id: row.id, threadId: row.thread_id, scope: scopeOf(row.tenant_id, row.project_id, row.workspace_id), capabilities: JSON.parse(row.capabilities_json), permissions: JSON.parse(row.permissions_json), expiresAt: Number(row.expires_at), version: Number(row.version), createdAt: Number(row.created_at) });
 }
 function capabilityFromRow(row: CapabilityRow): CapabilityManifest {
-  return validateCapabilityManifest({ name: row.name, version: row.version, description: row.description, tools: JSON.parse(row.tools_json), permissions: JSON.parse(row.permissions_json), sandbox: row.sandbox, evals: JSON.parse(row.evals_json), entry: row.entry ?? undefined });
+  return validateCapabilityManifest({ name: row.name, version: row.version, id: row.id ?? undefined, instructions: row.instructions ?? undefined, description: row.description, tools: JSON.parse(row.tools_json), permissions: JSON.parse(row.permissions_json), sandbox: row.sandbox, evals: JSON.parse(row.evals_json), entry: row.entry ?? undefined });
 }
 function outboxFromRow(row: OutboxRow): OutboxRecord {
   return validateOutbox({ id: row.id, threadId: row.thread_id, topic: row.topic, payload: JSON.parse(row.payload_json), status: row.status, attempts: Number(row.attempts), nextAttemptAt: Number(row.next_attempt_at), claimedBy: row.claimed_by ?? undefined, claimedAt: row.claimed_at === null ? undefined : Number(row.claimed_at), createdAt: Number(row.created_at), updatedAt: Number(row.updated_at) });
@@ -256,7 +258,7 @@ export class PostgresRuntimeStore implements RuntimeStore {
 
   async putCapability(capability: CapabilityManifest): Promise<CapabilityManifest> {
     const record = validateCapabilityManifest(capability);
-    await this.pool.query('INSERT INTO runtime_capabilities (name,version,description,tools_json,permissions_json,sandbox,evals_json,entry,created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ON CONFLICT(name,version) DO UPDATE SET description=EXCLUDED.description, tools_json=EXCLUDED.tools_json, permissions_json=EXCLUDED.permissions_json, sandbox=EXCLUDED.sandbox, evals_json=EXCLUDED.evals_json, entry=EXCLUDED.entry', [record.name, record.version, record.description, JSON.stringify(record.tools), JSON.stringify(record.permissions), record.sandbox, JSON.stringify(record.evals), record.entry ?? null, this.clock()]);
+    await this.pool.query('INSERT INTO runtime_capabilities (name,version,id,instructions,description,tools_json,permissions_json,sandbox,evals_json,entry,created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) ON CONFLICT(name,version) DO UPDATE SET id=EXCLUDED.id, instructions=EXCLUDED.instructions, description=EXCLUDED.description, tools_json=EXCLUDED.tools_json, permissions_json=EXCLUDED.permissions_json, sandbox=EXCLUDED.sandbox, evals_json=EXCLUDED.evals_json, entry=EXCLUDED.entry', [record.name, record.version, record.id ?? null, record.instructions ?? null, record.description, JSON.stringify(record.tools), JSON.stringify(record.permissions), record.sandbox, JSON.stringify(record.evals), record.entry ?? null, this.clock()]);
     return record;
   }
 

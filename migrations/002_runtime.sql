@@ -68,6 +68,8 @@ CREATE TABLE IF NOT EXISTS runtime_mandates (
 CREATE TABLE IF NOT EXISTS runtime_capabilities (
   name TEXT NOT NULL,
   version TEXT NOT NULL,
+  id TEXT,
+  instructions TEXT,
   description TEXT NOT NULL,
   tools_json TEXT NOT NULL,
   permissions_json TEXT NOT NULL,

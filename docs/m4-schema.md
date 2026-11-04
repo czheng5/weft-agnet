@@ -28,6 +28,9 @@
 - src/core/capabilities.ts
   - CapabilityRegistry 统一到 runtime CapabilityManifest
   - v1 legacy manifest 只读迁移；persist version 2
+- src/core/v1-compat.ts
+  - 只读读取 v1 workgraph/capabilities/scheduler/checkpoints
+  - 显式迁移到 RuntimeStore；不改写 v1 文件
 - migrations/002_runtime.sql
   - runtime_threads
   - runtime_events（append-only trigger）
@@ -45,6 +48,8 @@
   - 绑定、JSON roundtrip、跨 thread 拒绝
 - tests/capabilities.test.ts
   - manifest 统一、legacy v1 迁移、权限/sandbox
+- tests/v1-compat.test.ts
+  - 只读快照、迁移到 thread/event/capability、原文件不变
 
 ## 2. 概念归属
 
@@ -73,7 +78,7 @@
 
 - 真实 PostgreSQL RuntimeStore 契约（pg-mem 已完成）
 - EventLog/Outbox 的实际事务实现 ✅（SQLite）
-- v1.0 数据迁移与只读兼容
+- v1.0 数据迁移与只读兼容 ✅（最小迁移）
 - Thread/WorkGraph 的绑定规则 ✅（最小绑定）
 - CapabilityManifest 与现有 CapabilityRegistry 的合并 ✅
 - 多租户查询/索引/配额
@@ -85,7 +90,7 @@
 
 当前：
 
-- 93 tests pass
+- 94 tests pass
 - runtime-schema 单元测试覆盖核心不变量
 
 M4 完成条件：
