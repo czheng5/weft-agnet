@@ -14,7 +14,8 @@ All notable changes are documented here. Format follows Keep a Changelog; versio
 - Thread ↔ WorkGraph binding: one graph per thread, persisted threadId, mismatch fail-closed.
 - CapabilityRegistry unified on runtime CapabilityManifest; v1 legacy manifests migrate on read/write.
 - v1.0 read-only migration: workgraph/capabilities into runtime store without mutating legacy files.
-- 94 tests.
+- Real PostgreSQL RuntimeStore contract PASS; tenant scope isolation.
+- 95 tests.
 
 ## [1.0.2] - 2026-11-02
 

@@ -49,6 +49,7 @@
 | M4 Thread/Graph（M4-D） | WorkGraph.threadId + bind/assert；一个 thread 一个 graph；JSON 持久化 | Thread 与内部 DAG 容易变成第二套任务 | 92 tests；跨 thread 拒绝 |
 | M4 Capability 统一（M4-E） | CapabilityRegistry 使用 runtime CapabilityManifest；legacy v1 迁移；version 2 persist | 旧 manifest 与新 schema 第二套语义 | 93 tests；legacy 读取/迁移 |
 | M4 v1 迁移（M4-F） | 只读读取 v1 workgraph/capabilities/scheduler/checkpoints；显式迁移到 RuntimeStore；不改写 v1 文件 | v1.0 数据不能丢，也不能被悄悄改写 | 94 tests；原文件字节不变 |
+| M4 真 PG/scope（M4-G） | 真实 PostgreSQL RuntimeStore 契约；tenant scope 列表隔离 | pg-mem 不能代表生产 | **PASS**；95 tests；runtime-pg-live.md |
 | Release 纪律（M4-plan） | RELEASE.md；gitignore 加固；版本 gate | 防止敏感日志/无关文件入库 | 发布前检查清单 |
 | 自动读判断（M1-T） | sandboxed 档：非敏感外部只读自动允许；外部写直接 deny；敏感路径仍 ask | 必要外部读取不应逐条弹窗，但 secrets 不能自动放行 | 1 个测试；82 tests pass |
 | Shell 输出捕获修复 | ShellSandbox 从 pipe 改为临时文件重定向 | DSH 内 Node child_process pipe 报 EPERM，demo 的 shell 实际失败 | demo 现在真正拿到 stdout=2；新增 capture 测试 |
@@ -145,6 +146,7 @@
 | 2026-11-04 | M4-D | Thread/WorkGraph binding | 92 tests；threadId roundtrip | 8d2f44a |
 | 2026-11-04 | M4-E | CapabilityRegistry 统一 | 93 tests；legacy 迁移 | c436a4f |
 | 2026-11-04 | M4-F | v1 只读迁移 | 94 tests；原文件不变 | 4c5b11f |
+| 2026-11-04 | M4-G | 真 PG RuntimeStore 契约 | PASS；95 tests；scope 隔离 | 待提交 |
 | 2026-11-01 | M3-L | v1.0 RC | RC 代码完成；未发布 | 8bdb955 |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |
@@ -159,7 +161,7 @@
 ## 4. 当前可验证结果
 
 ~~~text
-94 tests, 94 pass, 0 fail；v1 demo PASS；real DeepSeek/PG/pgvector；v1.0.2 RELEASED
+95 tests, 95 pass, 0 fail；v1 demo PASS；real DeepSeek/PG/pgvector；v1.0.2 RELEASED
 
 Weft M0 complete: file written, shell verified, memory stored and recalled, knowledge base searched.
 steps=7 toolCalls=6 cacheStable=6 cacheReadTokens=0

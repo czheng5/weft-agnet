@@ -74,23 +74,23 @@
 6. Outbox 状态机：pending → claimed → done/failed；失败带 retryAt。
 7. Thread 版本号用于乐观并发；更新必须带 version。
 
-## 4. M4 尚未完成
+## 4. 当前完成边界
 
-- 真实 PostgreSQL RuntimeStore 契约（pg-mem 已完成）
+- 真实 PostgreSQL RuntimeStore 契约 ✅（见 runtime-pg-live.md）
 - EventLog/Outbox 的实际事务实现 ✅（SQLite）
 - v1.0 数据迁移与只读兼容 ✅（最小迁移）
 - Thread/WorkGraph 的绑定规则 ✅（最小绑定）
 - CapabilityManifest 与现有 CapabilityRegistry 的合并 ✅
-- 多租户查询/索引/配额
-- contract tests 对真实 PostgreSQL
+- 多租户查询/索引 ✅（配额仍属 M6）
+- contract tests 对真实 PostgreSQL ✅
 
-这些属于 M4 后续或 M5，不在本轮宣称完成。
+M4 的 schema/store/迁移主链已完成；v1.5 release gate 尚未执行，不能宣称 M4 已发布。
 
 ## 5. 验收
 
 当前：
 
-- 94 tests pass
+- 95 tests pass
 - runtime-schema 单元测试覆盖核心不变量
 
 M4 完成条件：
@@ -98,5 +98,5 @@ M4 完成条件：
 - RuntimeStore 至少一个本地适配器（SQLite）✅
 - EventLog append-only + seq/idempotency 契约测试 ✅
 - Outbox 重试/对账契约测试（SQLite）✅
-- v1.0 数据只读兼容
+- v1.0 数据只读兼容 ✅
 - docs/v2-plan 的 M4 exit criteria 全部有证据

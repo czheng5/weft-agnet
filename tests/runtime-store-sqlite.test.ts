@@ -39,6 +39,22 @@ test('sqlite runtime store persists threads, events and idempotency', async () =
   }
 });
 
+test('sqlite runtime store isolates tenant scopes', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'weft-runtime-'));
+  const store = new SqliteRuntimeStore(join(dir, 'runtime.db'), { now: () => 1000 });
+  try {
+    const a = createThreadRecord({ scope, title: 'a', status: 'open', now: 1000 });
+    const b = createThreadRecord({ scope: { ...scope, tenantId: 't2' }, title: 'b', status: 'open', now: 1000 });
+    await store.createThread(a);
+    await store.createThread(b);
+    assert.deepEqual((await store.listThreads(scope)).map((item) => item.id), [a.id]);
+    assert.deepEqual((await store.listThreads({ ...scope, tenantId: 't2' })).map((item) => item.id), [b.id]);
+  } finally {
+    store.close();
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test('sqlite runtime store enforces leases, mandates, capabilities and outbox', async () => {
   const dir = mkdtempSync(join(tmpdir(), 'weft-runtime-'));
   const path = join(dir, 'runtime.db');
