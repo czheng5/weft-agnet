@@ -25,6 +25,9 @@
 - src/core/thread-workgraph.ts
   - Thread ↔ WorkGraph 绑定；一个 graph 只能绑一个 thread
   - WorkGraphJSON 持久化 threadId
+- src/core/capabilities.ts
+  - CapabilityRegistry 统一到 runtime CapabilityManifest
+  - v1 legacy manifest 只读迁移；persist version 2
 - migrations/002_runtime.sql
   - runtime_threads
   - runtime_events（append-only trigger）
@@ -40,6 +43,8 @@
   - pg-mem 同契约：threads/events/lease/mandate/capability/outbox
 - tests/thread-workgraph.test.ts
   - 绑定、JSON roundtrip、跨 thread 拒绝
+- tests/capabilities.test.ts
+  - manifest 统一、legacy v1 迁移、权限/sandbox
 
 ## 2. 概念归属
 
@@ -70,7 +75,7 @@
 - EventLog/Outbox 的实际事务实现 ✅（SQLite）
 - v1.0 数据迁移与只读兼容
 - Thread/WorkGraph 的绑定规则 ✅（最小绑定）
-- CapabilityManifest 与现有 CapabilityRegistry 的合并
+- CapabilityManifest 与现有 CapabilityRegistry 的合并 ✅
 - 多租户查询/索引/配额
 - contract tests 对真实 PostgreSQL
 
@@ -80,7 +85,7 @@
 
 当前：
 
-- 92 tests pass
+- 93 tests pass
 - runtime-schema 单元测试覆盖核心不变量
 
 M4 完成条件：

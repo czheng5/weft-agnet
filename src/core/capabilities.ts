@@ -1,7 +1,22 @@
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { RuntimeSchemaError, validateCapabilityManifest } from './runtime-schema.ts';
+import type { CapabilityManifest, PermissionSet } from './runtime-schema.ts';
 
-export interface CapabilityManifest {
+export type { CapabilityManifest } from './runtime-schema.ts';
+
+export interface CapabilityRecord {
+  manifest: CapabilityManifest;
+  enabled: boolean;
+  installedAt: number;
+}
+
+interface StoreJSON {
+  version: 2;
+  capabilities: CapabilityRecord[];
+}
+
+interface LegacyManifest {
   schemaVersion: 1;
   id: string;
   name: string;
@@ -13,15 +28,9 @@ export interface CapabilityManifest {
   eval?: string[];
 }
 
-export interface CapabilityRecord {
-  manifest: CapabilityManifest;
-  enabled: boolean;
-  installedAt: number;
-}
-
-interface StoreJSON {
+interface LegacyStoreJSON {
   version: 1;
-  capabilities: CapabilityRecord[];
+  capabilities: Array<{ manifest: LegacyManifest; enabled: boolean; installedAt: number }>;
 }
 
 export class CapabilityError extends Error {
@@ -31,13 +40,61 @@ export class CapabilityError extends Error {
   }
 }
 
+function idOf(manifest: CapabilityManifest): string {
+  return manifest.id ?? manifest.name;
+}
+
+function parseLegacyPermissions(permissions: string[] = []): PermissionSet {
+  const out: PermissionSet = { read: [], write: [], exec: [], network: [] };
+  for (const permission of permissions) {
+    const value = permission.toLowerCase();
+    if (value.includes('read')) out.read.push('**');
+    else if (value.includes('write')) out.write.push('**');
+    else if (value.includes('network') || value.includes('http') || value.includes('net')) out.network.push('**');
+    else out.exec.push(permission);
+  }
+  return out;
+}
+
+function legacyToManifest(legacy: LegacyManifest): CapabilityManifest {
+  return validateCapabilityManifest({
+    schemaVersion: 1,
+    id: legacy.id,
+    name: legacy.name,
+    version: legacy.version,
+    description: legacy.description ?? legacy.name,
+    instructions: legacy.instructions,
+    tools: legacy.tools ?? [],
+    permissions: parseLegacyPermissions(legacy.permissions),
+    sandbox: 'any',
+    evals: legacy.eval ?? []
+  });
+}
+
 function validate(manifest: CapabilityManifest): void {
-  if (manifest.schemaVersion !== 1) throw new CapabilityError('unsupported schemaVersion');
-  if (!manifest.id || !/^[a-z0-9][a-z0-9._-]*$/i.test(manifest.id)) throw new CapabilityError('invalid id');
-  if (!manifest.name.trim()) throw new CapabilityError('name is empty');
-  if (!/^\d+\.\d+\.\d+$/.test(manifest.version)) throw new CapabilityError('version must be semver');
-  for (const tool of manifest.tools ?? []) if (!tool.trim()) throw new CapabilityError('empty tool');
-  for (const permission of manifest.permissions ?? []) if (!permission.trim()) throw new CapabilityError('empty permission');
+  let validated: CapabilityManifest;
+  try {
+    validated = validateCapabilityManifest(manifest);
+  } catch (error) {
+    throw new CapabilityError(error instanceof RuntimeSchemaError ? error.message : String(error));
+  }
+  if (!/^\d+\.\d+\.\d+$/.test(validated.version)) throw new CapabilityError('version must be semver');
+  if (!validated.name.trim()) throw new CapabilityError('name is empty');
+  if (validated.id !== undefined && !/^[a-z0-9][a-z0-9._-]*$/i.test(validated.id)) throw new CapabilityError('invalid id');
+}
+
+function cloneManifest(manifest: CapabilityManifest): CapabilityManifest {
+  return {
+    ...manifest,
+    tools: [...manifest.tools],
+    permissions: {
+      read: [...manifest.permissions.read],
+      write: [...manifest.permissions.write],
+      exec: [...manifest.permissions.exec],
+      network: [...manifest.permissions.network]
+    },
+    evals: [...manifest.evals]
+  };
 }
 
 export class CapabilityRegistry {
@@ -51,17 +108,13 @@ export class CapabilityRegistry {
 
   install(manifest: CapabilityManifest): CapabilityRecord {
     validate(manifest);
+    const normalized = validateCapabilityManifest(manifest);
     const record: CapabilityRecord = {
-      manifest: {
-        ...manifest,
-        tools: [...(manifest.tools ?? [])],
-        permissions: [...(manifest.permissions ?? [])],
-        eval: [...(manifest.eval ?? [])]
-      },
+      manifest: cloneManifest(normalized),
       enabled: true,
       installedAt: Date.now()
     };
-    this.records.set(manifest.id, record);
+    this.records.set(idOf(normalized), record);
     this.persist();
     return this.clone(record);
   }
@@ -105,12 +158,7 @@ export class CapabilityRegistry {
 
   private clone(record: CapabilityRecord): CapabilityRecord {
     return {
-      manifest: {
-        ...record.manifest,
-        tools: [...(record.manifest.tools ?? [])],
-        permissions: [...(record.manifest.permissions ?? [])],
-        eval: [...(record.manifest.eval ?? [])]
-      },
+      manifest: cloneManifest(record.manifest),
       enabled: record.enabled,
       installedAt: record.installedAt
     };
@@ -118,11 +166,17 @@ export class CapabilityRegistry {
 
   private load(): void {
     try {
-      const json = JSON.parse(readFileSync(this.path, 'utf8')) as StoreJSON;
-      if (json.version !== 1 || !Array.isArray(json.capabilities)) return;
-      for (const record of json.capabilities) {
-        validate(record.manifest);
-        this.records.set(record.manifest.id, this.clone(record));
+      const raw = JSON.parse(readFileSync(this.path, 'utf8')) as StoreJSON | LegacyStoreJSON;
+      if (raw.version === 2 && Array.isArray(raw.capabilities)) {
+        for (const record of raw.capabilities) {
+          const manifest = validateCapabilityManifest(record.manifest);
+          this.records.set(idOf(manifest), this.clone({ manifest, enabled: Boolean(record.enabled), installedAt: Number(record.installedAt) }));
+        }
+      } else if (raw.version === 1 && Array.isArray(raw.capabilities)) {
+        for (const record of raw.capabilities) {
+          const manifest = legacyToManifest(record.manifest);
+          this.records.set(idOf(manifest), this.clone({ manifest, enabled: Boolean(record.enabled), installedAt: Number(record.installedAt) }));
+        }
       }
     } catch {
       // absent or malformed store starts empty
@@ -132,7 +186,7 @@ export class CapabilityRegistry {
   private persist(): void {
     mkdirSync(dirname(this.path), { recursive: true });
     const tmp = this.path + '.tmp';
-    const json: StoreJSON = { version: 1, capabilities: this.list() };
+    const json: StoreJSON = { version: 2, capabilities: this.list() };
     writeFileSync(tmp, JSON.stringify(json, null, 2), 'utf8');
     renameSync(tmp, this.path);
   }

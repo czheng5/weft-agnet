@@ -12,7 +12,8 @@ All notable changes are documented here. Format follows Keep a Changelog; versio
 - SQLite RuntimeStore adapter: threads, append-only events, leases, mandates, capabilities, outbox.
 - Postgres RuntimeStore adapter (pg-mem contract).
 - Thread ↔ WorkGraph binding: one graph per thread, persisted threadId, mismatch fail-closed.
-- 92 tests.
+- CapabilityRegistry unified on runtime CapabilityManifest; v1 legacy manifests migrate on read/write.
+- 93 tests.
 
 ## [1.0.2] - 2026-11-02
 

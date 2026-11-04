@@ -69,9 +69,11 @@ export interface MandateRecord {
 
 export interface CapabilityManifest {
   schemaVersion: number;
+  id?: string;
   name: string;
   version: string;
   description: string;
+  instructions?: string;
   tools: string[];
   permissions: PermissionSet;
   sandbox: SandboxKind | 'any';
@@ -252,9 +254,15 @@ export function validateCapabilityManifest(value: unknown): CapabilityManifest {
   }
   const entry = input.entry;
   if (entry !== undefined) requireString(entry, 'capability.entry');
+  const id = input.id;
+  if (id !== undefined) requireString(id, 'capability.id');
+  const instructions = input.instructions;
+  if (instructions !== undefined) requireString(instructions, 'capability.instructions');
   return {
     schemaVersion: RUNTIME_SCHEMA_VERSION,
+    id: id as string | undefined,
     name: requireString(input.name, 'capability.name'),
+    instructions: instructions as string | undefined,
     version: requireString(input.version, 'capability.version'),
     description: requireString(input.description, 'capability.description'),
     tools: requireStringArray(input.tools, 'capability.tools'),
