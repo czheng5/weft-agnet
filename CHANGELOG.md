@@ -2,16 +2,17 @@
 
 All notable changes are documented here. Format follows Keep a Changelog; versions use SemVer.
 
-## [Unreleased]
+## [1.6.0] - 2026-11-04
 
 ### Added
 
 - M5 Agent Gateway: HTTP threads/messages/events, bearer auth, idempotency, outbox enqueue.
+- M5 WorkerPool, Router/Mandate, SSE, Watchdog, AgentLoop seam, Eval gate, HTTP Source, CLI serve.
 - M5 WorkerPool: outbox claim, worker lease, heartbeat, complete/fail/backoff.
 - M5 Router: admission, mandate capability/expiry, idempotent Outbox routing.
 - M5 SSE events stream and independent Watchdog expired-lease alerts.
 - M5 AgentLoop seam + Eval gate.
-- 104 tests.
+- 105 tests.
 
 ## [1.5.0] - 2026-11-04
 

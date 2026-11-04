@@ -22,6 +22,8 @@ import { McpKnowledgeBaseProvider, HttpMcpTransport } from './core/kb-mcp.ts';
 import { ScriptedModel, OpenAICompatibleModel } from './core/model.ts';
 import type { ModelProvider } from './core/model.ts';
 import { Tui } from './core/tui.ts';
+import { AgentGateway } from './core/gateway.ts';
+import { SqliteRuntimeStore } from './core/runtime-store-sqlite.ts';
 import { loadEnvFile } from './core/env.ts';
 import type { ToolContext } from './core/tools.ts';
 
@@ -42,6 +44,8 @@ interface Args {
   pgUrl?: string;
   guardianMode: 'rule' | 'model';
   serveMemory: boolean;
+  serveGateway: boolean;
+  gatewayToken?: string;
   port: number;
   wslDistro?: string;
   wslUser?: string;
@@ -114,6 +118,8 @@ function parseArgs(argv: string[]): Args {
     pgUrl,
     guardianMode,
     serveMemory: argv.includes('--serve-memory'),
+    serveGateway: argv.includes('--serve'),
+    gatewayToken: process.env.WEFT_GATEWAY_TOKEN,
     port,
     wslDistro,
     wslUser,
@@ -196,6 +202,24 @@ async function main(): Promise<void> {
   const scope = { tenantId: 'local', userId: 'default', projectId: 'weft' };
   const memoryConsolidator = new MemoryConsolidator(memory);
   const toolContext: ToolContext = { session, guard, sandbox, approvals, memory, memoryConsolidator, kb, guardian, scope, workspace };
+
+  if (args.serveGateway) {
+    const runtime = new SqliteRuntimeStore(join(workspace, '.weft', 'runtime.db'));
+    const gateway = new AgentGateway({
+      store: runtime,
+      scope: { tenantId: 'local', projectId: 'weft', workspaceId: workspace },
+      token: args.gatewayToken
+    });
+    const running = await gateway.start(args.port);
+    process.stdout.write('gateway listening ' + running.url + '\n');
+    await new Promise<void>((resolve) => {
+      process.once('SIGINT', () => resolve());
+      process.once('SIGTERM', () => resolve());
+    });
+    await gateway.close();
+    runtime.close();
+    return;
+  }
 
   if (args.serveMemory) {
     const hub = new MemoryHub({ provider: memory, workspace });
