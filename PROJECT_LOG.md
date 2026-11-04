@@ -142,7 +142,7 @@
 | 2026-11-04 | M4-B | SQLite RuntimeStore | 89 tests；events/leases/outbox | 1673c6d |
 | 2026-11-04 | M4-C | Postgres RuntimeStore | 90 tests；pg-mem 契约 | 8607f5f |
 | 2026-11-04 | M4-D | Thread/WorkGraph binding | 92 tests；threadId roundtrip | 8d2f44a |
-| 2026-11-04 | M4-E | CapabilityRegistry 统一 | 93 tests；legacy 迁移 | 待提交 |
+| 2026-11-04 | M4-E | CapabilityRegistry 统一 | 93 tests；legacy 迁移 | c436a4f |
 | 2026-11-01 | M3-L | v1.0 RC | RC 代码完成；未发布 | 8bdb955 |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |
