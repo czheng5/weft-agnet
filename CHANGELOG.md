@@ -8,7 +8,8 @@ All notable changes are documented here. Format follows Keep a Changelog; versio
 
 - M6-A self-contained Web Surface served by Gateway.
 - M6 Capability Registry API and BYOM ModelRegistry.
-- 109 tests.
+- M6 RBAC principals, tenant scope isolation and thread/message quotas.
+- 111 tests.
 
 ## [1.6.0] - 2026-11-04
 

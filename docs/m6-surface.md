@@ -27,7 +27,7 @@
 
 - GET / 返回 text/html
 - 包含 Thread/EventSource
-- 109 tests pass
+- 111 tests pass
 
 ## 4. 限制
 

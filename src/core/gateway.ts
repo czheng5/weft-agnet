@@ -3,6 +3,8 @@ import type { IncomingMessage, Server, ServerResponse } from 'node:http';
 import { createThreadRecord, validateCapabilityManifest, RuntimeSchemaError } from './runtime-schema.ts';
 import { Router } from './router.ts';
 import { SURFACE_HTML } from './surface.ts';
+import { AccessError, assertRole, resolvePrincipal } from './access.ts';
+import type { Principal, QuotaPolicy } from './access.ts';
 import type { RuntimeScope, ThreadRecord } from './runtime-schema.ts';
 import type { RuntimeStore } from './runtime-store.ts';
 
@@ -12,6 +14,8 @@ export interface AgentGatewayOptions {
   host?: string;
   token?: string;
   router?: Router;
+  principals?: Principal[];
+  quota?: QuotaPolicy;
 }
 
 export interface AgentGatewayAddress {
@@ -65,6 +69,9 @@ export class AgentGateway {
   readonly host: string;
   readonly token?: string;
   private readonly router: Router;
+  private readonly principals?: Principal[];
+  private readonly defaultPrincipal: Principal;
+  private readonly quota: QuotaPolicy;
   private readonly streams = new Set<ServerResponse>();
   private server: Server;
   private address: AgentGatewayAddress | null = null;
@@ -75,6 +82,9 @@ export class AgentGateway {
     this.host = opts.host ?? '127.0.0.1';
     this.token = opts.token;
     this.router = opts.router ?? new Router({ store: this.store });
+    this.principals = opts.principals;
+    this.defaultPrincipal = { id: 'local', token: opts.token ?? '', role: 'admin', scope: opts.scope };
+    this.quota = opts.quota ?? {};
     this.server = createServer((req, res) => { void this.handle(req, res); });
   }
 
@@ -96,15 +106,28 @@ export class AgentGateway {
     this.address = null;
   }
 
-  private authorized(req: IncomingMessage): boolean {
-    if (!this.token) return true;
-    return req.headers.authorization === 'Bearer ' + this.token;
+  private principalFor(req: IncomingMessage): Principal | null {
+    if (this.principals) return resolvePrincipal(this.principals, req.headers.authorization);
+    if (this.token) return req.headers.authorization === 'Bearer ' + this.token ? this.defaultPrincipal : null;
+    return this.defaultPrincipal;
   }
 
-  private async threadFor(id: string): Promise<ThreadRecord | null> {
+  private async threadFor(id: string, scope = this.scope): Promise<ThreadRecord | null> {
     const thread = await this.store.getThread(id);
-    if (!thread || !sameScope(thread.scope, this.scope)) return null;
+    if (!thread || !sameScope(thread.scope, scope)) return null;
     return thread;
+  }
+
+  private async enforceThreadQuota(scope: RuntimeScope): Promise<void> {
+    if (this.quota.maxThreads === undefined) return;
+    const count = (await this.store.listThreads(scope)).length;
+    if (count >= this.quota.maxThreads) throw new AccessError(429, 'tenant thread quota exceeded');
+  }
+
+  private async enforceMessageQuota(thread: ThreadRecord): Promise<void> {
+    if (this.quota.maxMessagesPerThread === undefined) return;
+    const count = (await this.store.listEvents(thread.id, 0, 100000)).filter((event) => event.type === 'message.user').length;
+    if (count >= this.quota.maxMessagesPerThread) throw new AccessError(429, 'thread message quota exceeded');
   }
 
   private async streamEvents(thread: ThreadRecord, url: URL, req: IncomingMessage, res: ServerResponse): Promise<void> {
@@ -137,7 +160,8 @@ export class AgentGateway {
 
   private async handle(req: IncomingMessage, res: ServerResponse): Promise<void> {
     try {
-      if (!this.authorized(req)) { sendJson(res, 401, { error: 'unauthorized' }); return; }
+      const principal = this.principalFor(req);
+      if (!principal) { sendJson(res, 401, { error: 'unauthorized' }); return; }
       const url = new URL(req.url ?? '/', 'http://localhost');
       const path = url.pathname.replace(/\/$/, '');
       if (req.method === 'GET' && path === '') {
@@ -153,6 +177,7 @@ export class AgentGateway {
         return;
       }
       if (req.method === 'POST' && path === '/capabilities') {
+        assertRole(principal, 'admin');
         const body = await readJson(req);
         try {
           const manifest = validateCapabilityManifest(body.manifest ?? body);
@@ -174,15 +199,17 @@ export class AgentGateway {
         return;
       }
       if (req.method === 'GET' && path === '/threads') {
-        const threads = await this.store.listThreads(this.scope);
+        const threads = await this.store.listThreads(principal.scope);
         sendJson(res, 200, { threads });
         return;
       }
       if (req.method === 'POST' && path === '/threads') {
+        assertRole(principal, 'writer');
+        await this.enforceThreadQuota(principal.scope);
         const body = await readJson(req);
         const title = typeof body.title === 'string' ? body.title.trim() : '';
         if (!title) { sendJson(res, 400, { error: 'title is required' }); return; }
-        const thread = createThreadRecord({ scope: this.scope, title, status: 'open' });
+        const thread = createThreadRecord({ scope: principal.scope, title, status: 'open' });
         await this.store.createThread(thread);
         const event = await this.store.appendEvent({ threadId: thread.id, type: 'thread.created', data: { title }, idempotencyKey: 'thread-create:' + thread.id });
         sendJson(res, 201, { thread, event });
@@ -190,15 +217,17 @@ export class AgentGateway {
       }
       const threadMatch = path.match(/^\/threads\/([^/]+)$/);
       if (req.method === 'GET' && threadMatch) {
-        const thread = await this.threadFor(decodeURIComponent(threadMatch[1]));
+        const thread = await this.threadFor(decodeURIComponent(threadMatch[1]), principal.scope);
         if (!thread) { sendJson(res, 404, { error: 'thread not found' }); return; }
         sendJson(res, 200, { thread });
         return;
       }
       const messagesMatch = path.match(/^\/threads\/([^/]+)\/messages$/);
       if (req.method === 'POST' && messagesMatch) {
-        const thread = await this.threadFor(decodeURIComponent(messagesMatch[1]));
+        assertRole(principal, 'writer');
+        const thread = await this.threadFor(decodeURIComponent(messagesMatch[1]), principal.scope);
         if (!thread) { sendJson(res, 404, { error: 'thread not found' }); return; }
+        await this.enforceMessageQuota(thread);
         const body = await readJson(req);
         const text = typeof body.text === 'string' ? body.text.trim() : '';
         if (!text) { sendJson(res, 400, { error: 'text is required' }); return; }
@@ -210,14 +239,14 @@ export class AgentGateway {
       }
       const streamMatch = path.match(/^\/threads\/([^/]+)\/events\/stream$/);
       if (req.method === 'GET' && streamMatch) {
-        const thread = await this.threadFor(decodeURIComponent(streamMatch[1]));
+        const thread = await this.threadFor(decodeURIComponent(streamMatch[1]), principal.scope);
         if (!thread) { sendJson(res, 404, { error: 'thread not found' }); return; }
         await this.streamEvents(thread, url, req, res);
         return;
       }
       const eventsMatch = path.match(/^\/threads\/([^/]+)\/events$/);
       if (req.method === 'GET' && eventsMatch) {
-        const thread = await this.threadFor(decodeURIComponent(eventsMatch[1]));
+        const thread = await this.threadFor(decodeURIComponent(eventsMatch[1]), principal.scope);
         if (!thread) { sendJson(res, 404, { error: 'thread not found' }); return; }
         const after = Number(url.searchParams.get('after') ?? 0);
         const limit = Math.min(200, Math.max(1, Number(url.searchParams.get('limit') ?? 100)));
@@ -227,7 +256,8 @@ export class AgentGateway {
       }
       sendJson(res, 404, { error: 'not found' });
     } catch (error) {
-      sendJson(res, 500, { error: error instanceof Error ? error.message : String(error) });
+      const status = error instanceof AccessError ? error.status : 500;
+      sendJson(res, status, { error: error instanceof Error ? error.message : String(error) });
     }
   }
 }
