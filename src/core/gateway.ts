@@ -59,6 +59,7 @@ export class AgentGateway {
   readonly host: string;
   readonly token?: string;
   private readonly router: Router;
+  private readonly streams = new Set<ServerResponse>();
   private server: Server;
   private address: AgentGatewayAddress | null = null;
 
@@ -83,6 +84,8 @@ export class AgentGateway {
   }
 
   async close(): Promise<void> {
+    for (const stream of this.streams) stream.end();
+    this.streams.clear();
     await new Promise<void>((resolve, reject) => this.server.close((error) => error ? reject(error) : resolve()));
     this.address = null;
   }
@@ -96,6 +99,34 @@ export class AgentGateway {
     const thread = await this.store.getThread(id);
     if (!thread || !sameScope(thread.scope, this.scope)) return null;
     return thread;
+  }
+
+  private async streamEvents(thread: ThreadRecord, url: URL, req: IncomingMessage, res: ServerResponse): Promise<void> {
+    const after = Number(url.searchParams.get('after') ?? 0);
+    let lastSeq = Number.isFinite(after) ? after : 0;
+    res.writeHead(200, {
+      'content-type': 'text/event-stream; charset=utf-8',
+      'cache-control': 'no-cache',
+      connection: 'keep-alive',
+      'x-accel-buffering': 'no'
+    });
+    res.write(': connected\n\n');
+    this.streams.add(res);
+    let closed = false;
+    const cleanup = (): void => { closed = true; clearInterval(poll); clearInterval(ping); this.streams.delete(res); };
+    const poll = setInterval(() => {
+      void this.store.listEvents(thread.id, lastSeq, 100).then((events) => {
+        if (closed) return;
+        for (const event of events) {
+          if (event.seq <= lastSeq) continue;
+          lastSeq = event.seq;
+          res.write('id: ' + event.seq + '\nevent: ' + event.type + '\ndata: ' + JSON.stringify(event) + '\n\n');
+        }
+      }).catch(() => undefined);
+    }, 500);
+    const ping = setInterval(() => { if (!closed) res.write(': ping\n\n'); }, 15_000);
+    req.on('close', cleanup);
+    res.on('close', cleanup);
   }
 
   private async handle(req: IncomingMessage, res: ServerResponse): Promise<void> {
@@ -140,6 +171,13 @@ export class AgentGateway {
         const result = await this.router.route(thread, text, { idempotencyKey: key });
         if (!result.accepted) { sendJson(res, 403, { error: result.reason }); return; }
         sendJson(res, 202, { threadId: thread.id, event: result.event, jobId: result.job?.id ?? null });
+        return;
+      }
+      const streamMatch = path.match(/^\/threads\/([^/]+)\/events\/stream$/);
+      if (req.method === 'GET' && streamMatch) {
+        const thread = await this.threadFor(decodeURIComponent(streamMatch[1]));
+        if (!thread) { sendJson(res, 404, { error: 'thread not found' }); return; }
+        await this.streamEvents(thread, url, req, res);
         return;
       }
       const eventsMatch = path.match(/^\/threads\/([^/]+)\/events$/);

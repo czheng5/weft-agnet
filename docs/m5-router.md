@@ -38,5 +38,5 @@
 
 ## 4. 验收
 
-- 100 tests pass
+- 102 tests pass
 - Router 单元测试覆盖准入/mandate/idempotency

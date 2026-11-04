@@ -42,5 +42,5 @@
 
 ## 4. 验收
 
-- 100 tests pass
+- 102 tests pass
 - WorkerPool 单元测试覆盖 claim/lease/complete/fail
