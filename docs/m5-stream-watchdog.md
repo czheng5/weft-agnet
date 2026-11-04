@@ -39,4 +39,4 @@ Gateway 新增：
 
 ## 5. 验收
 
-- 102 tests pass
+- 104 tests pass
