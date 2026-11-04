@@ -101,7 +101,7 @@ async function main(): Promise<void> {
     if (fired !== 1) throw new Error('scheduler failed');
 
     const capabilities = new CapabilityRegistry(dir);
-    capabilities.install({ schemaVersion: 1, id: 'weft.demo', name: 'Demo', version: '1.0.0', tools: ['read_file'], permissions: ['fs:read'], eval: ['demo'] });
+    capabilities.install({ schemaVersion: 1, id: 'weft.demo', name: 'Demo', version: '1.0.0', description: 'v1 demo capability', tools: ['read_file'], permissions: { read: ['fs:read'], write: [], exec: [], network: [] }, sandbox: 'any', evals: ['demo'] });
 
     await hub.write([record('alpha', 'alpha memory'), record('beta', 'beta related')]);
     const hits = await hub.search({ text: 'zzz', scope: { tenantId: 'demo', userId: 'demo', projectId: 'v1' }, topK: 5 });

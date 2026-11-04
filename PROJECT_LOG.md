@@ -2,7 +2,7 @@
 
 > 用途：项目管理视角的独立台账。只记录“开发了什么 / 解决了什么问题 / 达到什么效果”，不写流水账、不替代 PRD/ROADMAP。  
 > 更新规则：每次提交追加一行；效果尽量给可验证证据（测试数、事件数、命令、commit）。  
-> 当前版本：v1.0.2 RELEASED（2026-11-02）；范围 M0–M3 IN。
+> 当前版本：v1.5.0 RELEASED（2026-11-04）；范围 M4 Consolidation。
 
 ---
 
@@ -14,8 +14,9 @@
 | M1 Safety & Memory | ✅ | 100% | Guardian/CUA/cache 映射/Docker/WSL/Memory/KB/metrics；本地 provider 验证 |
 | M2 Long-horizon | ✅ 代码/单测 | 100% | Work Graph/Goal/Plan/Evidence/Checkpoint/Actor fork/Scheduler/EventBus/Capability/Projection |
 | M3 Memory & v1.0 | ✅ | 100% | MemoryHub/PG/pgvector/PgVectorIndex/HTTP/MCP；v1.0 gate PASS |
-| M4 v1.5 | ⏳ 未开始 | 0% | 收口/多租户/技能演化/CUA driver/Polyglot 契约 |
-| M5 v2.0 | ⏳ 未开始 | 0% | 自有协议/Weft Bench/插件生态 |
+| M4 v1.5 | ✅ RELEASED | 100% | Runtime schema/store、PG/SQLite、v1 只读迁移、Capability 统一 |
+| M5 v1.6 | ⏳ 未开始 | 0% | Agent Gateway/Router/Worker/Watchdog |
+| M6 v2.0 | ⏳ 未开始 | 0% | Own Shape/协议/Bench/插件生态/Surface |
 
 ---
 
@@ -50,6 +51,7 @@
 | M4 Capability 统一（M4-E） | CapabilityRegistry 使用 runtime CapabilityManifest；legacy v1 迁移；version 2 persist | 旧 manifest 与新 schema 第二套语义 | 93 tests；legacy 读取/迁移 |
 | M4 v1 迁移（M4-F） | 只读读取 v1 workgraph/capabilities/scheduler/checkpoints；显式迁移到 RuntimeStore；不改写 v1 文件 | v1.0 数据不能丢，也不能被悄悄改写 | 94 tests；原文件字节不变 |
 | M4 真 PG/scope（M4-G） | 真实 PostgreSQL RuntimeStore 契约；tenant scope 列表隔离 | pg-mem 不能代表生产 | **PASS**；95 tests；runtime-pg-live.md |
+| v1.5 release（M4-H） | 95 tests、真 PG、v1 迁移、Capability 统一；版本 1.5.0 | M4 没有正式发布口径 | v1.5.0 RELEASED；tag |
 | Release 纪律（M4-plan） | RELEASE.md；gitignore 加固；版本 gate | 防止敏感日志/无关文件入库 | 发布前检查清单 |
 | 自动读判断（M1-T） | sandboxed 档：非敏感外部只读自动允许；外部写直接 deny；敏感路径仍 ask | 必要外部读取不应逐条弹窗，但 secrets 不能自动放行 | 1 个测试；82 tests pass |
 | Shell 输出捕获修复 | ShellSandbox 从 pipe 改为临时文件重定向 | DSH 内 Node child_process pipe 报 EPERM，demo 的 shell 实际失败 | demo 现在真正拿到 stdout=2；新增 capture 测试 |
@@ -147,6 +149,7 @@
 | 2026-11-04 | M4-E | CapabilityRegistry 统一 | 93 tests；legacy 迁移 | c436a4f |
 | 2026-11-04 | M4-F | v1 只读迁移 | 94 tests；原文件不变 | 4c5b11f |
 | 2026-11-04 | M4-G | 真 PG RuntimeStore 契约 | PASS；95 tests；scope 隔离 | c30e685 |
+| 2026-11-04 | M4-H | v1.5.0 release | 95 tests；真 PG；v1 迁移；tag | 待提交 |
 | 2026-11-01 | M3-L | v1.0 RC | RC 代码完成；未发布 | 8bdb955 |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |

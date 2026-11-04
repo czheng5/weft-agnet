@@ -2,7 +2,7 @@
 
 All notable changes are documented here. Format follows Keep a Changelog; versions use SemVer.
 
-## [Unreleased]
+## [1.5.0] - 2026-11-04
 
 ### Added
 
