@@ -16,7 +16,7 @@
 | M3 Memory & v1.0 | ✅ | 100% | MemoryHub/PG/pgvector/PgVectorIndex/HTTP/MCP；v1.0 gate PASS |
 | M4 v1.5 | ✅ RELEASED | 100% | Runtime schema/store、PG/SQLite、v1 只读迁移、Capability 统一 |
 | M5 v1.6 | ✅ RELEASED | 100% | Gateway/Worker/Router/SSE/Watchdog/AgentLoop seam/Eval/Source/CLI |
-| M6 v2.0 | ◐ 进行中 | ~15% | Web Surface 完成；Marketplace/BYOM/RBAC/Bench 待做 |
+| M6 v2.0 | ◐ 进行中 | ~40% | Surface/Capability API/BYOM Registry；RBAC/Bench/Marketplace 待做 |
 
 ---
 
@@ -60,6 +60,7 @@
 | M5 Source/CLI（M5-F） | HTTP JSON Source；CLI --serve；M5 E2E smoke | 没有入口/触发/端到端证据 | 105 tests；E2E PASS |
 | v1.6 release（M5-G） | 版本 1.6.0；Gateway/Worker/Router/SSE/Watchdog/E2E | M5 没有发布口径 | v1.6.0 RELEASED；tag |
 | M6 Surface（M6-A） | Gateway 自包含 Web Surface；Thread/SSE/消息 UI | 只有 API，没有可见 Surface | 106 tests；HTML surface 测试 |
+| M6 Registry（M6-B） | Capability HTTP API；BYOM ModelProfile；env-only secret ref | 技能/模型没有可管理入口；不能存明文 key | 109 tests；API/registry 测试 |
 | Release 纪律（M4-plan） | RELEASE.md；gitignore 加固；版本 gate | 防止敏感日志/无关文件入库 | 发布前检查清单 |
 | 自动读判断（M1-T） | sandboxed 档：非敏感外部只读自动允许；外部写直接 deny；敏感路径仍 ask | 必要外部读取不应逐条弹窗，但 secrets 不能自动放行 | 1 个测试；82 tests pass |
 | Shell 输出捕获修复 | ShellSandbox 从 pipe 改为临时文件重定向 | DSH 内 Node child_process pipe 报 EPERM，demo 的 shell 实际失败 | demo 现在真正拿到 stdout=2；新增 capture 测试 |
@@ -166,6 +167,7 @@
 | 2026-11-04 | M5-F | HTTP Source + CLI serve | 105 tests；E2E PASS | e27d474 |
 | 2026-11-04 | M5-G | v1.6.0 release | 105 tests；E2E；tag | e27d474 |
 | 2026-11-04 | M6-A | Web Surface | 106 tests；HTML/SSE UI | 72061b1 |
+| 2026-11-04 | M6-B | Capability API + BYOM | 109 tests；registry | 待提交 |
 | 2026-11-01 | M3-L | v1.0 RC | RC 代码完成；未发布 | 8bdb955 |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |
@@ -180,7 +182,7 @@
 ## 4. 当前可验证结果
 
 ~~~text
-106 tests, 106 pass, 0 fail；v1 demo PASS；real DeepSeek/PG/pgvector；v1.0.2 RELEASED
+109 tests, 109 pass, 0 fail；v1 demo PASS；real DeepSeek/PG/pgvector；v1.0.2 RELEASED
 
 Weft M0 complete: file written, shell verified, memory stored and recalled, knowledge base searched.
 steps=7 toolCalls=6 cacheStable=6 cacheReadTokens=0

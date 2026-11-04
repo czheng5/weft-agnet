@@ -15,6 +15,8 @@ import './agent-worker.test.ts';
 import './eval-gate.test.ts'
 import './http-source.test.ts'
 import './surface.test.ts'
+import './gateway-capabilities.test.ts'
+import './model-registry.test.ts'
 import './memory.test.ts';
 import './memory-http.test.ts'
 import './memory-postgres.test.ts'

@@ -1,6 +1,6 @@
 import { createServer } from 'node:http';
 import type { IncomingMessage, Server, ServerResponse } from 'node:http';
-import { createThreadRecord } from './runtime-schema.ts';
+import { createThreadRecord, validateCapabilityManifest, RuntimeSchemaError } from './runtime-schema.ts';
 import { Router } from './router.ts';
 import { SURFACE_HTML } from './surface.ts';
 import type { RuntimeScope, ThreadRecord } from './runtime-schema.ts';
@@ -146,6 +146,31 @@ export class AgentGateway {
       }
       if (req.method === 'GET' && path === '/health') {
         sendJson(res, 200, { ok: true, service: 'weft-gateway' });
+        return;
+      }
+      if (req.method === 'GET' && path === '/capabilities') {
+        sendJson(res, 200, { capabilities: await this.store.listCapabilities() });
+        return;
+      }
+      if (req.method === 'POST' && path === '/capabilities') {
+        const body = await readJson(req);
+        try {
+          const manifest = validateCapabilityManifest(body.manifest ?? body);
+          await this.store.putCapability(manifest);
+          sendJson(res, 201, { capability: manifest });
+        } catch (error) {
+          if (error instanceof RuntimeSchemaError) { sendJson(res, 400, { error: error.message }); return; }
+          throw error;
+        }
+        return;
+      }
+      const capabilityMatch = path.match(/^\/capabilities\/([^/]+)\/([^/]+)$/);
+      if (req.method === 'GET' && capabilityMatch) {
+        const selector = decodeURIComponent(capabilityMatch[1]);
+        const version = decodeURIComponent(capabilityMatch[2]);
+        const capability = (await this.store.getCapability(selector, version)) ?? (await this.store.listCapabilities()).find((item) => item.id === selector && item.version === version);
+        if (!capability) { sendJson(res, 404, { error: 'capability not found' }); return; }
+        sendJson(res, 200, { capability });
         return;
       }
       if (req.method === 'GET' && path === '/threads') {
