@@ -45,7 +45,7 @@ export interface RuntimeStore {
 
   // Worker leases
   acquireLease(input: AcquireLeaseInput): Promise<WorkerLeaseRecord>;
-  heartbeatLease(leaseId: string, at?: number): Promise<WorkerLeaseRecord>;
+  heartbeatLease(leaseId: string, ttlMs: number, at?: number): Promise<WorkerLeaseRecord>;
   releaseLease(leaseId: string): Promise<void>;
   listExpiredLeases(now?: number): Promise<WorkerLeaseRecord[]>;
 

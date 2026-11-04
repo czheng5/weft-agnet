@@ -2,6 +2,7 @@ import './request.test.ts';
 import './env.test.ts'
 import './permissions.test.ts';
 import './runtime-schema.test.ts';
+import './runtime-store-sqlite.test.ts';
 import './memory.test.ts';
 import './memory-http.test.ts'
 import './memory-postgres.test.ts'

@@ -90,6 +90,8 @@ export interface OutboxRecord {
   status: OutboxStatus;
   attempts: number;
   nextAttemptAt: number;
+  claimedBy?: string;
+  claimedAt?: number;
   createdAt: number;
   updatedAt: number;
 }
@@ -279,6 +281,8 @@ export function validateOutbox(value: unknown): OutboxRecord {
     status,
     attempts: requireNumber(input.attempts, 'outbox.attempts'),
     nextAttemptAt: requireNumber(input.nextAttemptAt, 'outbox.nextAttemptAt'),
+    claimedBy: input.claimedBy as string | undefined,
+    claimedAt: input.claimedAt as number | undefined,
     createdAt: requireNumber(input.createdAt, 'outbox.createdAt'),
     updatedAt: requireNumber(input.updatedAt, 'outbox.updatedAt')
   };

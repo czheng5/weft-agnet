@@ -86,6 +86,8 @@ CREATE TABLE IF NOT EXISTS runtime_outbox (
   status TEXT NOT NULL DEFAULT 'pending',
   attempts INTEGER NOT NULL DEFAULT 0,
   next_attempt_at BIGINT NOT NULL,
+  claimed_by TEXT,
+  claimed_at BIGINT,
   created_at BIGINT NOT NULL,
   updated_at BIGINT NOT NULL
 );

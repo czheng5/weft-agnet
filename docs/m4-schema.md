@@ -1,6 +1,6 @@
 # M4 Runtime Schema（v1.5 draft）
 
-> 状态：**schema/contract 已起草，store 实现未完成**。  
+> 状态：**schema/contract + SQLite RuntimeStore 已实现；M4 尚未完成**。  
 > 目标：在 v1.5 把 Thread/Worker/Event/Mandate/Capability 的语义收口，避免到 M5 再造第二套。
 
 ## 1. 本轮落了什么
@@ -15,7 +15,10 @@
   - OutboxRecord
   - validate* / assertSameScope / createThreadRecord
 - src/core/runtime-store.ts
-  - RuntimeStore 接口（仅契约，不含适配器）
+  - RuntimeStore 接口
+- src/core/runtime-store-sqlite.ts
+  - SQLite RuntimeStore：threads/events/leases/mandates/capabilities/outbox
+  - append-only trigger；seq/idempotency；乐观版本
 - migrations/002_runtime.sql
   - runtime_threads
   - runtime_events（append-only trigger）
@@ -25,6 +28,8 @@
   - runtime_outbox
 - tests/runtime-schema.test.ts
   - scope 隔离、lease 时间、事件 seq、mandate 过期、capability sandbox
+- tests/runtime-store-sqlite.test.ts
+  - thread 版本冲突、event idempotency/seq、lease 过期、outbox claim/complete/fail
 
 ## 2. 概念归属
 
@@ -51,8 +56,8 @@
 
 ## 4. M4 尚未完成
 
-- SQLite/Postgres RuntimeStore 适配器
-- EventLog/Outbox 的实际事务实现
+- Postgres RuntimeStore 适配器（SQLite 已完成）
+- EventLog/Outbox 的实际事务实现 ✅（SQLite）
 - v1.0 数据迁移与只读兼容
 - Thread/WorkGraph 的绑定规则
 - CapabilityManifest 与现有 CapabilityRegistry 的合并
@@ -65,13 +70,13 @@
 
 当前：
 
-- 87 tests pass
+- 89 tests pass
 - runtime-schema 单元测试覆盖核心不变量
 
 M4 完成条件：
 
-- RuntimeStore 至少一个本地适配器（SQLite）
-- EventLog append-only + seq/idempotency 契约测试
-- Outbox 重试/对账契约测试
+- RuntimeStore 至少一个本地适配器（SQLite）✅
+- EventLog append-only + seq/idempotency 契约测试 ✅
+- Outbox 重试/对账契约测试（SQLite）✅
 - v1.0 数据只读兼容
 - docs/v2-plan 的 M4 exit criteria 全部有证据
