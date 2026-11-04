@@ -6,6 +6,9 @@
 *.key
 *.p12
 *.pfx
+secrets/
+credentials*.json
+*.secret
 
 # Runtime state
 .weft/
@@ -17,22 +20,41 @@ temp/
 *.sqlite
 *.sqlite3
 pgdata/
+*.pid
+*.bak
+*.orig
 
-# Node
+# Node / build
 node_modules/
 dist/
 build/
 coverage/
 .npm-cache/
+.cache/
+.turbo/
+*.tsbuildinfo
 
-# Logs
+# Python / local env
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Logs / dumps
 *.log
+logs/
+*.heapsnapshot
+*.trace
 
 # Large / external
 repos/
 report/evidence/
+screenshots/
 
-# OS
+# OS / IDE
 .DS_Store
 Thumbs.db
 Desktop.ini
+.vscode/
+.idea/
+*.code-workspace

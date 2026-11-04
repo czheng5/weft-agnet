@@ -11,6 +11,9 @@ Policy-governed · cache-first · long-horizon · memory-growing agent harness.
 ![CI](https://github.com/czheng5/weft-agnet/actions/workflows/ci.yml/badge.svg)
 ![license](https://img.shields.io/badge/license-MIT-22c55e)
 
+- **v1.0.2：RELEASED**（2026-11-02）
+- **v2 路线**：M4 收口 v1.5 → M5 Gateway/Super-agent v1.6 → M6 Own Shape v2.0
+
 Weft 把 Codex 的“手”、Claude 的“脑”、DSH 的“脊”、Hermes/MemoryHub 的“记忆”织成一个可运行、可审计、可替换的 Agent Harness。
 
 ## 文档
@@ -22,6 +25,9 @@ Weft 把 Codex 的“手”、Claude 的“脑”、DSH 的“脊”、Hermes/Me
 | [PROJECT_LOG.md](PROJECT_LOG.md) | 项目管理台账：模块/问题/效果/时间线 |
 | [docs/v1.0-gate.md](docs/v1.0-gate.md) | v1.0 gate：PASS（IN 范围），证据与外部项 |
 | [docs/v1.0-release.md](docs/v1.0-release.md) | v1.0.2 发布说明 |
+| [docs/v2-plan.md](docs/v2-plan.md) | v2 路线 checkpoint：M4/M5/M6 |
+| [appendix/v2-open-questions.md](appendix/v2-open-questions.md) | v2 未决问题备忘录 |
+| [RELEASE.md](RELEASE.md) | 发布纪律、检查清单、敏感信息规则 |
 | [docs/real-model-acceptance.md](docs/real-model-acceptance.md) | 真实 DeepSeek 验收 |
 | [docs/remaining-design.md](docs/remaining-design.md) | 完整设计剩余工作与优先级 |
 | [docs/acceptance-matrix.md](docs/acceptance-matrix.md) | 12 项验收机制 |
@@ -310,16 +316,17 @@ brand/           Weft 品牌与 TUI 资源
 ## 已知限制
 
 - 原生 Windows RestrictedToken/MXC 未实现；v1.0 用 Docker/WSL 作为 Windows 宿主 backend。
-- CUA driver 属 P1/v1.5；v1.0 只做 CUA 治理策略。
+- CUA driver 属 P1/M6；v1.0 只做 CUA 治理策略。
 - WSL 不做 per-command 网络隔离。
 - 真实模型只验证 DeepSeek 一个 provider；多模型/长任务/并发仍需扩展验收。
-- Web/Desktop surface、多租户/配额、技能演化属 v1.5/v2.0。
+- Web/Desktop surface、多租户/配额、技能演化属 v2.0（M6）。
 
 ## Roadmap
 
 - v1.0.1：当前版本，代码 + 真实模型 + PG/pgvector + Docker/WSL。
-- v1.5：原生 Windows backend、CUA driver、多租户/RBAC、Web/Desktop、技能演化。
-- v2.0：自有协议、Weft Bench、插件生态、Polyglot MemoryProvider 默认化。
+- v1.5（M4）：一 schema/owner/contract；Thread/Worker/Event/Mandate/Capability 收口。
+- v1.6（M5）：Agent Gateway / Super-agent；Durable Thread、Router、Worker、Watchdog。
+- v2.0（M6）：原生 Windows backend、CUA driver、多租户/RBAC、Web/Desktop、Weft Bench、插件生态、Polyglot。
 
 ## 开发时间
 

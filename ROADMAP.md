@@ -1,7 +1,8 @@
 # Weft Roadmap v1.0
 
-> 状态：**FROZEN for v1.0**（2026-11-01）。范围以 [PRD.md](PRD.md) 为准；本文只定义顺序、依赖、exit criteria 与回滚。  
-> 原则：一个概念一个实现；先安全执行，再长程规划，再记忆成长；v1.0 缝合、v1.5 收口、v2.0 自有形状。
+> 状态：**FROZEN for v1.0**（2026-11-01）；**v2 路线已按 2026-11-04 checkpoint 修订**。范围以 [PRD.md](PRD.md) 与 [docs/v2-plan.md](docs/v2-plan.md) 为准。  
+> 原则：一个概念一个实现；先安全执行，再长程规划，再记忆成长；v1.0 缝合、v1.5 收口、v1.6 Gateway/Super-agent、v2.0 自有形状。  
+> v2 修订：M4 只做 schema/契约收口；新增 M5 Agent Gateway/Super-agent（v1.6）；原 M5 Own shape 顺延为 M6（v2.0）。
 
 ---
 
@@ -13,8 +14,9 @@
 | **M1 Safety & Memory skeleton** | 4–8 周 | 审批阶梯/Guardian shadow/CUA 治理/缓存指标/KB/Memory 骨架 | 内部 beta |
 | **M2 Long-horizon core** | 8–14 周 | Work Graph/Actor/Scheduler/Event Bus/Capability/Context | 内部 rc |
 | **M3 Memory & v1.0** | 14–20 周 | MemoryHub 完整/治理/评测/v1.0 gate | **v1.0** |
-| **M4 Consolidation** | +6–8 周 | 收口适配层/一 schema/多租户/技能演化/CUA driver | v1.5 |
-| **M5 Own shape** | +12–16 周 | 自有协议/Weft Bench/插件生态/Polyglot 评估 | v2.0 |
+| **M4 Consolidation** | +6–8 周 | 一 schema/owner/contract；Thread/Worker/Event/Mandate/Capability 契约 | v1.5 |
+| **M5 Agent Gateway / Super-agent** | +8–12 周 | Durable Thread/Gateway/Router/Worker/Watchdog | v1.6 |
+| **M6 Own shape** | +12–16 周 | 自有协议/Weft Bench/插件生态/Polyglot/Surface | v2.0 |
 
 关键路径：**M0 内核 → M1 权限 → M2 工作图 → M3 记忆 → v1.0**。  
 并行：Memory schema（M0 开始）、KB 接口（M0）、TUI（M0）、评测（M1）。
@@ -166,6 +168,8 @@ MemoryHub 完整；治理可用；v1.0 gate 通过。
 
 ## 5. M4 · Consolidation（v1.5，+6–8 周）
 
+> v2 amendment（2026-11-04）：M4 只做 schema/契约收口；Web/Desktop、CUA driver、插件市场、完整 Router/Worker 不在 M4。完整清单见 [docs/v2-plan.md](docs/v2-plan.md)。
+
 ### 目标
 
 删掉“第二套语义”，一个概念一个 schema/owner/契约测试。
@@ -195,7 +199,43 @@ MemoryHub 完整；治理可用；v1.0 gate 通过。
 
 ---
 
-## 6. M5 · Own shape（v2.0，+12–16 周）
+## 6. M5 · Agent Gateway / Super-agent（v1.6，+8–12 周）
+
+> v2 amendment（2026-11-04）：这是新增阶段；原 M5 Own shape 顺延为 M6。完整范围见 [docs/v2-plan.md](docs/v2-plan.md)。
+
+### 目标
+
+一个对外负责人 + 多个沙箱化 Worker：Thread 持久、事件驱动、Router 分派、Worker 执行、Watchdog 检查进展。
+
+### 范围
+
+- Durable Thread Store / EventLog / Outbox
+- Agent Gateway：HTTP/SSE、Webhook、CLI
+- Router / Eval / Policy / Mandate
+- Source / Trigger：先 HTTP、GitHub
+- Worker Pool + lease + bwrap/Docker/WSL
+- Watchdog（进展导向）
+- Capability Registry 基础版
+
+### Exit criteria
+
+1. 同一个 Thread 可跨 CLI/HTTP 继续，重启不丢。
+2. 一个 Router 可创建/回收 Worker；同 Thread 后续消息直通。
+3. Worker 崩溃/超时可恢复，不重放副作用。
+4. Watchdog 能发现无进展任务并上报/重启。
+5. 普通工作区操作不逐命令弹窗；敏感/越界仍 fail-closed。
+6. 81+ tests（含 Gateway/Router/Worker/lease）通过。
+
+### 不做
+
+- 完整 Web/Desktop
+- 插件市场 UI
+- BYOM
+- 完整多租户计费/RBAC
+
+---
+
+## 7. M6 · Own shape（v2.0，+12–16 周）
 
 ### 目标
 
@@ -224,7 +264,7 @@ MemoryHub 完整；治理可用；v1.0 gate 通过。
 
 ---
 
-## 7. Feature → Milestone 映射
+## 8. Feature → Milestone 映射
 
 | 概念 | v1.0（M0–M3） | v1.5（M4） | v2.0（M5） |
 |---|---|---|---|
@@ -240,7 +280,7 @@ MemoryHub 完整；治理可用；v1.0 gate 通过。
 
 ---
 
-## 8. 风险登记与回滚
+## 9. 风险登记与回滚
 
 | 风险 | 触发 | 回滚 |
 |---|---|---|
@@ -253,7 +293,7 @@ MemoryHub 完整；治理可用；v1.0 gate 通过。
 
 ---
 
-## 9. 发布检查清单
+## 10. 发布检查清单
 
 - [ ] PRD 版本与 ROADMAP 一致
 - [ ] 所有 P0 feature 有验收证据
