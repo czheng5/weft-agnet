@@ -8,7 +8,8 @@ All notable changes are documented here. Format follows Keep a Changelog; versio
 
 - sandboxed approval profile: docker/wsl backends auto-allow routine workspace exec; dangerous commands still deny.
 - bwrap native Linux backend: namespace isolation, read-only host, workspace bind, network disable.
-- 82 tests.
+- M4 runtime schema/contract: Thread, WorkerLease, RuntimeEvent, Mandate, CapabilityManifest, Outbox; runtime-store interface; migration 002.
+- 87 tests.
 
 ## [1.0.2] - 2026-11-02
 

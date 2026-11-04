@@ -43,6 +43,7 @@
 | sandboxed 审批（M1-Q） | docker/wsl/bwrap 后端自动使用 `sandboxed` 审批：常规 workspace exec 不再逐条询问；危险命令仍 deny；workspace-guard 仍逐条 ask | DSH 式频繁弹许可不可用；Codex 的沙箱应自己兜底 | 1 个测试；81 tests pass |
 | bwrap Linux 原生边界（M1-S） | BwrapSandboxBackend：--unshare-all / --ro-bind / / / --bind 工作区 / --cap-drop ALL / fail-closed | workspace-guard 不是 OS 边界；Docker 太重 | Arch 实测 6 项 PASS；network//etc 拒绝 |
 | v2 路线 checkpoint（M4-plan） | M4 收口 v1.5、M5 Gateway v1.6、M6 Own Shape v2.0；未决问题附录 | 路线与版本号不一致 | docs/v2-plan.md + appendix/v2-open-questions.md |
+| M4 runtime schema（M4-A） | Thread/WorkerLease/RuntimeEvent/Mandate/Capability/Outbox types + validation + RuntimeStore 接口 + 002 SQL | 到 M5 再造第二套语义 | 87 tests；schema 不变量覆盖 |
 | Release 纪律（M4-plan） | RELEASE.md；gitignore 加固；版本 gate | 防止敏感日志/无关文件入库 | 发布前检查清单 |
 | 自动读判断（M1-T） | sandboxed 档：非敏感外部只读自动允许；外部写直接 deny；敏感路径仍 ask | 必要外部读取不应逐条弹窗，但 secrets 不能自动放行 | 1 个测试；82 tests pass |
 | Shell 输出捕获修复 | ShellSandbox 从 pipe 改为临时文件重定向 | DSH 内 Node child_process pipe 报 EPERM，demo 的 shell 实际失败 | demo 现在真正拿到 stdout=2；新增 capture 测试 |
@@ -133,6 +134,7 @@
 | 2026-11-03 | M1-S | bwrap Linux native backend | 81 tests；6 项 conformance PASS | 9cc2143 |
 | 2026-11-03 | M1-T | sandboxed auto-read policy | 82 tests；非敏感外部读自动允许 | b7c6818 |
 | 2026-11-04 | M4-plan | v2 路线 checkpoint + release 纪律 | M4/M5/M6；附录未决问题 | a0ae3c7 |
+| 2026-11-04 | M4-A | runtime schema/contract | 87 tests；RuntimeStore 接口/002 SQL | 待提交 |
 | 2026-11-01 | M3-L | v1.0 RC | RC 代码完成；未发布 | 8bdb955 |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |
@@ -147,7 +149,7 @@
 ## 4. 当前可验证结果
 
 ~~~text
-82 tests, 82 pass, 0 fail；v1 demo PASS；real DeepSeek/PG/pgvector；v1.0.2 RELEASED
+87 tests, 87 pass, 0 fail；v1 demo PASS；real DeepSeek/PG/pgvector；v1.0.2 RELEASED
 
 Weft M0 complete: file written, shell verified, memory stored and recalled, knowledge base searched.
 steps=7 toolCalls=6 cacheStable=6 cacheReadTokens=0
