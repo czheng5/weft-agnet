@@ -29,6 +29,7 @@ export interface TaskNode {
 
 export interface WorkGraphJSON {
   version: 1;
+  threadId?: string;
   goal: Goal;
   tasks: TaskNode[];
 }
@@ -43,9 +44,10 @@ export interface AddTaskInput {
 
 export class WorkGraph {
   readonly goal: Goal;
+  threadId?: string;
   private readonly tasks = new Map<string, TaskNode>();
 
-  constructor(goalText: string, goalId = newId('goal')) {
+  constructor(goalText: string, goalId = newId('goal'), threadId?: string) {
     if (!goalText.trim()) throw new Error('goal text is empty');
     const now = Date.now();
     this.goal = {
@@ -56,6 +58,7 @@ export class WorkGraph {
       createdAt: now,
       updatedAt: now
     };
+    this.threadId = threadId;
   }
 
   addTask(input: AddTaskInput): TaskNode {
@@ -154,6 +157,7 @@ export class WorkGraph {
   toJSON(): WorkGraphJSON {
     return {
       version: 1,
+      threadId: this.threadId,
       goal: { ...this.goal, acceptance: [...this.goal.acceptance] },
       tasks: this.allTasks()
     };
@@ -161,7 +165,7 @@ export class WorkGraph {
 
   static fromJSON(json: WorkGraphJSON): WorkGraph {
     if (json.version !== 1) throw new Error('unsupported work graph version: ' + json.version);
-    const graph = new WorkGraph(json.goal.text, json.goal.id);
+    const graph = new WorkGraph(json.goal.text, json.goal.id, json.threadId);
     graph.goal.status = json.goal.status;
     graph.goal.acceptance = [...json.goal.acceptance];
     graph.goal.createdAt = json.goal.createdAt;

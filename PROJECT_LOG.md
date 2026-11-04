@@ -46,6 +46,7 @@
 | M4 runtime schema（M4-A） | Thread/WorkerLease/RuntimeEvent/Mandate/Capability/Outbox types + validation + RuntimeStore 接口 + 002 SQL | 到 M5 再造第二套语义 | 87 tests；schema 不变量覆盖 |
 | M4 SQLite store（M4-B） | SqliteRuntimeStore：threads/events/leases/mandates/capabilities/outbox；append-only trigger；幂等/seq/版本 | Durable Thread 只有契约没有实现 | 89 tests；SQLite 事务/租约/outbox 测试 |
 | M4 Postgres store（M4-C） | PostgresRuntimeStore：同一 RuntimeStore 契约；pg-mem 契约测试 | 只有 SQLite 不能上生产 | 90 tests；真实 PG 待补 |
+| M4 Thread/Graph（M4-D） | WorkGraph.threadId + bind/assert；一个 thread 一个 graph；JSON 持久化 | Thread 与内部 DAG 容易变成第二套任务 | 92 tests；跨 thread 拒绝 |
 | Release 纪律（M4-plan） | RELEASE.md；gitignore 加固；版本 gate | 防止敏感日志/无关文件入库 | 发布前检查清单 |
 | 自动读判断（M1-T） | sandboxed 档：非敏感外部只读自动允许；外部写直接 deny；敏感路径仍 ask | 必要外部读取不应逐条弹窗，但 secrets 不能自动放行 | 1 个测试；82 tests pass |
 | Shell 输出捕获修复 | ShellSandbox 从 pipe 改为临时文件重定向 | DSH 内 Node child_process pipe 报 EPERM，demo 的 shell 实际失败 | demo 现在真正拿到 stdout=2；新增 capture 测试 |
@@ -139,6 +140,7 @@
 | 2026-11-04 | M4-A | runtime schema/contract | 87 tests；RuntimeStore 接口/002 SQL | eb34bb4 |
 | 2026-11-04 | M4-B | SQLite RuntimeStore | 89 tests；events/leases/outbox | 1673c6d |
 | 2026-11-04 | M4-C | Postgres RuntimeStore | 90 tests；pg-mem 契约 | 8607f5f |
+| 2026-11-04 | M4-D | Thread/WorkGraph binding | 92 tests；threadId roundtrip | 待提交 |
 | 2026-11-01 | M3-L | v1.0 RC | RC 代码完成；未发布 | 8bdb955 |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |
@@ -153,7 +155,7 @@
 ## 4. 当前可验证结果
 
 ~~~text
-90 tests, 90 pass, 0 fail；v1 demo PASS；real DeepSeek/PG/pgvector；v1.0.2 RELEASED
+92 tests, 92 pass, 0 fail；v1 demo PASS；real DeepSeek/PG/pgvector；v1.0.2 RELEASED
 
 Weft M0 complete: file written, shell verified, memory stored and recalled, knowledge base searched.
 steps=7 toolCalls=6 cacheStable=6 cacheReadTokens=0

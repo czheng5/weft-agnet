@@ -22,6 +22,9 @@
 - src/core/runtime-store-postgres.ts
   - Postgres RuntimeStore：同一契约；pg-mem 测试
   - 真实 PG 契约待补
+- src/core/thread-workgraph.ts
+  - Thread ↔ WorkGraph 绑定；一个 graph 只能绑一个 thread
+  - WorkGraphJSON 持久化 threadId
 - migrations/002_runtime.sql
   - runtime_threads
   - runtime_events（append-only trigger）
@@ -35,6 +38,8 @@
   - thread 版本冲突、event idempotency/seq、lease 过期、outbox claim/complete/fail
 - tests/runtime-store-postgres.test.ts
   - pg-mem 同契约：threads/events/lease/mandate/capability/outbox
+- tests/thread-workgraph.test.ts
+  - 绑定、JSON roundtrip、跨 thread 拒绝
 
 ## 2. 概念归属
 
@@ -64,7 +69,7 @@
 - 真实 PostgreSQL RuntimeStore 契约（pg-mem 已完成）
 - EventLog/Outbox 的实际事务实现 ✅（SQLite）
 - v1.0 数据迁移与只读兼容
-- Thread/WorkGraph 的绑定规则
+- Thread/WorkGraph 的绑定规则 ✅（最小绑定）
 - CapabilityManifest 与现有 CapabilityRegistry 的合并
 - 多租户查询/索引/配额
 - contract tests 对真实 PostgreSQL
@@ -75,7 +80,7 @@
 
 当前：
 
-- 90 tests pass
+- 92 tests pass
 - runtime-schema 单元测试覆盖核心不变量
 
 M4 完成条件：

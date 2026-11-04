@@ -4,6 +4,7 @@ import './permissions.test.ts';
 import './runtime-schema.test.ts';
 import './runtime-store-sqlite.test.ts';
 import './runtime-store-postgres.test.ts';
+import './thread-workgraph.test.ts';
 import './memory.test.ts';
 import './memory-http.test.ts'
 import './memory-postgres.test.ts'

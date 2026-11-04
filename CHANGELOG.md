@@ -11,7 +11,8 @@ All notable changes are documented here. Format follows Keep a Changelog; versio
 - M4 runtime schema/contract: Thread, WorkerLease, RuntimeEvent, Mandate, CapabilityManifest, Outbox; runtime-store interface; migration 002.
 - SQLite RuntimeStore adapter: threads, append-only events, leases, mandates, capabilities, outbox.
 - Postgres RuntimeStore adapter (pg-mem contract).
-- 90 tests.
+- Thread ↔ WorkGraph binding: one graph per thread, persisted threadId, mismatch fail-closed.
+- 92 tests.
 
 ## [1.0.2] - 2026-11-02
 
