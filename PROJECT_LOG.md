@@ -167,7 +167,7 @@
 | 2026-11-04 | M5-F | HTTP Source + CLI serve | 105 tests；E2E PASS | e27d474 |
 | 2026-11-04 | M5-G | v1.6.0 release | 105 tests；E2E；tag | e27d474 |
 | 2026-11-04 | M6-A | Web Surface | 106 tests；HTML/SSE UI | 72061b1 |
-| 2026-11-04 | M6-B | Capability API + BYOM | 109 tests；registry | 待提交 |
+| 2026-11-04 | M6-B | Capability API + BYOM | 109 tests；registry | 6cb4472 |
 | 2026-11-01 | M3-L | v1.0 RC | RC 代码完成；未发布 | 8bdb955 |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |
