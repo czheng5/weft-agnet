@@ -211,7 +211,7 @@
 | 2026-11-05 | V25-C | S3 artifact + K8s/Nomad launchers | 141 tests；contract | 27b4b56 |
 | 2026-11-05 | V25-D | device sync + PWA shell | 144 tests；cursor/SW | 2449775 |
 | 2026-11-05 | V25-E | Marketplace UI + EDA coverage/PERC | 147 tests；signed install | 6c9d99c |
-| 2026-11-05 | V25-F | Workboard reminders + encrypted device sync | 147 tests；AES-GCM | 待提交 |
+| 2026-11-05 | V25-F | Workboard reminders + encrypted device sync | 147 tests；AES-GCM | 5673b7d |
 | 2026-11-01 | M3-L | v1.0 RC | RC 代码完成；未发布 | 8bdb955 |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |
