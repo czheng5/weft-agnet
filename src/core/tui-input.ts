@@ -47,7 +47,9 @@ export class TuiInput {
   }
 
   get columns(): number {
-    return this.output.columns ?? 80;
+    const size = (this.output as unknown as { getWindowSize?: () => [number, number] }).getWindowSize?.();
+    const cols = size?.[0] || this.output.columns || 0;
+    return cols > 20 ? cols : 80;
   }
 
   write(text: string): void {

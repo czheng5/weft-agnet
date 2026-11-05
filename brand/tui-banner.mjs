@@ -105,7 +105,7 @@ export function renderBanner(options = {}) {
   lines.push(divider(inner, '╭', '╮', color));
   lines.push(row('  ' + paint(PALETTE.cyan, '≡  Welcome to Weft!', color), inner, color));
   lines.push(row('', inner, color));
-  lines.push(row('  ' + paint(PALETTE.muted, '/help for help   /model models   /settings settings', color), inner, color));
+  lines.push(row('  ' + paint(PALETTE.muted, '/help   /model   /settings   /status   /plan', color), inner, color));
   lines.push(row('', inner, color));
   lines.push(row('  ' + paint(PALETTE.muted, 'model    ', color) + o.model + paint(PALETTE.muted, '  ·  ' + o.provider, color), inner, color));
   lines.push(row('  ' + paint(PALETTE.muted, 'sandbox  ', color) + o.sandbox + paint(PALETTE.muted, '  ·  approvals ' + o.approvals, color), inner, color));

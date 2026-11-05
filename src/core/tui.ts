@@ -251,7 +251,7 @@ export class Tui {
   }
 
   private get menuWidth(): number {
-    return Math.max(40, Math.min(76, this.input.columns - 2));
+    return Math.max(40, Math.min(110, this.input.columns - 4));
   }
 
   private printBanner(): void {
