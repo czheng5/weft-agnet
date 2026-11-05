@@ -2,6 +2,13 @@
 
 All notable changes are documented here. Format follows Keep a Changelog; versions use SemVer.
 
+## [2.4.1] - 2026-11-04
+
+### Changed
+
+- Product-focused README with CLI preview and quickstart.
+- Active backlog and reconciliation of stale roadmap/docs items.
+
 ## [2.4.0] - 2026-11-04
 
 ### Added

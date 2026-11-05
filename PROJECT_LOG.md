@@ -2,7 +2,7 @@
 
 > 用途：项目管理视角的独立台账。只记录“开发了什么 / 解决了什么问题 / 达到什么效果”，不写流水账、不替代 PRD/ROADMAP。  
 > 更新规则：每次提交追加一行；效果尽量给可验证证据（测试数、事件数、命令、commit）。  
-> 当前版本：v2.4.0 RELEASED（2026-11-04）；Workboard + 天禧概念 + 离线工具发现。
+> 当前版本：v2.4.1 RELEASED（2026-11-04）；产品化 README/Backlog。
 
 ---
 
@@ -21,6 +21,7 @@
 | v2.2 Production | ✅ RELEASED | 100% | 签名 Marketplace/OIDC+撤销/公平调度/分离编排 baseline |
 | v2.3 Guard/EDA | ✅ RELEASED | 100% | ObjectiveAnchor + EDA gate；硬件签核 BLOCKED（缺工具/PERC） |
 | v2.4 Workboard | ✅ RELEASED | 100% | 天禧 PM/交互概念；priority/owner/due/labels；工具自动发现 |
+| v2.4.1 Product docs | ✅ RELEASED | 100% | 产品 README、CLI 预览、活跃 Backlog、旧文件对账 |
 
 ---
 
@@ -204,6 +205,7 @@
 | 2026-11-04 | V24-A | Workboard + Tianxi concepts | 133 tests；PM metadata | a89b09a |
 | 2026-11-04 | V24-B | EDA/PDK discovery | 133 tests；auto-find | a89b09a |
 | 2026-11-04 | V24-C | v2.4.0 release | 133 tests；tag | a89b09a |
+| 2026-11-04 | V24-D | product README + backlog | 门面/待办对账 | 待提交 |
 | 2026-11-01 | M3-L | v1.0 RC | RC 代码完成；未发布 | 8bdb955 |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |
