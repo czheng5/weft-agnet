@@ -4,7 +4,7 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { SqliteRuntimeStore } from '../src/core/runtime-store-sqlite.ts';
-import { DeviceRegistry, DeviceSyncService } from '../src/core/device-sync.ts';
+import { DeviceRegistry, DeviceSyncService, decryptSyncPayload } from '../src/core/device-sync.ts';
 import { createThreadRecord } from '../src/core/runtime-schema.ts';
 import type { RuntimeScope } from '../src/core/runtime-schema.ts';
 
@@ -42,6 +42,8 @@ test('device sync pulls only events after the cursor and stays scoped', async ()
     const first = await service.pull(device.token, scope, []);
     assert.equal(first.threads.length, 1);
     assert.equal(first.threads[0].events, 2);
+    assert.equal(first.threads[0].eventData.length, 2);
+    assert.deepEqual(decryptSyncPayload(device.token, first.threads[0].eventData[0].payload), { text: 'one' });
     assert.equal(first.threads[0].nextSeq, 2);
     await store.appendEvent({ threadId: thread.id, type: 'message.user', data: { text: 'two' } });
     const second = await service.pull(device.token, scope, first.cursors);

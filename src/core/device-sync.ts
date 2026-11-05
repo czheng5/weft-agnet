@@ -1,4 +1,4 @@
-import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
+import { createCipheriv, createDecipheriv, createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import type { RuntimeScope } from './runtime-schema.ts';
@@ -95,12 +95,21 @@ export interface SyncCursor {
   afterSeq: number;
 }
 
+export interface SyncEvent {
+  id: string;
+  seq: number;
+  type: string;
+  at: number;
+  payload: string;
+}
+
 export interface SyncThread {
   threadId: string;
   title: string;
   status: string;
   version: number;
   events: number;
+  eventData: SyncEvent[];
   nextSeq: number;
 }
 
@@ -109,6 +118,28 @@ export interface SyncBatch {
   threads: SyncThread[];
   cursors: SyncCursor[];
   serverTime: number;
+}
+
+function syncKey(token: string): Buffer {
+  return createHash('sha256').update('weft-sync:' + token).digest();
+}
+
+export function encryptSyncPayload(token: string, value: unknown): string {
+  const iv = randomBytes(12);
+  const cipher = createCipheriv('aes-256-gcm', syncKey(token), iv);
+  const ciphertext = Buffer.concat([cipher.update(JSON.stringify(value), 'utf8'), cipher.final()]);
+  return Buffer.concat([iv, cipher.getAuthTag(), ciphertext]).toString('base64url');
+}
+
+export function decryptSyncPayload(token: string, payload: string): unknown {
+  const buffer = Buffer.from(payload, 'base64url');
+  if (buffer.length < 29) throw new Error('invalid sync payload');
+  const iv = buffer.subarray(0, 12);
+  const tag = buffer.subarray(12, 28);
+  const ciphertext = buffer.subarray(28);
+  const decipher = createDecipheriv('aes-256-gcm', syncKey(token), iv);
+  decipher.setAuthTag(tag);
+  return JSON.parse(Buffer.concat([decipher.update(ciphertext), decipher.final()]).toString('utf8')) as unknown;
 }
 
 export class DeviceSyncService {
@@ -133,7 +164,11 @@ export class DeviceSyncService {
       const after = cursorMap.get(thread.id) ?? 0;
       const events = await this.store.listEvents(thread.id, after, 5000);
       const nextSeq = events.length > 0 ? events[events.length - 1].seq : after;
-      out.push({ threadId: thread.id, title: thread.title, status: thread.status, version: thread.version, events: events.length, nextSeq });
+      out.push({
+        threadId: thread.id, title: thread.title, status: thread.status, version: thread.version, events: events.length,
+        eventData: events.map((event) => ({ id: event.id, seq: event.seq, type: event.type, at: event.at, payload: encryptSyncPayload(token, event.data) })),
+        nextSeq
+      });
       next.push({ threadId: thread.id, afterSeq: nextSeq });
     }
     return { deviceId: device.id, threads: out, cursors: next, serverTime: this.clock() };

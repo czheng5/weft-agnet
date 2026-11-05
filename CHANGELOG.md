@@ -13,6 +13,7 @@ All notable changes are documented here. Format follows Keep a Changelog; versio
 - S3 artifact store and Kubernetes/Nomad worker launchers.
 - Device sync cursors and PWA shell.
 - Signed Marketplace install UI and EDA coverage/PERC evidence adapters.
+- Workboard reminders and AES-GCM device sync payloads.
 - 147 tests.
 
 ## [2.4.1] - 2026-11-04

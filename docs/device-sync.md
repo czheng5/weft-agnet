@@ -21,6 +21,7 @@ const batch = await sync.pull(token, scope, cursors);
 - deviceId
 - threads：threadId/title/status/version/events/nextSeq
 - cursors：每个 thread 的新 afterSeq
+- eventData：AES-256-GCM 加密的事件 payload（key 由 device token 派生）
 - serverTime
 
 客户端下次带上 cursors 即可只拉增量。

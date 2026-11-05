@@ -31,6 +31,9 @@ test('workboard aggregates priority, due and progress', async () => {
     assert.equal(summary.total, 2);
     assert.equal(summary.highPriority, 1);
     assert.equal(summary.overdue, 1);
+    const reminders = await board.reminders(scope, 1500, 1000);
+    assert.equal(reminders.length, 2);
+    assert.equal(reminders[0].kind, 'overdue');
     assert.equal(msg.seq, 1);
   } finally {
     store.close();

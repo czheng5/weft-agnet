@@ -271,7 +271,12 @@ export class AgentGateway {
         return;
       }
       if (req.method === 'GET' && path === '/workboard') {
-        sendJson(res, 200, { items: await this.workboard.list(principal.scope), groups: await this.workboard.grouped(principal.scope), summary: await this.workboard.summary(principal.scope) });
+        sendJson(res, 200, { items: await this.workboard.list(principal.scope), groups: await this.workboard.grouped(principal.scope), summary: await this.workboard.summary(principal.scope), reminders: await this.workboard.reminders(principal.scope) });
+        return;
+      }
+      if (req.method === 'GET' && path === '/workboard/reminders') {
+        const within = Number(url.searchParams.get('withinMs') ?? 86_400_000);
+        sendJson(res, 200, { reminders: await this.workboard.reminders(principal.scope, Date.now(), Number.isFinite(within) && within > 0 ? within : 86_400_000) });
         return;
       }
       if (req.method === 'POST' && path === '/threads') {

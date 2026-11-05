@@ -9,6 +9,10 @@ export interface WorkItem {
   overdue: boolean;
 }
 
+export interface ReminderItem extends WorkItem {
+  kind: 'overdue' | 'due-soon';
+}
+
 export interface WorkboardSummary {
   total: number;
   byStatus: Record<string, number>;
@@ -53,6 +57,14 @@ export class Workboard {
       if (a.thread.dueAt !== undefined && b.thread.dueAt !== undefined && a.thread.dueAt !== b.thread.dueAt) return a.thread.dueAt - b.thread.dueAt;
       return b.thread.updatedAt - a.thread.updatedAt;
     });
+  }
+
+  async reminders(scope: RuntimeScope, now = Date.now(), withinMs = 86_400_000): Promise<ReminderItem[]> {
+    const items = await this.list(scope, now);
+    return items
+      .filter((item) => item.thread.dueAt !== undefined && item.thread.status !== 'done' && item.thread.dueAt <= now + withinMs)
+      .map((item) => ({ ...item, kind: item.overdue ? 'overdue' as const : 'due-soon' as const }))
+      .sort((a, b) => (a.thread.dueAt ?? 0) - (b.thread.dueAt ?? 0));
   }
 
   async grouped(scope: RuntimeScope, now = Date.now()): Promise<Array<{ status: string; items: WorkItem[] }>> {

@@ -4,7 +4,9 @@
 
 ## API
 
-- GET /workboard
+- GET /workboard（含 reminders）
+- GET /workboard/reminders?withinMs=
+- PATCH /threads/:id
 - POST /threads 支持：
   - priority: low/normal/high/critical
   - owner
