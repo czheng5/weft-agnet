@@ -214,6 +214,7 @@
 | 2026-11-05 | V25-E | Marketplace UI + EDA coverage/PERC | 147 tests；signed install | 6c9d99c |
 | 2026-11-05 | V25-F | Workboard reminders + encrypted device sync | 147 tests；AES-GCM | 5673b7d |
 | 2026-11-05 | V25-G | v2.5.0 release | 147 tests；tag | 56511a5 |
+| 2026-11-05 | V25-H | TUI keymap/deck + 七襄 brand | 151 tests；?/Ctrl+K | pending |
 | 2026-11-01 | M3-L | v1.0 RC | RC 代码完成；未发布 | 8bdb955 |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |
@@ -228,7 +229,7 @@
 ## 4. 当前可验证结果
 
 ~~~text
-147 tests, 147 pass, 0 fail；v1 demo PASS；real DeepSeek/PG/pgvector；v1.0.2 RELEASED
+151 tests, 151 pass, 0 fail；v1 demo PASS；real DeepSeek/PG/pgvector；v1.0.2 RELEASED
 
 Weft M0 complete: file written, shell verified, memory stored and recalled, knowledge base searched.
 steps=7 toolCalls=6 cacheStable=6 cacheReadTokens=0

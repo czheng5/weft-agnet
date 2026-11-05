@@ -2,7 +2,7 @@
 
 > 产品名：**Weft**（/weft/，中文：**七襄**）  
 > 架构代号：**Trident**（三叉戟架构，内部继续使用）  
-> 一句话：**三线成纬，一机成章。**  
+> 一句话：**三线成纬，七襄成章。**  
 > 英文 tagline：**Weave the three. Run as one.**
 
 ---
@@ -84,7 +84,7 @@ Weft 沿用这个层级，但做三处区分：
   ╚███╔███╔╝███████╗██║        ██║
    ╚══╝╚══╝ ╚══════╝╚═╝        ╚═╝
 
-  ≡ WEFT   七襄   v0.1.0   ·   三线成纬，一机成章
+  ≡ WEFT   七襄   v2.5.0   ·   三线成纬，七襄成章
 
   ╭──────────────────────────────────────────────────────────────╮
   │  ≡  Welcome to Weft!                                        │
@@ -101,7 +101,7 @@ Weft 沿用这个层级，但做三处区分：
   > 把 01-codex / 02-claude / 03-dsh 综合成 M0 实现计划
     █
 
-  ⏺ weft v0.1.0    workspace-write    approvals ask    cache —    0 tok
+  ⏺ weft v2.5.0    workspace-write    approvals ask    cache —    0 tok
 ~~~
 
 ### 版式规则
@@ -140,7 +140,7 @@ tui-banner.mjs 导出 renderBanner(options)，返回字符串；接入时把 opt
 ~~~js
 import { renderBanner } from './tui-banner.mjs'
 console.log(renderBanner({
-  version: '0.1.0',
+  version: '2.5.0',
   cwd: process.cwd(),
   model: 'deepseek-flash',
   provider: 'deepseek',

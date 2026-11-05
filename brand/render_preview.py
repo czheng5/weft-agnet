@@ -122,9 +122,9 @@ def main() -> None:
     x = 42
     x = rich(draw, x, 286, [("WEFT", mono_18, CYAN)], gap=7)
     x = rich(draw, x, 286, [("七襄", cjk_18, CYAN_BRIGHT)], gap=18)
-    x = rich(draw, x, 291, [("v0.1.0", mono_12, MUTED)], gap=14)
+    x = rich(draw, x, 291, [("v2.5.0", mono_12, MUTED)], gap=14)
     x = rich(draw, x, 291, [("·", mono_12, (51, 65, 85))], gap=14)
-    rich(draw, x, 289, [("三线成纬，一机成章", cjk_13, MUTED)])
+    rich(draw, x, 289, [("三线成纬，七襄成章", cjk_13, MUTED)])
 
     # Welcome box
     rounded(draw, (42, 316, 1158, 506), 14, PANEL, BORDER, 1)
@@ -172,7 +172,7 @@ def main() -> None:
 
     draw.line((42 * S, 704 * S, 1158 * S, 704 * S), fill=LINE, width=S)
     text(draw, (42, 716), "⏺", sym_14, TEAL)
-    text(draw, (70, 718), "weft v0.1.0", mono_12, MUTED)
+    text(draw, (70, 718), "weft v2.5.0", mono_12, MUTED)
     text(draw, (196, 718), "│", mono_12, (51, 65, 85))
     text(draw, (216, 718), "workspace-write", mono_12, MUTED)
     text(draw, (382, 718), "│", mono_12, (51, 65, 85))

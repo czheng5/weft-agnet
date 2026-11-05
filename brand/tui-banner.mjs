@@ -80,7 +80,7 @@ function row(content, inner, color) {
 export function renderBanner(options = {}) {
   const color = options.color !== false && !('NO_COLOR' in process.env);
   const o = {
-    version: '0.1.0',
+    version: '2.5.0',
     cwd: process.cwd(),
     model: 'deepseek-flash',
     provider: 'deepseek',
@@ -99,7 +99,7 @@ export function renderBanner(options = {}) {
     '   ' + paint(PALETTE.cyanBright, '七襄', color) +
     '   ' + paint(PALETTE.muted, 'v' + o.version, color) +
     '   ' + paint(PALETTE.muted, '·', color) +
-    '   ' + paint(PALETTE.text, '三线成纬，一机成章', color)
+    '   ' + paint(PALETTE.text, '三线成纬，七襄成章', color)
   );
   lines.push('');
   lines.push(divider(inner, '╭', '╮', color));

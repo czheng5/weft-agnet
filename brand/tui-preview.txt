@@ -6,7 +6,7 @@
     ╚███╔███╔╝███████╗██║        ██║
      ╚══╝╚══╝ ╚══════╝╚═╝        ╚═╝
 
-  ≡ WEFT   七襄   v0.1.0   ·   三线成纬，一机成章
+  ≡ WEFT   七襄   v2.5.0   ·   三线成纬，七襄成章
 
   ╭────────────────────────────────────────────────────────────────╮
   │   ≡  Welcome to Weft!                                          │
@@ -23,5 +23,5 @@
   > 把 01-codex / 02-claude / 03-dsh 综合成 M0 实现计划
     █
 
-  ⏺ weft v0.1.0    workspace-write    approvals ask    cache —    0 tok
+  ⏺ weft v2.5.0    workspace-write    approvals ask    cache —    0 tok
 

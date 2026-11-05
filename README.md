@@ -6,13 +6,32 @@ Weft 不是聊天壳，也不是又一个模型客户端。
 它把任务、权限、记忆、工具和界面放进同一个可恢复的运行时，让 Agent 真正能接手长活。
 
 ![version](https://img.shields.io/badge/version-2.5.0-2dd4bf)
-![tests](https://img.shields.io/badge/tests-147%20pass-22c55e)
+![tests](https://img.shields.io/badge/tests-151%20pass-22c55e)
 ![node](https://img.shields.io/badge/node-%3E%3D24-339933)
 ![status](https://img.shields.io/badge/status-v2.5%20released-0ea5e9)
 ![CI](https://github.com/czheng5/weft-agnet/actions/workflows/ci.yml/badge.svg)
 ![license](https://img.shields.io/badge/license-MIT-22c55e)
 
 ![Weft CLI](docs/assets/cli-preview-qixiang.svg)
+
+## TUI 快捷键
+
+主界面支持游戏化的键位面板和命令面板，斜杠命令仍然保留：
+
+| 键 | 动作 |
+|---|---|
+| `?` | 打开快捷键面板 |
+| `Ctrl+K` | 打开 Command Deck 命令面板 |
+| `/` | 直接输入斜杠命令 |
+| `Tab` | 补全斜杠命令 |
+| `↑` / `↓` | 历史输入 |
+| `Esc` | 清空输入 / 关闭面板 |
+| `Ctrl+C` | 清空输入；空输入连按两次退出 |
+| `Ctrl+L` | 清屏 |
+| `Ctrl+D` | 退出 |
+| `Y` / `S` / `N` | 审批：本次 / 本会话 / 拒绝 |
+
+`/keys` 或 `?` 查看完整键位矩阵，`/menu` 或 `Ctrl+K` 打开命令面板。菜单、提示和按键行为共用 [src/core/keymap.ts](src/core/keymap.ts) 一份定义。
 
 ## 它解决什么
 
@@ -148,7 +167,7 @@ Boundary     Policy / Approval / Sandbox / Guardian
 ## 现在可用
 
 - **v2.5.0**：Durable Thread、Workboard+提醒、Objective Anchor、Gateway/SSE、WorkerPool、OAuth/OIDC、签名 Marketplace、设备同步、PWA、S3/K8s/Nomad、EDA evidence
-- 147 tests，CI 通过
+- 151 tests，CI 通过
 - 真实 PostgreSQL、Docker、WSL、bubblewrap、长任务、DeepSeek 均有验收记录
 - 发布记录见 [CHANGELOG.md](CHANGELOG.md) 与 [PROJECT_LOG.md](PROJECT_LOG.md)
 

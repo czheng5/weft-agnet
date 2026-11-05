@@ -2,6 +2,14 @@
 
 All notable changes are documented here. Format follows Keep a Changelog; versions use SemVer.
 
+## [Unreleased]
+
+### Added
+
+- TUI keymap and Command Deck: `?`, `Ctrl+K`, `Tab`, history, clear, inline hints, and contextual approval keys.
+- Chinese product name **七襄**; slogan updated to **三线成纬，七襄成章**.
+- 151 tests.
+
 ## [2.5.0] - 2026-11-05
 
 ### Added

@@ -236,7 +236,7 @@ async function main(): Promise<void> {
 
   if (args.demo) {
     const banner = renderBanner({
-      version: '0.1.0',
+      version: '2.5.0',
       cwd: workspace,
       model: model.id,
       provider: 'scripted',
