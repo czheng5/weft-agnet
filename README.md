@@ -6,7 +6,7 @@ Weft 不是聊天壳，也不是又一个模型客户端。
 它把任务、权限、记忆、工具和界面放进同一个可恢复的运行时，让 Agent 真正能接手长活。
 
 ![version](https://img.shields.io/badge/version-2.4.1-2dd4bf)
-![tests](https://img.shields.io/badge/tests-138%20pass-22c55e)
+![tests](https://img.shields.io/badge/tests-141%20pass-22c55e)
 ![node](https://img.shields.io/badge/node-%3E%3D24-339933)
 ![status](https://img.shields.io/badge/status-v2.4.1%20released-0ea5e9)
 ![CI](https://github.com/czheng5/weft-agnet/actions/workflows/ci.yml/badge.svg)
@@ -148,7 +148,7 @@ Boundary     Policy / Approval / Sandbox / Guardian
 ## 现在可用
 
 - **v2.4.1**：Durable Thread、Workboard、Objective Anchor、Gateway/SSE、WorkerPool、签名 Marketplace、OIDC/RBAC、离线工具发现
-- 138 tests，CI 通过
+- 141 tests，CI 通过
 - 真实 PostgreSQL、Docker、WSL、bubblewrap、长任务、DeepSeek 均有验收记录
 - 发布记录见 [CHANGELOG.md](CHANGELOG.md) 与 [PROJECT_LOG.md](PROJECT_LOG.md)
 
@@ -164,6 +164,7 @@ Boundary     Policy / Approval / Sandbox / Guardian
 | Workboard | [docs/workboard.md](docs/workboard.md) |
 | 天禧 AI 调研 | [docs/tianxi-ai-integration.md](docs/tianxi-ai-integration.md) |
 | OAuth/PKCE | [docs/oauth-pkce.md](docs/oauth-pkce.md) |
+| S3/K8s/Nomad | [docs/production-adapters.md](docs/production-adapters.md) |
 | 发布说明 | [docs/v2.4-release.md](docs/v2.4-release.md) |
 | 接口契约 | [docs/interfaces.md](docs/interfaces.md) |
 | 验收证据 | [docs/v1.0-gate.md](docs/v1.0-gate.md)、[docs/acceptance-matrix.md](docs/acceptance-matrix.md) |

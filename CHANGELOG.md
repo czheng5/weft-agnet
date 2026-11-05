@@ -10,7 +10,8 @@ All notable changes are documented here. Format follows Keep a Changelog; versio
 - Testbench WEFT_ENV loading without logging values.
 - Weighted fair worker scheduling.
 - OAuth authorization-code + PKCE utilities, JWKS cache and key rotation hook.
-- 138 tests.
+- S3 artifact store and Kubernetes/Nomad worker launchers.
+- 141 tests.
 
 ## [2.4.1] - 2026-11-04
 

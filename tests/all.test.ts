@@ -34,6 +34,8 @@ import './workboard.test.ts'
 import './tool-discovery.test.ts'
 import './oauth.test.ts'
 import './jwks.test.ts'
+import './artifact-s3.test.ts'
+import './worker-launchers.test.ts'
 import './eda-flow.test.ts'
 import './memory.test.ts';
 import './memory-http.test.ts'

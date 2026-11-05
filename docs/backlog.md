@@ -30,7 +30,7 @@
 | P1-1 | EDA 实跑 | 环境有 Verilator/Yosys/PDK 时自动发现并跑 lint/sim/synth |
 | P1-2 | Coverage/PERC | coverage 百分比解析；PERC/electrical rule deck adapter；无 deck 不签核 |
 | P1-3 | OAuth code flow | ◐ PKCE/state/token exchange/refresh/JWKS rotation 已做；登录回调 UI 待做 |
-| P1-4 | 生产 adapter | S3 artifact store、K8s/Nomad worker launcher；HA/backup |
+| P1-4 | 生产 adapter | ◐ S3 store、K8s Job、Nomad Job、secretRef 已做；真实云/HA 待做 |
 | P1-5 | 加权公平调度 | ✅ tenant weight + concurrency；继续做全局公平 |
 | P1-6 | 跨设备同步 | 设备身份、冲突解决、端到端加密；不是裸共享 Postgres |
 | P1-7 | Desktop 壳 | Web/Desktop 同一 Surface；TUI/HTTP 不重复逻辑 |
