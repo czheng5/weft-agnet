@@ -194,9 +194,9 @@
 | 2026-11-04 | V22-C | fair worker pool | 127 tests；tenant round-robin | cc64d37 |
 | 2026-11-04 | V22-D | storage/compute separation | 127 tests；orchestrator | cc64d37 |
 | 2026-11-04 | V22-E | v2.2.0 release | 127 tests；tag | cc64d37 |
-| 2026-11-04 | V23-A | ObjectiveAnchor | 130 tests；drift 阻断 | 待提交 |
-| 2026-11-04 | V23-B | EDA gate | BLOCKED；无工具/PERC | 待提交 |
-| 2026-11-04 | V23-C | v2.3.0 release | 130 tests；tag | 待提交 |
+| 2026-11-04 | V23-A | ObjectiveAnchor | 130 tests；drift 阻断 | dfba897 |
+| 2026-11-04 | V23-B | EDA gate | BLOCKED；无工具/PERC | dfba897 |
+| 2026-11-04 | V23-C | v2.3.0 release | 130 tests；tag | dfba897 |
 | 2026-11-01 | M3-L | v1.0 RC | RC 代码完成；未发布 | 8bdb955 |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |
