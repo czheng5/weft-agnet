@@ -21,7 +21,9 @@ export interface CommandDef {
 
 export const KEYMAP: KeyBinding[] = [
   { id: 'help', keys: ['?'], label: '?', description: '快捷键与命令帮助', section: 'Navigate', contexts: ['prompt'], hint: '? keys' },
-  { id: 'palette', keys: ['ctrl+k'], label: 'Ctrl+K', description: '打开命令面板', section: 'Navigate', contexts: ['prompt'], hint: 'Ctrl+K palette' },
+  { id: 'palette', keys: ['ctrl+k'], label: 'Ctrl+K', description: '打开命令面板', section: 'Navigate', contexts: ['prompt'], hint: 'Ctrl+K deck' },
+  { id: 'model', keys: ['f2'], label: 'F2', description: '切换模型', section: 'Navigate', contexts: ['prompt'], hint: 'F2 model' },
+  { id: 'settings', keys: ['f3'], label: 'F3', description: '设置 / 运行时信息', section: 'Navigate', contexts: ['prompt'], hint: 'F3 settings' },
   { id: 'commands', keys: ['/'], label: '/', description: '斜杠命令', section: 'Navigate', contexts: ['prompt'], hint: '/ commands' },
   { id: 'clear-screen', keys: ['ctrl+l'], label: 'Ctrl+L', description: '清屏并保留当前会话', section: 'Navigate', contexts: ['prompt'], hint: 'Ctrl+L clear' },
   { id: 'cancel', keys: ['esc'], label: 'Esc', description: '清空当前输入 / 取消审批', section: 'Compose', contexts: ['prompt', 'approval'], hint: 'Esc cancel' },
@@ -44,6 +46,8 @@ export const COMMANDS: CommandDef[] = [
   { name: 'keys', usage: '/keys', description: '打开快捷键面板', group: 'System' },
   { name: 'menu', usage: '/menu', description: '打开命令面板', group: 'System' },
   { name: 'clear', usage: '/clear', description: '清屏', group: 'System' },
+  { name: 'model', usage: '/model', description: '切换模型', group: 'Session' },
+  { name: 'settings', usage: '/settings', description: '设置与运行时信息', group: 'System' },
   { name: 'status', usage: '/status', description: '查看运行时状态', group: 'Session' },
   { name: 'plan', usage: '/plan', description: '查看 Work Graph / 计划', group: 'Plan' },
   { name: 'goal', usage: '/goal ', description: '创建目标', group: 'Plan', takesArg: true },
@@ -88,7 +92,7 @@ export function bindingsFor(context: KeyContext): KeyBinding[] {
 
 export function hintsFor(context: KeyContext, compact = false): string {
   if (context === 'prompt' && compact) {
-    return '? keys  ·  Ctrl+K deck  ·  /help  ·  Tab complete';
+    return '? keys  ·  Ctrl+K deck  ·  F2 model  ·  /help';
   }
   return bindingsFor(context)
     .map((binding) => binding.hint ?? binding.label)

@@ -6,7 +6,7 @@ All notable changes are documented here. Format follows Keep a Changelog; versio
 
 ### Added
 
-- TUI keymap and Command Deck: `?`, `Ctrl+K`, `Tab`, history, clear, inline hints, and contextual approval keys.
+- TUI keymap and Command Deck: `?`, `Ctrl+K`, `F2` model picker, `F3` settings, `Tab`, history, clear, footer hints, and contextual approval keys.
 - Chinese product name **七襄**; slogan updated to **三线成纬，七襄成章**.
 - 151 tests.
 

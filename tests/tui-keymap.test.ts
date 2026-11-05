@@ -21,8 +21,9 @@ test('keymap ids and per-context keys are unique', () => {
 });
 
 test('keymap exposes compact hints and command completion', () => {
-  assert.match(hintsFor('prompt'), /\? keys/);
-  assert.match(hintsFor('prompt'), /Ctrl\+K palette/);
+  assert.match(hintsFor('prompt', true), /\? keys/);
+  assert.match(hintsFor('prompt', true), /Ctrl\+K deck/);
+  assert.match(hintsFor('prompt', true), /F2 model/);
   assert.equal(formatKey('ctrl+k'), 'Ctrl+K');
   assert.equal(completeCommand('/he', 3)?.text, '/help');
   assert.equal(completeCommand('/mem', 4)?.text, '/memory ');

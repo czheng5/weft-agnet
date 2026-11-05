@@ -10,7 +10,7 @@ export interface KeyEvent {
   sequence?: string;
 }
 
-export type LineAction = 'line' | 'help' | 'palette' | 'cancel' | 'interrupt' | 'eof';
+export type LineAction = 'line' | 'help' | 'palette' | 'model' | 'settings' | 'cancel' | 'interrupt' | 'eof';
 
 export interface LineResult {
   action: LineAction;
@@ -134,6 +134,14 @@ export class TuiInput {
         }
         if (key.ctrl && name === 'k') {
           finish({ action: 'palette' });
+          return;
+        }
+        if (name === 'f2') {
+          finish({ action: 'model' });
+          return;
+        }
+        if (name === 'f3') {
+          finish({ action: 'settings' });
           return;
         }
         if (sequence === '?' && text.length === 0) {

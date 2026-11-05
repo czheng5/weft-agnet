@@ -124,3 +124,71 @@ export function renderStatusBar(meta: { version: string; sandbox: string; approv
   ];
   return '  ' + chips.map((chip, i) => i === 0 ? paint('1;36', chip, color) : paint('2', chip, color)).join(paint('2', '  ·  ', color));
 }
+
+export interface ChoiceItem {
+  label: string;
+  description?: string;
+  disabled?: boolean;
+}
+
+export function renderChoiceMenu(title: string, items: ChoiceItem[], selected: number, color = true, width = 72): string {
+  const index = Math.max(0, Math.min(selected, Math.max(0, items.length - 1)));
+  const rows: string[] = [];
+  if (items.length === 0) {
+    rows.push(paint('2', 'no items', color));
+  } else {
+    items.slice(0, 14).forEach((item, i) => {
+      const marker = i === index ? paint('1;36', '▶', color) : ' ';
+      const label = fitVisible(item.label, 22);
+      const desc = item.description ? '  ' + item.description : '';
+      rows.push(' ' + marker + ' ' + paint(item.disabled ? '2' : (i === index ? '1;37' : '0'), label + desc, color));
+    });
+  }
+  rows.push('');
+  rows.push(paint('2', '↑↓ move · Enter select · Esc close', color));
+  width = Math.max(40, width);
+  const lines = [boxTop(title, width, color)];
+  for (const row of rows) lines.push(boxLine(row, width, color));
+  lines.push(boxBottom(width, color));
+  return lines.join('\n');
+}
+
+export function renderSettingsPanel(settings: { version: string; cwd: string; model: string; sandbox: string; approvals: string }, color = true, width = 72): string {
+  width = Math.max(40, width);
+  const rows: string[] = [];
+  const add = (label: string, value: string): void => {
+    const lines = wrapVisible(value, Math.max(12, width - 16));
+    rows.push('  ' + paint('2', fitVisible(label, 10), color) + '  ' + lines[0]);
+    for (const line of lines.slice(1)) rows.push('  ' + ' '.repeat(12) + line);
+  };
+  add('product', 'WEFT 七襄');
+  add('version', settings.version);
+  add('cwd', settings.cwd);
+  add('model', settings.model);
+  add('sandbox', settings.sandbox);
+  add('approvals', settings.approvals);
+  rows.push('');
+  rows.push(paint('2', 'F2 model · Esc close', color));
+  const lines = [boxTop('WEFT 七襄 · SETTINGS', width, color)];
+  for (const row of rows) lines.push(boxLine(row, width, color));
+  lines.push(boxBottom(width, color));
+  return lines.join('\n');
+}
+
+function wrapVisible(value: string, width: number): string[] {
+  const lines: string[] = [];
+  let current = '';
+  let used = 0;
+  for (const char of value) {
+    const w = visibleWidth(char);
+    if (used + w > width && current) {
+      lines.push(current);
+      current = '';
+      used = 0;
+    }
+    current += char;
+    used += w;
+  }
+  if (current) lines.push(current);
+  return lines.length > 0 ? lines : [''];
+}

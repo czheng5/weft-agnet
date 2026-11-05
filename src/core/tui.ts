@@ -1,19 +1,23 @@
 import { renderBanner } from '../../brand/tui-banner.mjs';
 import type { AgentLoop } from './agent.ts';
 import type { ModelProvider } from './model.ts';
+import { OpenAICompatibleModel } from './model.ts';
+import { ModelRegistry } from './model-registry.ts';
+import type { ModelProfile } from './model-registry.ts';
 import type { Session } from './session.ts';
 import type { ToolContext } from './tools.ts';
 import { WorkGraph, WorkGraphStore } from './workgraph.ts';
 import { computeMetrics, formatMetrics } from './metrics.ts';
 import { COMMANDS, completeCommand, hintsFor, type CommandDef } from './keymap.ts';
 import { TuiInput } from './tui-input.ts';
-import { renderCommandList, renderCommandPalette, renderKeyHelp, renderStatusBar } from './tui-menu.ts';
+import { renderChoiceMenu, renderCommandList, renderCommandPalette, renderKeyHelp, renderSettingsPanel, renderStatusBar } from './tui-menu.ts';
 
 export interface TuiOptions {
   session: Session;
   toolContext: ToolContext;
   model: ModelProvider;
   workspace: string;
+  modelRegistry?: ModelRegistry;
 }
 
 const VERSION = '2.5.0';
@@ -21,6 +25,8 @@ const VERSION = '2.5.0';
 export class Tui {
   private readonly opts: TuiOptions;
   private readonly input = new TuiInput();
+  private readonly modelRegistry?: ModelRegistry;
+  private modelLabel: string;
   private readonly wgStore: WorkGraphStore;
   private graph: WorkGraph | null;
   private readonly history: string[] = [];
@@ -28,6 +34,8 @@ export class Tui {
 
   constructor(opts: TuiOptions) {
     this.opts = opts;
+    this.modelRegistry = opts.modelRegistry;
+    this.modelLabel = opts.model.id;
     this.wgStore = new WorkGraphStore(opts.workspace);
     this.graph = this.wgStore.load();
   }
@@ -80,6 +88,14 @@ export class Tui {
           }
           continue;
         }
+        if (result.action === 'model') {
+          await this.showModelPicker();
+          continue;
+        }
+        if (result.action === 'settings') {
+          await this.showSettings();
+          continue;
+        }
 
         const line = (result.text ?? '').trim();
         if (!line) continue;
@@ -99,6 +115,14 @@ export class Tui {
     }
     if (line === '/keys') {
       await this.showKeys();
+      return true;
+    }
+    if (line === '/model') {
+      await this.showModelPicker();
+      return true;
+    }
+    if (line === '/settings') {
+      await this.showSettings();
       return true;
     }
     if (line === '/menu') {
@@ -234,7 +258,7 @@ export class Tui {
     const banner = renderBanner({
       version: VERSION,
       cwd: this.opts.workspace,
-      model: this.opts.model.id,
+      model: this.modelLabel,
       provider: this.opts.model.id === 'openai-compatible' ? 'api' : 'scripted',
       sandbox: this.opts.toolContext.sandbox.info.backend,
       approvals: this.opts.toolContext.approvals.policy.ctx.approvalPolicy
@@ -248,7 +272,7 @@ export class Tui {
       version: VERSION,
       sandbox: this.opts.toolContext.sandbox.info.backend,
       approvals: this.opts.toolContext.approvals.policy.ctx.approvalPolicy,
-      model: this.opts.model.id
+      model: this.modelLabel
     }) + '\n');
     if (!this.input.interactive) this.input.write('  ' + hintsFor('prompt', true) + '\n\n');
   }
@@ -272,6 +296,102 @@ export class Tui {
     }
   }
 
+
+  private async showSettings(): Promise<void> {
+    if (!this.input.interactive) {
+      this.printSettings();
+      return;
+    }
+    let openModel = false;
+    this.input.enterAltScreen();
+    try {
+      this.input.write(renderSettingsPanel({
+        version: VERSION,
+        cwd: this.opts.workspace,
+        model: this.modelLabel,
+        sandbox: this.opts.toolContext.sandbox.info.backend,
+        approvals: this.opts.toolContext.approvals.policy.ctx.approvalPolicy
+      }, true, this.menuWidth) + '\n');
+      const key = await this.input.readKey();
+      openModel = key.name === 'f2';
+    } finally {
+      this.input.exitAltScreen();
+    }
+    if (openModel) await this.showModelPicker();
+  }
+
+  private printSettings(): void {
+    this.input.write('  product     WEFT 七襄\n');
+    this.input.write('  version     ' + VERSION + '\n');
+    this.input.write('  cwd         ' + this.opts.workspace + '\n');
+    this.input.write('  model       ' + this.modelLabel + '\n');
+    this.input.write('  sandbox     ' + this.opts.toolContext.sandbox.info.backend + '\n');
+    this.input.write('  approvals   ' + this.opts.toolContext.approvals.policy.ctx.approvalPolicy + '\n\n');
+  }
+
+  private async showModelPicker(): Promise<void> {
+    const profiles = this.modelRegistry?.list() ?? [];
+    if (!this.input.interactive) {
+      if (profiles.length === 0) {
+        this.input.write('  no model profiles; configure WEFT_MODEL / WEFT_MODEL_BASE_URL or .weft/models.json\n');
+      } else {
+        for (const profile of profiles) this.input.write('  ' + profile.id + '  ' + profile.name + '  ' + profile.model + '\n');
+      }
+      return;
+    }
+    let selected = 0;
+    this.input.enterAltScreen();
+    try {
+      if (profiles.length === 0) {
+        this.input.write(renderChoiceMenu('WEFT 七襄 · MODELS', [{ label: 'no saved models', description: 'configure .weft/models.json or environment' }], 0, true, this.menuWidth) + '\n');
+        await this.input.readKey();
+        return;
+      }
+      while (true) {
+        const items = profiles.map((profile) => {
+          const ready = profile.kind === 'local' || !profile.apiKeyEnv || Boolean(process.env[profile.apiKeyEnv]);
+          return {
+            label: profile.name,
+            description: profile.id + ' · ' + profile.model + (ready ? '' : ' · key missing'),
+            disabled: !ready
+          };
+        });
+        this.input.clearScreen();
+        this.input.write(renderChoiceMenu('WEFT 七襄 · MODELS', items, selected, true, this.menuWidth) + '\n');
+        const key = await this.input.readKey();
+        if (key.name === 'escape') return;
+        if (key.name === 'return' || key.name === 'enter') {
+          await this.switchModel(profiles[selected]);
+          return;
+        }
+        if (key.name === 'up') {
+          selected = Math.max(0, selected - 1);
+          continue;
+        }
+        if (key.name === 'down') {
+          selected = Math.min(profiles.length - 1, selected + 1);
+          continue;
+        }
+      }
+    } finally {
+      this.input.exitAltScreen();
+    }
+  }
+
+  private async switchModel(profile: ModelProfile): Promise<void> {
+    const envName = profile.apiKeyEnv ?? 'WEFT_MODEL_API_KEY';
+    const apiKey = process.env[envName] ?? (profile.kind === 'local' ? 'local' : '');
+    if (!apiKey) {
+      this.printCompact();
+      this.input.write('  cannot switch to ' + profile.name + ': missing env ' + envName + '\n\n');
+      return;
+    }
+    this.opts.model = new OpenAICompatibleModel({ baseUrl: profile.baseUrl, apiKey, model: profile.model });
+    this.modelLabel = profile.name;
+    this.opts.session.append('model/switch', { id: profile.id, name: profile.name, model: profile.model });
+    this.printCompact();
+    this.input.write('  model switched to ' + profile.name + '  ·  ' + profile.model + '\n\n');
+  }
   private async showPalette(): Promise<CommandDef | null> {
     if (!this.input.interactive) return null;
     let filter = '';

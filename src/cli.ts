@@ -22,6 +22,7 @@ import { McpKnowledgeBaseProvider, HttpMcpTransport } from './core/kb-mcp.ts';
 import { ScriptedModel, OpenAICompatibleModel } from './core/model.ts';
 import type { ModelProvider } from './core/model.ts';
 import { Tui } from './core/tui.ts';
+import { ModelRegistry } from './core/model-registry.ts';
 import { AgentGateway } from './core/gateway.ts';
 import { SqliteRuntimeStore } from './core/runtime-store-sqlite.ts';
 import { loadEnvFile } from './core/env.ts';
@@ -258,7 +259,8 @@ async function main(): Promise<void> {
     return;
   }
 
-  tui = new Tui({ session, toolContext, model, workspace });
+  const modelRegistry = new ModelRegistry(workspace);
+  tui = new Tui({ session, toolContext, model, workspace, modelRegistry });
   if (model.id === 'scripted') {
     process.stdout.write('  note: no live model configured; use /demo or set WEFT_MODEL_API_KEY.\n\n');
   }
