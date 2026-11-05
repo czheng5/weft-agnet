@@ -1,7 +1,7 @@
 # Weft PRD v1.0
 
 > 状态：**FROZEN for v1.0**（2026-11-01）。本 PRD 固定 v1.0 范围；新增/变更需求必须写 ADR，并提升 PRD 版本。  
-> 产品名：Weft（纬）；架构代号：Trident。  
+> 产品名：Weft（七襄）；架构代号：Trident。  
 > 关联：Roadmap 见 [ROADMAP.md](ROADMAP.md)；8 概念取舍见 [report/09-ranking-and-concept-merge.md](report/09-ranking-and-concept-merge.md)；Memory 研究见 [report/10-memory-architecture-2026.md](report/10-memory-architecture-2026.md)、[report/11-memoryhub-vs-polyglot.md](report/11-memoryhub-vs-polyglot.md)；未来 Polyglot 见 [appendix/polyglot-hub.md](appendix/polyglot-hub.md)；接口见 [docs/interfaces.md](docs/interfaces.md)。
 
 ---

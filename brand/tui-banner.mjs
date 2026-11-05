@@ -96,7 +96,7 @@ export function renderBanner(options = {}) {
   lines.push('');
   lines.push(
     '  ' + paint(PALETTE.cyan, '≡ WEFT', color) +
-    '   ' + paint(PALETTE.cyanBright, '纬', color) +
+    '   ' + paint(PALETTE.cyanBright, '七襄', color) +
     '   ' + paint(PALETTE.muted, 'v' + o.version, color) +
     '   ' + paint(PALETTE.muted, '·', color) +
     '   ' + paint(PALETTE.text, '三线成纬，一机成章', color)

@@ -1,4 +1,4 @@
-# Weft（纬）研究报告索引：Codex × Claude × DSH 融合 + Hermes / Memory Hub 附录
+# Weft（七襄）研究报告索引：Codex × Claude × DSH 融合 + Hermes / Memory Hub 附录
 
 ## 四句话结论
 
@@ -46,7 +46,7 @@
 - [10-memory-architecture-2026.md](10-memory-architecture-2026.md) — Memory 架构 2026：Hub+Redis+PG+Vector 是否过时、7 种架构对比、Weft Memory Fabric 推荐
 - [11-memoryhub-vs-polyglot.md](11-memoryhub-vs-polyglot.md) — Polyglot Hub vs Red Hat MemoryHub：差异、工业级边界、container 数量清单
 - [../appendix/polyglot-hub.md](../appendix/polyglot-hub.md) — 附录 A：未来 Polyglot 记忆 provider（v1.0 不启用，作为模块化替换备选）
-- [../brand/README.md](../brand/README.md) — 品牌 **Weft（纬）**：命名、Weft Cyan 色板、Claude 式 TUI 模板、ANSI 渲染器与预览图
+- [../brand/README.md](../brand/README.md) — 品牌 **Weft（七襄）**：命名、Weft Cyan 色板、Claude 式 TUI 模板、ANSI 渲染器与预览图
 
 ## 证据与复现
 

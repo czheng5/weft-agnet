@@ -1,6 +1,6 @@
-# Weft（纬）：Codex / Claude / DSH 三体融合研究
+# Weft（七襄）：Codex / Claude / DSH 三体融合研究
 
-> **产品名：Weft（纬）** · **主题色：Weft Cyan `#22D3EE`** · TUI 模板与 ANSI 渲染器见 [../brand/README.md](../brand/README.md)。
+> **产品名：Weft（七襄）** · **主题色：Weft Cyan `#22D3EE`** · TUI 模板与 ANSI 渲染器见 [../brand/README.md](../brand/README.md)。
 >
 > **开发文档：** [PRD v1.0（FROZEN）](../PRD.md) · [Roadmap v1.0（FROZEN）](../ROADMAP.md) · [接口契约](../docs/interfaces.md) · [附录 A · Polyglot](../appendix/polyglot-hub.md)。
 >

@@ -121,7 +121,7 @@ def main() -> None:
     # Brand line
     x = 42
     x = rich(draw, x, 286, [("WEFT", mono_18, CYAN)], gap=7)
-    x = rich(draw, x, 286, [("纬", cjk_18, CYAN_BRIGHT)], gap=18)
+    x = rich(draw, x, 286, [("七襄", cjk_18, CYAN_BRIGHT)], gap=18)
     x = rich(draw, x, 291, [("v0.1.0", mono_12, MUTED)], gap=14)
     x = rich(draw, x, 291, [("·", mono_12, (51, 65, 85))], gap=14)
     rich(draw, x, 289, [("三线成纬，一机成章", cjk_13, MUTED)])

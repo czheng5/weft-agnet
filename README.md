@@ -1,4 +1,4 @@
-# Weft 纬
+# Weft 七襄
 
 ### 能长期跑、能追责、能恢复的 Agent Harness
 
@@ -12,7 +12,7 @@ Weft 不是聊天壳，也不是又一个模型客户端。
 ![CI](https://github.com/czheng5/weft-agnet/actions/workflows/ci.yml/badge.svg)
 ![license](https://img.shields.io/badge/license-MIT-22c55e)
 
-![Weft CLI](docs/assets/cli-preview.svg)
+![Weft CLI](docs/assets/cli-preview-qixiang.svg)
 
 ## 它解决什么
 

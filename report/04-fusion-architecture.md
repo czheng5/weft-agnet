@@ -1,6 +1,6 @@
 # Weft 参考架构：Trident
 
-> 产品名 **Weft（纬）**，架构代号 **Trident（三叉戟）**：以 **Codex 之手**（执行与权限）、**Claude 之脑**（长程规划与执行控制）、**DSH 之脊**（插件内核、会话日志与缓存友好上下文）为主干，以 **Hermes / Memory Hub 之记忆** 为成长层。品牌与 TUI 规范见 [../brand/README.md](../brand/README.md)。v1.0 冻结范围见 [../PRD.md](../PRD.md) 与 [../ROADMAP.md](../ROADMAP.md)。
+> 产品名 **Weft（七襄）**，架构代号 **Trident（三叉戟）**：以 **Codex 之手**（执行与权限）、**Claude 之脑**（长程规划与执行控制）、**DSH 之脊**（插件内核、会话日志与缓存友好上下文）为主干，以 **Hermes / Memory Hub 之记忆** 为成长层。品牌与 TUI 规范见 [../brand/README.md](../brand/README.md)。v1.0 冻结范围见 [../PRD.md](../PRD.md) 与 [../ROADMAP.md](../ROADMAP.md)。
 >
 > 本文是设计综合，不重复三份源码报告的逐行证据；引用格式 `path:line` 均可在 `repos/` 对应仓库中复核。**文中“机制”部分有源码对应，“架构/组合/工期”部分属于综合推导，逐条审计见 [06-derivation-audit.md](06-derivation-audit.md)。** 分报告见 [01-codex.md](01-codex.md)、[02-claude.md](02-claude.md)、[03-dsh.md](03-dsh.md)、[05-appendix.md](05-appendix.md)。
 
