@@ -11,6 +11,7 @@ export interface RuntimeScope {
 export type ThreadStatus = 'open' | 'working' | 'waiting' | 'done' | 'failed' | 'stopped';
 export type WorkerStatus = 'pending' | 'running' | 'idle' | 'stopped' | 'failed';
 export type SandboxKind = 'workspace-guard' | 'bwrap' | 'docker' | 'wsl';
+export type ThreadPriority = 'low' | 'normal' | 'high' | 'critical';
 
 export interface PermissionSet {
   read: string[];
@@ -25,6 +26,10 @@ export interface ThreadRecord {
   scope: RuntimeScope;
   title: string;
   status: ThreadStatus;
+  priority?: ThreadPriority;
+  owner?: string;
+  dueAt?: number;
+  labels?: string[];
   createdAt: number;
   updatedAt: number;
   version: number;
@@ -166,12 +171,24 @@ export function validateThread(value: unknown): ThreadRecord {
   if (status !== 'open' && status !== 'working' && status !== 'waiting' && status !== 'done' && status !== 'failed' && status !== 'stopped') {
     throw new RuntimeSchemaError('thread.status', 'unknown status');
   }
+  const priority = input.priority;
+  if (priority !== undefined && priority !== 'low' && priority !== 'normal' && priority !== 'high' && priority !== 'critical') throw new RuntimeSchemaError('thread.priority', 'unknown priority');
+  const owner = input.owner;
+  if (owner !== undefined) requireString(owner, 'thread.owner');
+  const dueAt = input.dueAt;
+  if (dueAt !== undefined) requireNumber(dueAt, 'thread.dueAt');
+  const labels = input.labels;
+  if (labels !== undefined) requireStringArray(labels, 'thread.labels');
   return {
     schemaVersion: RUNTIME_SCHEMA_VERSION,
     id: requireString(input.id, 'thread.id'),
     scope: validateScope(input.scope, 'thread.scope'),
     title: requireString(input.title, 'thread.title'),
     status,
+    priority: priority as ThreadRecord['priority'],
+    owner: owner as string | undefined,
+    dueAt: dueAt as number | undefined,
+    labels: labels as string[] | undefined,
     createdAt: requireNumber(input.createdAt, 'thread.createdAt'),
     updatedAt: requireNumber(input.updatedAt, 'thread.updatedAt'),
     version: requireNumber(input.version, 'thread.version')
@@ -304,6 +321,10 @@ export function createThreadRecord(input: Omit<ThreadRecord, 'schemaVersion' | '
     scope: validateScope(input.scope),
     title: input.title,
     status: input.status,
+    priority: input.priority,
+    owner: input.owner,
+    dueAt: input.dueAt,
+    labels: input.labels ? [...input.labels] : undefined,
     createdAt: at,
     updatedAt: at,
     version: 1

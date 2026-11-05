@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, mkdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { discoverToolchain } from './tool-discovery.ts';
 
 export type GateStatus = 'pass' | 'fail' | 'blocked' | 'unverified';
 
@@ -41,8 +42,12 @@ function probe(name: string): EdaTool {
   return { name, available: true, version: (result.stdout || result.stderr || '').split(/\r?\n/)[0]?.trim() };
 }
 
-export function discoverEdaTools(): EdaTool[] {
-  return ['verilator', 'yosys', 'iverilog', 'verilator_coverage'].map(probe);
+export function discoverEdaTools(env: NodeJS.ProcessEnv = process.env): EdaTool[] {
+  const report = discoverToolchain(env);
+  return ['verilator', 'yosys', 'iverilog', 'verilator_coverage'].map((name) => {
+    const found = report.tools.find((tool) => tool.name === name);
+    return found ? { name, available: true, path: found.path } : probe(name);
+  });
 }
 
 export function loadEdaManifest(scenarioDir: string): EdaManifest {
@@ -58,8 +63,8 @@ function run(command: string, args: string[], cwd: string): { ok: boolean; outpu
   return { ok: !result.error && result.status === 0, output: (result.stdout ?? '') + (result.stderr ?? '') };
 }
 
-export function evaluateEdaManifest(scenarioDir: string, manifest: EdaManifest): EdaResult {
-  const tools = discoverEdaTools();
+export function evaluateEdaManifest(scenarioDir: string, manifest: EdaManifest, env: NodeJS.ProcessEnv = process.env): EdaResult {
+  const tools = discoverEdaTools(env);
   const missing = tools.filter((tool) => !tool.available).map((tool) => tool.name);
   const limitations = [
     'PERC/electrical rule checking requires a configured rule deck; a bundled open-source deck is not claimed.',

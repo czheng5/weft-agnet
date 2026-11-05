@@ -2,7 +2,7 @@
 
 > 用途：项目管理视角的独立台账。只记录“开发了什么 / 解决了什么问题 / 达到什么效果”，不写流水账、不替代 PRD/ROADMAP。  
 > 更新规则：每次提交追加一行；效果尽量给可验证证据（测试数、事件数、命令、commit）。  
-> 当前版本：v2.3.0 RELEASED（2026-11-04）；防跑偏 + EDA fail-closed gate。
+> 当前版本：v2.4.0 RELEASED（2026-11-04）；Workboard + 天禧概念 + 离线工具发现。
 
 ---
 
@@ -20,6 +20,7 @@
 | v2.1 Closed-world | ✅ RELEASED | 100% | 断网推理 + FIFO/CDC/timing 证据情景 |
 | v2.2 Production | ✅ RELEASED | 100% | 签名 Marketplace/OIDC+撤销/公平调度/分离编排 baseline |
 | v2.3 Guard/EDA | ✅ RELEASED | 100% | ObjectiveAnchor + EDA gate；硬件签核 BLOCKED（缺工具/PERC） |
+| v2.4 Workboard | ✅ RELEASED | 100% | 天禧 PM/交互概念；priority/owner/due/labels；工具自动发现 |
 
 ---
 
@@ -77,6 +78,9 @@
 | v2.3 Anchor（V23-A） | ObjectiveAnchor 合同/路径/离线/失败阈值；AgentLoop 接入 | 小修跑偏/钻牛角尖 | 130 tests；5 类 drift 阻断 |
 | v2.3 EDA gate（V23-B） | 工具探测、功能/coverage/synthesis/PERC 门；reference 不再算签核 | reference PASS 被误当硬件通过 | EDA BLOCKED；130 tests |
 | v2.3 release（V23-C） | 版本 2.3.0；fail-closed 状态 | 不能宣称硬件通过 | v2.3.0 RELEASED；tag |
+| v2.4 Workboard（V24-A） | 天禧 PM 概念：priority/owner/due/labels；Workboard 投影；Surface 视图 | 任务分散，没有统一面板 | 133 tests；workboard 测试 |
+| v2.4 Discovery（V24-B） | EDA/PDK 自动发现；环境变量/常见根目录；不硬编码阻断 | 换环境就要改代码 | 133 tests；discovery 测试 |
+| v2.4 release（V24-C） | 版本 2.4.0 | 没有发布口径 | v2.4.0 RELEASED；tag |
 | Release 纪律（M4-plan） | RELEASE.md；gitignore 加固；版本 gate | 防止敏感日志/无关文件入库 | 发布前检查清单 |
 | 自动读判断（M1-T） | sandboxed 档：非敏感外部只读自动允许；外部写直接 deny；敏感路径仍 ask | 必要外部读取不应逐条弹窗，但 secrets 不能自动放行 | 1 个测试；82 tests pass |
 | Shell 输出捕获修复 | ShellSandbox 从 pipe 改为临时文件重定向 | DSH 内 Node child_process pipe 报 EPERM，demo 的 shell 实际失败 | demo 现在真正拿到 stdout=2；新增 capture 测试 |
@@ -197,6 +201,9 @@
 | 2026-11-04 | V23-A | ObjectiveAnchor | 130 tests；drift 阻断 | dfba897 |
 | 2026-11-04 | V23-B | EDA gate | BLOCKED；无工具/PERC | dfba897 |
 | 2026-11-04 | V23-C | v2.3.0 release | 130 tests；tag | dfba897 |
+| 2026-11-04 | V24-A | Workboard + Tianxi concepts | 133 tests；PM metadata | 待提交 |
+| 2026-11-04 | V24-B | EDA/PDK discovery | 133 tests；auto-find | 待提交 |
+| 2026-11-04 | V24-C | v2.4.0 release | 133 tests；tag | 待提交 |
 | 2026-11-01 | M3-L | v1.0 RC | RC 代码完成；未发布 | 8bdb955 |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |
@@ -211,7 +218,7 @@
 ## 4. 当前可验证结果
 
 ~~~text
-130 tests, 130 pass, 0 fail；v1 demo PASS；real DeepSeek/PG/pgvector；v1.0.2 RELEASED
+133 tests, 133 pass, 0 fail；v1 demo PASS；real DeepSeek/PG/pgvector；v1.0.2 RELEASED
 
 Weft M0 complete: file written, shell verified, memory stored and recalled, knowledge base searched.
 steps=7 toolCalls=6 cacheStable=6 cacheReadTokens=0

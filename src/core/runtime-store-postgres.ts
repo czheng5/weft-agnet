@@ -12,6 +12,10 @@ CREATE TABLE IF NOT EXISTS runtime_threads (
   workspace_id TEXT NOT NULL,
   title TEXT NOT NULL,
   status TEXT NOT NULL,
+  priority TEXT,
+  owner TEXT,
+  due_at BIGINT,
+  labels_json TEXT,
   version INTEGER NOT NULL,
   created_at BIGINT NOT NULL,
   updated_at BIGINT NOT NULL
@@ -86,7 +90,8 @@ CREATE INDEX IF NOT EXISTS runtime_outbox_pending_idx ON runtime_outbox (status,
 
 interface ThreadRow {
   id: string; tenant_id: string; project_id: string; workspace_id: string; title: string;
-  status: string; version: number; created_at: string | number; updated_at: string | number;
+  status: string; priority: string | null; owner: string | null; due_at: string | number | null; labels_json: string | null;
+  version: number; created_at: string | number; updated_at: string | number;
 }
 interface EventRow { id: string; thread_id: string; seq: number; type: string; at: string | number; data_json: string; idempotency_key: string | null; }
 interface LeaseRow {
@@ -110,7 +115,7 @@ function scopeOf(tenantId: string, projectId: string, workspaceId: string): Runt
 }
 
 function threadFromRow(row: ThreadRow): ThreadRecord {
-  return validateThread({ id: row.id, scope: scopeOf(row.tenant_id, row.project_id, row.workspace_id), title: row.title, status: row.status, createdAt: Number(row.created_at), updatedAt: Number(row.updated_at), version: Number(row.version) });
+  return validateThread({ id: row.id, scope: scopeOf(row.tenant_id, row.project_id, row.workspace_id), title: row.title, status: row.status, priority: row.priority ?? undefined, owner: row.owner ?? undefined, dueAt: row.due_at === null ? undefined : Number(row.due_at), labels: row.labels_json ? JSON.parse(row.labels_json) : undefined, createdAt: Number(row.created_at), updatedAt: Number(row.updated_at), version: Number(row.version) });
 }
 function eventFromRow(row: EventRow): RuntimeEventRecord {
   return validateRuntimeEvent({ id: row.id, threadId: row.thread_id, seq: Number(row.seq), type: row.type, at: Number(row.at), data: JSON.parse(row.data_json), idempotencyKey: row.idempotency_key ?? undefined });
@@ -166,7 +171,7 @@ export class PostgresRuntimeStore implements RuntimeStore {
 
   async createThread(thread: ThreadRecord): Promise<ThreadRecord> {
     const record = validateThread(thread);
-    await this.pool.query('INSERT INTO runtime_threads (id, tenant_id, project_id, workspace_id, title, status, version, created_at, updated_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)', [record.id, record.scope.tenantId, record.scope.projectId, record.scope.workspaceId, record.title, record.status, record.version, record.createdAt, record.updatedAt]);
+    await this.pool.query('INSERT INTO runtime_threads (id, tenant_id, project_id, workspace_id, title, status, priority, owner, due_at, labels_json, version, created_at, updated_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)', [record.id, record.scope.tenantId, record.scope.projectId, record.scope.workspaceId, record.title, record.status, record.priority ?? null, record.owner ?? null, record.dueAt ?? null, record.labels ? JSON.stringify(record.labels) : null, record.version, record.createdAt, record.updatedAt]);
     return record;
   }
 
@@ -178,7 +183,7 @@ export class PostgresRuntimeStore implements RuntimeStore {
 
   async updateThread(thread: ThreadRecord): Promise<ThreadRecord> {
     const record = validateThread(thread);
-    const result = await this.pool.query('UPDATE runtime_threads SET title=$1, status=$2, version=version+1, updated_at=$3 WHERE id=$4 AND version=$5 RETURNING *', [record.title, record.status, this.clock(), record.id, record.version]);
+    const result = await this.pool.query('UPDATE runtime_threads SET title=$1, status=$2, priority=$3, owner=$4, due_at=$5, labels_json=$6, version=version+1, updated_at=$7 WHERE id=$8 AND version=$9 RETURNING *', [record.title, record.status, record.priority ?? null, record.owner ?? null, record.dueAt ?? null, record.labels ? JSON.stringify(record.labels) : null, this.clock(), record.id, record.version]);
     if (result.rows.length !== 1) throw new Error('thread version conflict: ' + record.id);
     return threadFromRow(result.rows[0] as ThreadRow);
   }

@@ -2,6 +2,15 @@
 
 All notable changes are documented here. Format follows Keep a Changelog; versions use SemVer.
 
+## [2.4.0] - 2026-11-04
+
+### Added
+
+- Tianxi-inspired Workboard projection and thread priority/owner/due/labels metadata.
+- GET /workboard and Surface workboard view.
+- Automatic EDA/PDK environment discovery (PATH/env/common roots), no hard-coded tool block.
+- 133 tests.
+
 ## [2.3.0] - 2026-11-04
 
 ### Added

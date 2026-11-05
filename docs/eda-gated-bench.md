@@ -1,7 +1,8 @@
 # EDA-Gated Hardware Bench
 
-> 状态：gate 已实现；当前环境工具缺失，结果 **BLOCKED**，不宣称 PASS。
-> 通过标准：功能仿真 + coverage + 综合网表 + PERC 全部有证据。
+> 状态：gate 已实现；当前环境工具缺失，结果 **BLOCKED**，不宣称 PASS。  
+> 通过标准：功能仿真 + coverage + 综合网表 + PERC 全部有证据。  
+> 工具/PDK 是自动发现项，不是产品硬限制：PATH、WEFT_EDA_BIN、OSS_CAD_SUITE、PDK_ROOT、OPENLANE_ROOT 等都会被扫描。
 
 ## 为什么需要它
 

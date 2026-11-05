@@ -1,6 +1,6 @@
 {
   "name": "weft",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "private": true,
   "type": "module",
   "description": "Policy-governed, cache-first, long-horizon, memory-growing agent harness",

@@ -14,6 +14,10 @@ CREATE TABLE IF NOT EXISTS runtime_threads (
   workspace_id TEXT NOT NULL,
   title TEXT NOT NULL,
   status TEXT NOT NULL,
+  priority TEXT,
+  owner TEXT,
+  due_at INTEGER,
+  labels_json TEXT,
   version INTEGER NOT NULL,
   created_at INTEGER NOT NULL,
   updated_at INTEGER NOT NULL
@@ -92,7 +96,8 @@ BEGIN SELECT RAISE(ABORT, 'runtime_events is append-only'); END;
 
 interface ThreadRow {
   id: string; tenant_id: string; project_id: string; workspace_id: string; title: string;
-  status: string; version: number; created_at: number; updated_at: number;
+  status: string; priority: string | null; owner: string | null; due_at: number | null; labels_json: string | null;
+  version: number; created_at: number; updated_at: number;
 }
 interface EventRow {
   id: string; thread_id: string; seq: number; type: string; at: number; data_json: string; idempotency_key: string | null;
@@ -124,7 +129,9 @@ function threadFromRow(row: ThreadRow): ThreadRecord {
   return validateThread({
     id: row.id,
     scope: scopeOf(row.tenant_id, row.project_id, row.workspace_id),
-    title: row.title, status: row.status, createdAt: row.created_at, updatedAt: row.updated_at, version: row.version
+    title: row.title, status: row.status, priority: row.priority ?? undefined, owner: row.owner ?? undefined,
+    dueAt: row.due_at ?? undefined, labels: row.labels_json ? JSON.parse(row.labels_json) : undefined,
+    createdAt: row.created_at, updatedAt: row.updated_at, version: row.version
   });
 }
 
@@ -191,8 +198,8 @@ export class SqliteRuntimeStore implements RuntimeStore {
   async createThread(thread: ThreadRecord): Promise<ThreadRecord> {
     const record = validateThread(thread);
     this.db.prepare(
-      'INSERT INTO runtime_threads (id, tenant_id, project_id, workspace_id, title, status, version, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
-    ).run(record.id, record.scope.tenantId, record.scope.projectId, record.scope.workspaceId, record.title, record.status, record.version, record.createdAt, record.updatedAt);
+      'INSERT INTO runtime_threads (id, tenant_id, project_id, workspace_id, title, status, priority, owner, due_at, labels_json, version, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    ).run(record.id, record.scope.tenantId, record.scope.projectId, record.scope.workspaceId, record.title, record.status, record.priority ?? null, record.owner ?? null, record.dueAt ?? null, record.labels ? JSON.stringify(record.labels) : null, record.version, record.createdAt, record.updatedAt);
     return record;
   }
 
@@ -204,8 +211,8 @@ export class SqliteRuntimeStore implements RuntimeStore {
   async updateThread(thread: ThreadRecord): Promise<ThreadRecord> {
     const record = validateThread(thread);
     const result = this.db.prepare(
-      'UPDATE runtime_threads SET title = ?, status = ?, version = version + 1, updated_at = ? WHERE id = ? AND version = ?'
-    ).run(record.title, record.status, this.clock(), record.id, record.version);
+      'UPDATE runtime_threads SET title = ?, status = ?, priority = ?, owner = ?, due_at = ?, labels_json = ?, version = version + 1, updated_at = ? WHERE id = ? AND version = ?'
+    ).run(record.title, record.status, record.priority ?? null, record.owner ?? null, record.dueAt ?? null, record.labels ? JSON.stringify(record.labels) : null, this.clock(), record.id, record.version);
     if (result.changes !== 1) throw new Error('thread version conflict: ' + record.id);
     const updated = await this.getThread(record.id);
     if (!updated) throw new Error('thread disappeared: ' + record.id);

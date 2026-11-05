@@ -2,6 +2,7 @@ import { createServer } from 'node:http';
 import type { IncomingMessage, Server, ServerResponse } from 'node:http';
 import { createThreadRecord, validateCapabilityManifest, RuntimeSchemaError } from './runtime-schema.ts';
 import { Router } from './router.ts';
+import { Workboard } from './workboard.ts';
 import { SURFACE_HTML } from './surface.ts';
 import { AccessError, assertRole, resolvePrincipal } from './access.ts';
 import type { Principal, QuotaPolicy } from './access.ts';
@@ -72,6 +73,7 @@ export class AgentGateway {
   readonly host: string;
   readonly token?: string;
   private readonly router: Router;
+  private readonly workboard: Workboard;
   private readonly principals?: Principal[];
   private readonly authenticator?: AgentGatewayOptions['authenticator'];
   private readonly revocations?: RevocationStore;
@@ -87,6 +89,7 @@ export class AgentGateway {
     this.host = opts.host ?? '127.0.0.1';
     this.token = opts.token;
     this.router = opts.router ?? new Router({ store: this.store });
+    this.workboard = new Workboard(this.store);
     this.principals = opts.principals;
     this.authenticator = opts.authenticator;
     this.revocations = opts.revocations;
@@ -222,13 +225,29 @@ export class AgentGateway {
         sendJson(res, 200, { threads });
         return;
       }
+      if (req.method === 'GET' && path === '/workboard') {
+        sendJson(res, 200, { items: await this.workboard.list(principal.scope), summary: await this.workboard.summary(principal.scope) });
+        return;
+      }
       if (req.method === 'POST' && path === '/threads') {
         assertRole(principal, 'writer');
         await this.enforceThreadQuota(principal.scope);
         const body = await readJson(req);
         const title = typeof body.title === 'string' ? body.title.trim() : '';
         if (!title) { sendJson(res, 400, { error: 'title is required' }); return; }
-        const thread = createThreadRecord({ scope: principal.scope, title, status: 'open' });
+        let thread;
+        try {
+          thread = createThreadRecord({
+            scope: principal.scope, title, status: 'open',
+            priority: typeof body.priority === 'string' ? body.priority as never : undefined,
+            owner: typeof body.owner === 'string' ? body.owner : undefined,
+            dueAt: typeof body.dueAt === 'number' ? body.dueAt : undefined,
+            labels: Array.isArray(body.labels) ? body.labels.filter((item): item is string => typeof item === 'string') : undefined
+          });
+        } catch (error) {
+          if (error instanceof RuntimeSchemaError) { sendJson(res, 400, { error: error.message }); return; }
+          throw error;
+        }
         await this.store.createThread(thread);
         const event = await this.store.appendEvent({ threadId: thread.id, type: 'thread.created', data: { title }, idempotencyKey: 'thread-create:' + thread.id });
         sendJson(res, 201, { thread, event });
