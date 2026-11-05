@@ -1,6 +1,6 @@
 # Weft Backlog
 
-> 快照：v2.4.1（2026-11-04）  
+> 快照：v2.4.1 + v2.5 work-in-progress（2026-11-05）  
 > 这是当前唯一活跃的 todo。旧 ROADMAP 的 v1 复选框是历史门禁，不是现在的执行清单。
 
 ## 已完成
@@ -18,9 +18,9 @@
 
 | ID | 事项 | 完成标准 |
 |---|---|---|
-| P0-1 | 产品 README | 首页有产品定位、CLI 预览、快速开始、能力/限制；无过期 v1.0.2 安装 tag |
-| P0-2 | Workboard 交互 | Surface 支持分组、优先级/逾期、点击恢复；owner/提醒可用 |
-| P0-3 | Testbench env 注入 | 从 WEFT_ENV/进程环境读 key，不落明文、不打印、不提交 |
+| P0-1 | 产品 README | ✅ 产品定位、CLI 预览、快速开始；无过期安装 tag |
+| P0-2 | Workboard 交互 | ◐ PATCH/分组已做；Surface 分组/提醒/owner 分配待做 |
+| P0-3 | Testbench env 注入 | ✅ WEFT_ENV/进程环境读取，不打印值 |
 | P0-4 | 断网 Agent E2E（optional） | 本地/注入模型真正读取内部文件、产出 finding/patch；不依赖网络 |
 
 ## P1
@@ -31,7 +31,7 @@
 | P1-2 | Coverage/PERC | coverage 百分比解析；PERC/electrical rule deck adapter；无 deck 不签核 |
 | P1-3 | OAuth code flow | authorization-code + PKCE；key rotation；撤销联动 |
 | P1-4 | 生产 adapter | S3 artifact store、K8s/Nomad worker launcher；HA/backup |
-| P1-5 | 加权公平调度 | 从 tenant round-robin 升级为 weighted/fair queue |
+| P1-5 | 加权公平调度 | ✅ tenant weight + concurrency；继续做全局公平 |
 | P1-6 | 跨设备同步 | 设备身份、冲突解决、端到端加密；不是裸共享 Postgres |
 | P1-7 | Desktop 壳 | Web/Desktop 同一 Surface；TUI/HTTP 不重复逻辑 |
 | P1-8 | Marketplace UI | 远程索引、发布者 key 展示、安装审批/回滚 |

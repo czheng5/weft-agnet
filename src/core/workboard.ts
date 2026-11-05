@@ -55,6 +55,17 @@ export class Workboard {
     });
   }
 
+  async grouped(scope: RuntimeScope, now = Date.now()): Promise<Array<{ status: string; items: WorkItem[] }>> {
+    const items = await this.list(scope, now);
+    const groups = new Map<string, WorkItem[]>();
+    for (const item of items) {
+      const group = groups.get(item.thread.status) ?? [];
+      group.push(item);
+      groups.set(item.thread.status, group);
+    }
+    return [...groups.entries()].map(([status, group]) => ({ status, items: group }));
+  }
+
   async summary(scope: RuntimeScope, now = Date.now()): Promise<WorkboardSummary> {
     const items = await this.list(scope, now);
     const byStatus: Record<string, number> = {};

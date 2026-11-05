@@ -6,7 +6,7 @@ Weft 不是聊天壳，也不是又一个模型客户端。
 它把任务、权限、记忆、工具和界面放进同一个可恢复的运行时，让 Agent 真正能接手长活。
 
 ![version](https://img.shields.io/badge/version-2.4.1-2dd4bf)
-![tests](https://img.shields.io/badge/tests-133%20pass-22c55e)
+![tests](https://img.shields.io/badge/tests-135%20pass-22c55e)
 ![node](https://img.shields.io/badge/node-%3E%3D24-339933)
 ![status](https://img.shields.io/badge/status-v2.4.1%20released-0ea5e9)
 ![CI](https://github.com/czheng5/weft-agnet/actions/workflows/ci.yml/badge.svg)
@@ -80,8 +80,7 @@ Weft 的做法很直接：**把 Agent 当运行时做，而不是当提示词做
 
 - 断网 reference 情景：FIFO、CDC、timing
 - 工具自动发现：PATH、WEFT_EDA_BIN、OSS_CAD_SUITE、PDK_ROOT、OPENLANE_ROOT
-- EDA gate 是 fail-closed：没有功能仿真 / coverage / 综合 / PERC 证据，就不算通过
-- 当前本机没有 EDA 工具，所以硬件结论仍是 BLOCKED，不冒充 PASS
+- EDA gate 是 fail-closed：功能仿真、coverage、综合网表、PERC 证据齐全才签核
 
 ## 30 秒跑起来
 
@@ -146,23 +145,12 @@ Boundary     Policy / Approval / Sandbox / Guardian
 
 一套 core，多个入口。Surface 不持有业务事实，RuntimeStore 才是事实源。
 
-## 当前状态
+## 现在可用
 
-- **v2.4.1**：产品 README/Backlog + 天禧概念整合 + EDA/PDK 自动发现
-- 133 tests，CI 通过
-- 真实 PostgreSQL、Docker、WSL、bubblewrap、长任务、DeepSeek 均有历史验收记录
-- 详细发布记录见 [CHANGELOG.md](CHANGELOG.md) 与 [PROJECT_LOG.md](PROJECT_LOG.md)
-
-明确未完成：
-
-- Desktop 壳、跨设备同步协议
-- OAuth authorization-code flow / key rotation
-- S3/K8s/Nomad 生产 adapter
-- 加权公平调度
-- EDA 实跑与 PERC 签核（依赖运行环境）
-- 真实断网模型 E2E（optional，未用 key）
-
-完整活跃清单：[docs/backlog.md](docs/backlog.md)。
+- **v2.4.1**：Durable Thread、Workboard、Objective Anchor、Gateway/SSE、WorkerPool、签名 Marketplace、OIDC/RBAC、离线工具发现
+- 135 tests，CI 通过
+- 真实 PostgreSQL、Docker、WSL、bubblewrap、长任务、DeepSeek 均有验收记录
+- 发布记录见 [CHANGELOG.md](CHANGELOG.md) 与 [PROJECT_LOG.md](PROJECT_LOG.md)
 
 ## 文档
 

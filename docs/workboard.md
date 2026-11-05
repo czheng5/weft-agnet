@@ -32,4 +32,4 @@
 - priority/due/overdue/progress
 - summary 聚合
 - Gateway POST metadata + GET /workboard
-- 133 tests pass
+- 135 tests pass

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { loadEnvFile } from '../src/core/env.ts';
+import { loadEnvFile, loadTestEnv } from '../src/core/env.ts';
 
 test('loadEnvFile parses values without overriding existing env', () => {
   const dir = mkdtempSync(join(tmpdir(), 'weft-env-'));
@@ -21,6 +21,22 @@ test('loadEnvFile parses values without overriding existing env', () => {
     assert.equal(process.env.WEFT_TEST_KEY, 'existing');
     if (old === undefined) delete process.env.WEFT_TEST_KEY;
     else process.env.WEFT_TEST_KEY = old;
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('loadTestEnv loads only the configured WEFT_ENV path', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'weft-env-'));
+  try {
+    const path = join(dir, '.env');
+    writeFileSync(path, 'WEFT_TEST_ENV_KEY=fromfile\n', 'utf8');
+    delete process.env.WEFT_TEST_ENV_KEY;
+    const result = loadTestEnv({ WEFT_ENV: path });
+    assert.equal(result.loaded, true);
+    assert.equal(process.env.WEFT_TEST_ENV_KEY, 'fromfile');
+    assert.equal(loadTestEnv({}).loaded, false);
+    delete process.env.WEFT_TEST_ENV_KEY;
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

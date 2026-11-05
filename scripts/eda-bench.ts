@@ -1,6 +1,9 @@
 import { join } from 'node:path';
+import { loadTestEnv } from '../src/core/env.ts';
 import { evaluateEdaManifest, loadEdaManifest } from '../src/core/eda-flow.ts';
 
+const envInfo = loadTestEnv();
+console.log('  env=' + (envInfo.loaded ? envInfo.keys.length + ' vars loaded' : 'not configured'));
 const root = join(process.cwd(), 'scenarios', 'closed-world');
 const scenarios = ['ic-fifo'];
 let passed = 0;

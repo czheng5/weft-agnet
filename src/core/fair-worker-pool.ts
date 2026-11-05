@@ -8,6 +8,7 @@ export interface FairWorkerPoolOptions {
   handler: (job: OutboxRecord, thread: ThreadRecord) => Promise<void>;
   workerId?: string;
   concurrency?: number;
+  weights?: Record<string, number>;
   leaseTtlMs?: number;
   pollMs?: number;
   now?: () => number;
@@ -24,6 +25,7 @@ export class FairWorkerPool {
   private readonly store: RuntimeStore;
   private readonly handler: FairWorkerPoolOptions['handler'];
   private readonly concurrency: number;
+  private readonly weights: Record<string, number>;
   private readonly leaseTtlMs: number;
   private readonly pollMs: number;
   private readonly clock: () => number;
@@ -37,6 +39,7 @@ export class FairWorkerPool {
     this.handler = opts.handler;
     this.workerId = opts.workerId ?? String(newId('fair-worker'));
     this.concurrency = Math.max(1, opts.concurrency ?? 2);
+    this.weights = opts.weights ?? {};
     this.leaseTtlMs = opts.leaseTtlMs ?? 30_000;
     this.pollMs = opts.pollMs ?? 1_000;
     this.clock = opts.now ?? Date.now;
@@ -76,8 +79,13 @@ export class FairWorkerPool {
         for (const tenant of tenants) {
           if (selected.length >= this.concurrency) break;
           const queue = queues.get(tenant)!;
-          const next = queue.shift();
-          if (next) { selected.push(next); advanced = true; }
+          const weight = Math.max(1, Math.floor(this.weights[tenant] ?? 1));
+          for (let slot = 0; slot < weight && selected.length < this.concurrency; slot += 1) {
+            const next = queue.shift();
+            if (!next) break;
+            selected.push(next);
+            advanced = true;
+          }
         }
       }
       for (const queue of queues.values()) for (const candidate of queue) await this.store.releaseOutbox(candidate.job.id);

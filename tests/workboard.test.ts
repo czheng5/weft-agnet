@@ -50,9 +50,13 @@ test('gateway accepts project metadata and exposes workboard', async () => {
     assert.equal(thread.priority, 'critical');
     assert.equal(thread.owner, 'alice');
     assert.deepEqual(thread.labels, ['ic']);
+    const patched = await fetch(base + '/threads/' + (thread as unknown as { id?: string }).id, { method: 'PATCH', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ status: 'working', owner: 'bob', priority: 'high' }) });
+    assert.equal(patched.status, 200);
     const board = await fetch(base + '/workboard');
     assert.equal(board.status, 200);
-    assert.equal(((await board.json()) as { summary: { total: number } }).summary.total, 1);
+    const boardBody = await board.json() as { summary: { total: number }; groups: Array<{ status: string }> };
+    assert.equal(boardBody.summary.total, 1);
+    assert.equal(boardBody.groups.some((group) => group.status === 'working'), true);
   } finally {
     await gateway.close();
     store.close();

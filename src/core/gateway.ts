@@ -226,7 +226,7 @@ export class AgentGateway {
         return;
       }
       if (req.method === 'GET' && path === '/workboard') {
-        sendJson(res, 200, { items: await this.workboard.list(principal.scope), summary: await this.workboard.summary(principal.scope) });
+        sendJson(res, 200, { items: await this.workboard.list(principal.scope), groups: await this.workboard.grouped(principal.scope), summary: await this.workboard.summary(principal.scope) });
         return;
       }
       if (req.method === 'POST' && path === '/threads') {
@@ -258,6 +258,28 @@ export class AgentGateway {
         const thread = await this.threadFor(decodeURIComponent(threadMatch[1]), principal.scope);
         if (!thread) { sendJson(res, 404, { error: 'thread not found' }); return; }
         sendJson(res, 200, { thread });
+        return;
+      }
+      if (req.method === 'PATCH' && threadMatch) {
+        assertRole(principal, 'writer');
+        const thread = await this.threadFor(decodeURIComponent(threadMatch[1]), principal.scope);
+        if (!thread) { sendJson(res, 404, { error: 'thread not found' }); return; }
+        const body = await readJson(req);
+        try {
+          const updated = await this.store.updateThread({
+            ...thread,
+            title: typeof body.title === 'string' ? body.title : thread.title,
+            status: typeof body.status === 'string' ? body.status as never : thread.status,
+            priority: typeof body.priority === 'string' ? body.priority as never : thread.priority,
+            owner: typeof body.owner === 'string' ? body.owner : thread.owner,
+            dueAt: typeof body.dueAt === 'number' ? body.dueAt : thread.dueAt,
+            labels: Array.isArray(body.labels) ? body.labels.filter((item): item is string => typeof item === 'string') : thread.labels
+          });
+          sendJson(res, 200, { thread: updated });
+        } catch (error) {
+          if (error instanceof RuntimeSchemaError) { sendJson(res, 400, { error: error.message }); return; }
+          throw error;
+        }
         return;
       }
       const messagesMatch = path.match(/^\/threads\/([^/]+)\/messages$/);

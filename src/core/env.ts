@@ -7,6 +7,11 @@ export interface LoadEnvResult {
   path: string;
 }
 
+export function loadTestEnv(env: NodeJS.ProcessEnv = process.env): LoadEnvResult {
+  const configured = env.WEFT_ENV;
+  return configured ? loadEnvFile(configured, false) : { loaded: false, keys: [], path: configured ?? '' };
+}
+
 export function loadEnvFile(path = '.env', override = false): LoadEnvResult {
   const full = resolve(path);
   if (!existsSync(full)) return { loaded: false, keys: [], path: full };
