@@ -12,7 +12,19 @@ Weft 不是聊天壳，也不是又一个模型客户端。
 ![CI](https://github.com/czheng5/weft-agnet/actions/workflows/ci.yml/badge.svg)
 ![license](https://img.shields.io/badge/license-MIT-22c55e)
 
-![Weft CLI](docs/assets/cli-preview-qixiang.svg)
+> TUI 是全屏 alternate-screen 界面，README 不再使用静态“示意图”冒充实际截图。运行 `npm start` 查看真实布局。
+
+```text
+WEFT 七襄  v2.5.0  ·  session <id>  ·  <model>  ·  <sandbox>
+──────────────────────────────────────────────────────────────
+  WEFT 七襄
+  三线成纬，七襄成章
+  cwd    /full/workspace/path
+  /help  /model  /settings  /status  /plan
+  ※ Tip ...
+weft> _
+  ? keys  ·  Ctrl+K deck  ·  F2 model  ·  /help
+```
 
 ## TUI 快捷键
 
