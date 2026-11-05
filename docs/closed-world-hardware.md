@@ -1,6 +1,6 @@
 # Closed-World Reasoning & Hardware Scenarios
 
-> 状态：离线情景测试框架与 3 个 IC/硬件参考情景已实现。  
+> 状态：离线情景框架与 3 个参考情景已实现；reference PASS 不是硬件 signoff。  
 > 目标：验证“断网 + 纯推理 + 内部文件”能否产出可审计的工程结论，而不是只做聊天。
 
 ## 1. 运行方式
@@ -12,11 +12,12 @@ node --experimental-strip-types scripts/closed-world-bench.ts
 输出：
 
 ~~~text
-PASS  cdc-two-flop  score=1.00
-PASS  ic-fifo-full  score=1.00
-PASS  ic-timing-negative-slack  score=1.00
-CLOSED-WORLD BENCH PASS
+REFERENCE-ONLY OK  cdc-two-flop  score=1.00
+REFERENCE-ONLY OK  ic-fifo-full  score=1.00
+REFERENCE-ONLY OK  ic-timing-negative-slack  score=1.00
+CLOSED-WORLD REFERENCE CHECK PASS
   scenarios=3 offline=true
+  NOT a hardware signoff; use scripts/eda-bench.ts
 ~~~
 
 ## 2. 框架

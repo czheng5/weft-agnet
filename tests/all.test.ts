@@ -29,6 +29,8 @@ import './oidc.test.ts'
 import './gateway-revocation.test.ts'
 import './fair-worker-pool.test.ts'
 import './deployment.test.ts'
+import './objective-anchor.test.ts'
+import './eda-flow.test.ts'
 import './memory.test.ts';
 import './memory-http.test.ts'
 import './memory-postgres.test.ts'

@@ -9,6 +9,7 @@ import type { MemoryProvider, MemoryScope } from './memory.ts';
 import { MemoryInjector } from './memory-injection.ts';
 import { ContextProjector } from './context-projection.ts';
 import type { ProjectionPolicy } from './context-projection.ts';
+import type { GuardAction, ObjectiveAnchor } from './objective-anchor.ts';
 
 export interface AgentOptions {
   model: ModelProvider;
@@ -24,6 +25,7 @@ export interface AgentOptions {
     maxChars?: number;
   };
   projection?: ProjectionPolicy;
+  anchor?: ObjectiveAnchor;
 }
 
 export interface AgentResult {
@@ -153,11 +155,23 @@ export class AgentLoop {
         break;
       }
 
+      let blocked = false;
       for (const call of response.toolCalls) {
         toolCalls += 1;
-        await executeTool(toToolCall(call), this.opts.toolContext);
+        const action = actionFor(call);
+        try {
+          this.opts.anchor?.check(action);
+        } catch (error) {
+          blocked = true;
+          final = 'Objective anchor stopped the turn: ' + (error instanceof Error ? error.message : String(error));
+          session.append('anchor/blocked', { action, state: this.opts.anchor?.snapshot(), message: error instanceof Error ? error.message : String(error) });
+          break;
+        }
+        const result = await executeTool(toToolCall(call), this.opts.toolContext);
+        this.opts.anchor?.record(action, result.ok);
       }
       session.append('step/end', { step: steps + 1 });
+      if (blocked) break;
     }
 
     if (!final) {
@@ -178,6 +192,13 @@ export class AgentLoop {
 
 function toToolCall(call: { id: string; name: string; arguments: Record<string, unknown> }): ToolCall {
   return { id: call.id, name: call.name, arguments: call.arguments };
+}
+
+function actionFor(call: { name: string; arguments: Record<string, unknown> }): GuardAction {
+  if (call.name === 'write_file') return { kind: 'write', path: typeof call.arguments.path === 'string' ? call.arguments.path : undefined, label: call.name };
+  if (call.name === 'read_file') return { kind: 'read', path: typeof call.arguments.path === 'string' ? call.arguments.path : undefined, label: call.name };
+  if (call.name === 'run_shell') return { kind: 'exec', command: typeof call.arguments.command === 'string' ? call.arguments.command : undefined, label: call.name };
+  return { kind: 'exec', label: call.name };
 }
 
 function isMessagePrefix(previous: ModelMessage[], next: ModelMessage[]): boolean {

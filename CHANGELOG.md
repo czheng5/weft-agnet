@@ -2,6 +2,14 @@
 
 All notable changes are documented here. Format follows Keep a Changelog; versions use SemVer.
 
+## [2.3.0] - 2026-11-04
+
+### Added
+
+- ObjectiveAnchor anti-drift guard integrated into AgentLoop.
+- Fail-closed EDA bench gate; current environment BLOCKED, no fake hardware PASS.
+- 130 tests.
+
 ## [2.2.0] - 2026-11-04
 
 ### Added

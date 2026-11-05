@@ -1,0 +1,17 @@
+{
+  "scenario": "ic-fifo-full",
+  "top": "sync_fifo",
+  "rtl": [
+    "rtl/sync_fifo_fixed.v"
+  ],
+  "testbench": "tb/sync_fifo_tb.sv",
+  "tbTop": "sync_fifo_tb",
+  "coverage": {
+    "tool": "verilator",
+    "linePercent": 90
+  },
+  "perc": {
+    "mode": "external-required",
+    "detail": "PERC/electrical rule deck is not bundled; signoff requires a configured commercial or foundry rule deck."
+  }
+}
