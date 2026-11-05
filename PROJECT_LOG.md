@@ -207,7 +207,7 @@
 | 2026-11-04 | V24-C | v2.4.0 release | 133 tests；tag | a89b09a |
 | 2026-11-04 | V24-D | product README + backlog | 门面/待办对账 | 10a4cfb |
 | 2026-11-05 | V25-A | Workboard PATCH/groups + env injection + weighted fair | 135 tests；P0/P1 推进 | 8d390c1 |
-| 2026-11-05 | V25-B | OAuth PKCE + state + refresh + JWKS rotation | 138 tests；fake IdP | 待提交 |
+| 2026-11-05 | V25-B | OAuth PKCE + state + refresh + JWKS rotation | 138 tests；fake IdP | dd50deb |
 | 2026-11-01 | M3-L | v1.0 RC | RC 代码完成；未发布 | 8bdb955 |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |
