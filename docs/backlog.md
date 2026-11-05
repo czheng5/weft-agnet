@@ -1,6 +1,6 @@
 # Weft Backlog
 
-> 快照：v2.4.1 + v2.5 work-in-progress（2026-11-05）  
+> 快照：v2.5.0（2026-11-05；代码级 baseline 已发布，环境项/高级项仍在 backlog）  
 > 这是当前唯一活跃的 todo。旧 ROADMAP 的 v1 复选框是历史门禁，不是现在的执行清单。
 
 ## 已完成
@@ -19,7 +19,7 @@
 | ID | 事项 | 完成标准 |
 |---|---|---|
 | P0-1 | 产品 README | ✅ 产品定位、CLI 预览、快速开始；无过期安装 tag |
-| P0-2 | Workboard 交互 | ◐ PATCH/分组已做；Surface 分组/提醒/owner 分配待做 |
+| P0-2 | Workboard 交互 | ✅ PATCH/分组/提醒/owner 显示；拖拽/提醒推送待做 |
 | P0-3 | Testbench env 注入 | ✅ WEFT_ENV/进程环境读取，不打印值 |
 | P0-4 | 断网 Agent E2E（optional） | 本地/注入模型真正读取内部文件、产出 finding/patch；不依赖网络 |
 
@@ -34,7 +34,7 @@
 | P1-5 | 加权公平调度 | ✅ tenant weight + concurrency；继续做全局公平 |
 | P1-6 | 跨设备同步 | ◐ 设备身份/事件游标/revoke 已做；E2E/冲突/push 待做 |
 | P1-7 | Desktop 壳 | ◐ PWA manifest/SW 已做；原生 Desktop 壳待做 |
-| P1-8 | Marketplace UI | ◐ 安装页/签名安装 API 已做；远程索引/审批/回滚待做 |
+| P1-8 | Marketplace UI | ◐ 安装页/签名 API 已做；远程索引/审批/回滚待做 |
 
 ## P2
 

@@ -5,10 +5,10 @@
 Weft 不是聊天壳，也不是又一个模型客户端。  
 它把任务、权限、记忆、工具和界面放进同一个可恢复的运行时，让 Agent 真正能接手长活。
 
-![version](https://img.shields.io/badge/version-2.4.1-2dd4bf)
+![version](https://img.shields.io/badge/version-2.5.0-2dd4bf)
 ![tests](https://img.shields.io/badge/tests-147%20pass-22c55e)
 ![node](https://img.shields.io/badge/node-%3E%3D24-339933)
-![status](https://img.shields.io/badge/status-v2.4.1%20released-0ea5e9)
+![status](https://img.shields.io/badge/status-v2.5%20released-0ea5e9)
 ![CI](https://github.com/czheng5/weft-agnet/actions/workflows/ci.yml/badge.svg)
 ![license](https://img.shields.io/badge/license-MIT-22c55e)
 
@@ -105,11 +105,11 @@ node --experimental-strip-types src/cli.ts --serve --port 4780
 一条命令安装：
 
 ~~~sh
-curl -fsSL https://raw.githubusercontent.com/czheng5/weft-agnet/v2.4.1/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/czheng5/weft-agnet/v2.5.0/install.sh | sh
 ~~~
 
 ~~~powershell
-irm https://raw.githubusercontent.com/czheng5/weft-agnet/v2.4.1/install.ps1 | iex
+irm https://raw.githubusercontent.com/czheng5/weft-agnet/v2.5.0/install.ps1 | iex
 ~~~
 
 ## 模型配置
@@ -147,7 +147,7 @@ Boundary     Policy / Approval / Sandbox / Guardian
 
 ## 现在可用
 
-- **v2.4.1**：Durable Thread、Workboard、Objective Anchor、Gateway/SSE、WorkerPool、签名 Marketplace、OIDC/RBAC、离线工具发现
+- **v2.5.0**：Durable Thread、Workboard+提醒、Objective Anchor、Gateway/SSE、WorkerPool、OAuth/OIDC、签名 Marketplace、设备同步、PWA、S3/K8s/Nomad、EDA evidence
 - 147 tests，CI 通过
 - 真实 PostgreSQL、Docker、WSL、bubblewrap、长任务、DeepSeek 均有验收记录
 - 发布记录见 [CHANGELOG.md](CHANGELOG.md) 与 [PROJECT_LOG.md](PROJECT_LOG.md)
