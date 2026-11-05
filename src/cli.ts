@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { renderBanner } from '../brand/tui-banner.mjs';
 import { AgentLoop } from './core/agent.ts';
-import { Session } from './core/session.ts';
+import { Session, latestSessionId } from './core/session.ts';
 import { WorkspaceGuard } from './core/sandbox.ts';
 import { createShellRunner } from './core/sandbox-backends.ts';
 import type { SandboxBackendKind } from './core/sandbox-backends.ts';
@@ -54,6 +54,8 @@ interface Args {
   modelBaseUrl?: string;
   modelName?: string;
   modelKey?: string;
+  continueSession: boolean;
+  resume?: string;
 }
 
 function parseArgs(argv: string[]): Args {
@@ -78,6 +80,8 @@ function parseArgs(argv: string[]): Args {
   let modelBaseUrl: string | undefined = process.env.WEFT_MODEL_BASE_URL;
   let modelName: string | undefined = process.env.WEFT_MODEL;
   let modelKey: string | undefined = process.env.WEFT_MODEL_API_KEY ?? process.env.DEEPSEEK_API_KEY;
+  let continueSession = false;
+  let resume: string | undefined;
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === '--workspace' && argv[i + 1]) { workspace = resolve(argv[++i]); }
@@ -100,6 +104,8 @@ function parseArgs(argv: string[]): Args {
     else if (arg === '--model-base-url' && argv[i + 1]) { modelBaseUrl = argv[++i]; }
     else if (arg === '--model-name' && argv[i + 1]) { modelName = argv[++i]; }
     else if (arg === '--model-key' && argv[i + 1]) { modelKey = argv[++i]; }
+    else if (arg === '--continue') { continueSession = true; }
+    else if (arg === '--resume' && argv[i + 1]) { resume = argv[++i]; }
   }
   if (!approvalExplicit && (sandbox === 'docker' || sandbox === 'wsl' || sandbox === 'bwrap')) approval = 'sandboxed';
   return {
@@ -127,7 +133,9 @@ function parseArgs(argv: string[]): Args {
     wslMount,
     modelBaseUrl,
     modelName,
-    modelKey
+    modelKey,
+    continueSession,
+    resume
   };
 }
 
@@ -154,8 +162,9 @@ async function main(): Promise<void> {
   loadEnvFile(process.env.WEFT_ENV ?? '.env');
   const args = parseArgs(process.argv.slice(2));
   const workspace = args.workspace;
-  const session = new Session(workspace);
-  session.append('session/created', { workspace, mode: args.mode, approval: args.approval, sandbox: args.sandbox });
+  const resumeId = args.resume ?? (args.continueSession ? latestSessionId(workspace) : undefined);
+  const session = new Session(workspace, resumeId);
+  session.append(resumeId ? 'session/resumed' : 'session/created', { workspace, mode: args.mode, approval: args.approval, sandbox: args.sandbox });
 
   const guard = new WorkspaceGuard(workspace);
   const policy = new PolicyEngine({ workspace, mode: args.mode, approvalPolicy: args.approval, sandboxEnforced: args.sandbox === 'docker' || args.sandbox === 'wsl' || args.sandbox === 'bwrap' });

@@ -1,3 +1,5 @@
+import { readdirSync, statSync } from 'node:fs';
+import { join } from 'node:path';
 import type { SessionEvent } from './events.ts';
 import { EventLog } from './events.ts';
 
@@ -48,4 +50,35 @@ export class Session {
     }
     return out;
   }
+}
+
+export interface SessionSummary {
+  id: string;
+  updatedAt: number;
+  bytes: number;
+}
+
+export function listSessions(root: string): SessionSummary[] {
+  const dir = join(root, '.weft', 'sessions');
+  let names: string[] = [];
+  try {
+    names = readdirSync(dir);
+  } catch {
+    return [];
+  }
+  const rows: SessionSummary[] = [];
+  for (const id of names) {
+    try {
+      const file = join(dir, id, 'events.jsonl');
+      const stat = statSync(file);
+      rows.push({ id, updatedAt: stat.mtimeMs, bytes: stat.size });
+    } catch {
+      // ignore incomplete sessions
+    }
+  }
+  return rows.sort((a, b) => b.updatedAt - a.updatedAt);
+}
+
+export function latestSessionId(root: string): string | undefined {
+  return listSessions(root)[0]?.id;
 }

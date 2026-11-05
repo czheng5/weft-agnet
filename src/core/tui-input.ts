@@ -35,6 +35,7 @@ export class TuiInput {
   private fallback: Interface | null = null;
   private active = false;
   private handler: ((sequence: string, key: KeyEvent) => void) | null = null;
+  private layout: { inputRow: number; footerRow: number } | null = null;
 
   constructor(input: TtyInput = process.stdin, output: TtyOutput = process.stdout) {
     this.input = input;
@@ -50,6 +51,16 @@ export class TuiInput {
     const size = (this.output as unknown as { getWindowSize?: () => [number, number] }).getWindowSize?.();
     const cols = size?.[0] || this.output.columns || 0;
     return cols > 20 ? cols : 80;
+  }
+
+  get rows(): number {
+    const size = (this.output as unknown as { getWindowSize?: () => [number, number] }).getWindowSize?.();
+    const rows = size?.[1] || this.output.rows || 0;
+    return rows > 8 ? rows : 24;
+  }
+
+  setLayout(layout: { inputRow: number; footerRow: number } | null): void {
+    this.layout = layout;
   }
 
   write(text: string): void {
@@ -284,6 +295,13 @@ export class TuiInput {
   }
 
   private renderLine(prompt: string, text: string, cursor: number, hint: string): void {
+    if (this.layout) {
+      const line = prompt + text;
+      this.output.write('\x1b[' + this.layout.inputRow + ';1H\x1b[2K' + line.slice(0, Math.max(1, this.columns - 1)));
+      const offset = Math.min(this.columns - 1, visibleWidth(prompt + text.slice(0, cursor)));
+      this.output.write('\x1b[' + this.layout.inputRow + ';' + Math.max(1, offset + 1) + 'H');
+      return;
+    }
     const footer = this.clipHint(hint, Math.max(0, this.columns - 4));
     this.output.write('\r\x1b[2K' + prompt + text);
     this.output.write('\n\r\x1b[2K' + (footer ? '  \x1b[2m' + footer + '\x1b[0m' : ''));
@@ -293,6 +311,10 @@ export class TuiInput {
   }
 
   private finishRendered(): void {
+    if (this.layout) {
+      this.output.write('\x1b[' + this.layout.inputRow + ';1H\x1b[2K');
+      return;
+    }
     this.output.write('\n\r\x1b[2K\n');
   }
 

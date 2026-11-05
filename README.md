@@ -35,6 +35,14 @@ Weft 不是聊天壳，也不是又一个模型客户端。
 
 `/keys` 或 `?` 查看完整键位矩阵，`/menu` 或 `Ctrl+K` 打开命令面板；`/model` 或 `F2` 切换模型，`/settings` 或 `F3` 查看设置。菜单、提示和按键行为共用 [src/core/keymap.ts](src/core/keymap.ts) 一份定义。
 
+会话默认持久化到 `.weft/sessions/`：
+
+```bash
+weft --continue        # 恢复最近一次会话
+weft --resume <id>     # 恢复指定会话
+/sessions              # 在 TUI 中列出可恢复会话
+```
+
 ## 它解决什么
 
 大多数 Agent 演示能跑十分钟，但接不了真正的工作：

@@ -49,6 +49,7 @@ export const COMMANDS: CommandDef[] = [
   { name: 'model', usage: '/model', description: '切换模型', group: 'Session' },
   { name: 'settings', usage: '/settings', description: '设置与运行时信息', group: 'System' },
   { name: 'status', usage: '/status', description: '查看运行时状态', group: 'Session' },
+  { name: 'sessions', usage: '/sessions', description: '列出可恢复会话', group: 'Session' },
   { name: 'plan', usage: '/plan', description: '查看 Work Graph / 计划', group: 'Plan' },
   { name: 'goal', usage: '/goal ', description: '创建目标', group: 'Plan', takesArg: true },
   { name: 'task', usage: '/task ', description: '添加任务', group: 'Plan', takesArg: true },
