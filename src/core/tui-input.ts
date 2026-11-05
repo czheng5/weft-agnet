@@ -87,7 +87,7 @@ export class TuiInput {
     return new Promise<LineResult>((resolve) => {
       const finish = (result: LineResult): void => {
         this.detach();
-        this.output.write('\n');
+        this.finishRendered();
         resolve(result);
       };
 
@@ -219,7 +219,7 @@ export class TuiInput {
     return new Promise<KeyEvent>((resolve) => {
       const finish = (key: KeyEvent): void => {
         this.detach();
-        if (prompt) this.output.write('\n');
+        if (prompt) this.finishRendered();
         resolve(key);
       };
       if (prompt) this.renderLine(prompt, '', 0, hint);
@@ -237,7 +237,7 @@ export class TuiInput {
     return new Promise<string | null>((resolve) => {
       const finish = (value: string | null): void => {
         this.detach();
-        this.output.write('\n');
+        this.finishRendered();
         resolve(value);
       };
       this.renderLine(prompt, '', 0, hint);
@@ -274,14 +274,16 @@ export class TuiInput {
   }
 
   private renderLine(prompt: string, text: string, cursor: number, hint: string): void {
-    const used = visibleWidth(prompt + text);
-    const available = Math.max(0, this.columns - used - 2);
-    const shown = available > 4 ? this.clipHint(hint, available) : '';
-    const hintText = shown ? '  \x1b[2m' + shown + '\x1b[0m' : '';
-    this.output.write('\r\x1b[2K' + prompt + text + hintText);
-    this.output.write('\r');
+    const footer = this.clipHint(hint, Math.max(0, this.columns - 4));
+    this.output.write('\r\x1b[2K' + prompt + text);
+    this.output.write('\n\r\x1b[2K' + (footer ? '  \x1b[2m' + footer + '\x1b[0m' : ''));
+    this.output.write('\x1b[1A\r');
     const offset = visibleWidth(prompt + text.slice(0, cursor));
     if (offset > 0) this.output.write('\x1b[' + offset + 'C');
+  }
+
+  private finishRendered(): void {
+    this.output.write('\n\r\x1b[2K\n');
   }
 
   private clipHint(hint: string, width: number): string {
