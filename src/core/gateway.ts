@@ -4,6 +4,7 @@ import { createThreadRecord, validateCapabilityManifest, RuntimeSchemaError } fr
 import { Router } from './router.ts';
 import { Workboard } from './workboard.ts';
 import { SURFACE_HTML } from './surface.ts';
+import { PWA_ICON, PWA_MANIFEST, PWA_SERVICE_WORKER } from './pwa.ts';
 import { AccessError, assertRole, resolvePrincipal } from './access.ts';
 import type { Principal, QuotaPolicy } from './access.ts';
 import type { RevocationStore } from './token-revocation.ts';
@@ -39,6 +40,11 @@ function sendJson(res: ServerResponse, status: number, body: unknown): void {
 function sendHtml(res: ServerResponse, status: number, html: string): void {
   res.writeHead(status, { 'content-type': 'text/html; charset=utf-8', 'content-length': Buffer.byteLength(html) });
   res.end(html);
+}
+
+function sendAsset(res: ServerResponse, type: string, body: string): void {
+  res.writeHead(200, { 'content-type': type, 'content-length': Buffer.byteLength(body) });
+  res.end(body);
 }
 
 function sameScope(a: RuntimeScope, b: RuntimeScope): boolean {
@@ -177,6 +183,18 @@ export class AgentGateway {
       const path = url.pathname.replace(/\/$/, '');
       if (req.method === 'GET' && path === '') {
         sendHtml(res, 200, SURFACE_HTML);
+        return;
+      }
+      if (req.method === 'GET' && path === '/manifest.webmanifest') {
+        sendAsset(res, 'application/manifest+json; charset=utf-8', PWA_MANIFEST);
+        return;
+      }
+      if (req.method === 'GET' && path === '/sw.js') {
+        sendAsset(res, 'application/javascript; charset=utf-8', PWA_SERVICE_WORKER);
+        return;
+      }
+      if (req.method === 'GET' && path === '/icon.svg') {
+        sendAsset(res, 'image/svg+xml; charset=utf-8', PWA_ICON);
         return;
       }
       if (req.method === 'GET' && path === '/health') {

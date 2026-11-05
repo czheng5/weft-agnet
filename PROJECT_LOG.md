@@ -209,6 +209,7 @@
 | 2026-11-05 | V25-A | Workboard PATCH/groups + env injection + weighted fair | 135 tests；P0/P1 推进 | 8d390c1 |
 | 2026-11-05 | V25-B | OAuth PKCE + state + refresh + JWKS rotation | 138 tests；fake IdP | dd50deb |
 | 2026-11-05 | V25-C | S3 artifact + K8s/Nomad launchers | 141 tests；contract | 27b4b56 |
+| 2026-11-05 | V25-D | device sync + PWA shell | 144 tests；cursor/SW | 待提交 |
 | 2026-11-01 | M3-L | v1.0 RC | RC 代码完成；未发布 | 8bdb955 |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |
@@ -223,7 +224,7 @@
 ## 4. 当前可验证结果
 
 ~~~text
-141 tests, 141 pass, 0 fail；v1 demo PASS；real DeepSeek/PG/pgvector；v1.0.2 RELEASED
+144 tests, 144 pass, 0 fail；v1 demo PASS；real DeepSeek/PG/pgvector；v1.0.2 RELEASED
 
 Weft M0 complete: file written, shell verified, memory stored and recalled, knowledge base searched.
 steps=7 toolCalls=6 cacheStable=6 cacheReadTokens=0

@@ -11,7 +11,8 @@ All notable changes are documented here. Format follows Keep a Changelog; versio
 - Weighted fair worker scheduling.
 - OAuth authorization-code + PKCE utilities, JWKS cache and key rotation hook.
 - S3 artifact store and Kubernetes/Nomad worker launchers.
-- 141 tests.
+- Device sync cursors and PWA shell.
+- 144 tests.
 
 ## [2.4.1] - 2026-11-04
 

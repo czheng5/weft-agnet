@@ -32,8 +32,8 @@
 | P1-3 | OAuth code flow | ◐ PKCE/state/token exchange/refresh/JWKS rotation 已做；登录回调 UI 待做 |
 | P1-4 | 生产 adapter | ◐ S3 store、K8s Job、Nomad Job、secretRef 已做；真实云/HA 待做 |
 | P1-5 | 加权公平调度 | ✅ tenant weight + concurrency；继续做全局公平 |
-| P1-6 | 跨设备同步 | 设备身份、冲突解决、端到端加密；不是裸共享 Postgres |
-| P1-7 | Desktop 壳 | Web/Desktop 同一 Surface；TUI/HTTP 不重复逻辑 |
+| P1-6 | 跨设备同步 | ◐ 设备身份/事件游标/revoke 已做；E2E/冲突/push 待做 |
+| P1-7 | Desktop 壳 | ◐ PWA manifest/SW 已做；原生 Desktop 壳待做 |
 | P1-8 | Marketplace UI | 远程索引、发布者 key 展示、安装审批/回滚 |
 
 ## P2
