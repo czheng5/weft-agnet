@@ -49,7 +49,7 @@ export class Tui {
       while (true) {
         const result = await this.input.readLine({
           prompt: 'weft> ',
-          hint: hintsFor('prompt'),
+          hint: hintsFor('prompt', true),
           history: this.history,
           initialText: preset,
           complete: completeCommand
@@ -240,7 +240,7 @@ export class Tui {
       approvals: this.opts.toolContext.approvals.policy.ctx.approvalPolicy
     });
     this.input.write(banner + '\n');
-    this.input.write(this.input.interactive ? '\n' : '  ' + hintsFor('prompt') + '\n\n');
+    this.input.write(this.input.interactive ? '\n' : '  ' + hintsFor('prompt', true) + '\n\n');
   }
 
   private printCompact(): void {
@@ -250,12 +250,12 @@ export class Tui {
       approvals: this.opts.toolContext.approvals.policy.ctx.approvalPolicy,
       model: this.opts.model.id
     }) + '\n');
-    if (!this.input.interactive) this.input.write('  ' + hintsFor('prompt') + '\n\n');
+    if (!this.input.interactive) this.input.write('  ' + hintsFor('prompt', true) + '\n\n');
   }
 
   private printHelp(): void {
     this.input.write(renderCommandList(COMMANDS, false, this.menuWidth) + '\n');
-    this.input.write('  ' + hintsFor('prompt') + '\n\n');
+    this.input.write('  ' + hintsFor('prompt', true) + '\n\n');
   }
 
   private async showKeys(): Promise<void> {
@@ -263,56 +263,54 @@ export class Tui {
       this.input.write(renderKeyHelp(undefined, false, this.menuWidth) + '\n');
       return;
     }
-    this.input.clearScreen();
-    this.input.write(renderKeyHelp(undefined, true, this.menuWidth) + '\n');
-    await this.input.readKey();
-    this.input.clearScreen();
-    this.printCompact();
+    this.input.enterAltScreen();
+    try {
+      this.input.write(renderKeyHelp(undefined, true, this.menuWidth) + '\n');
+      await this.input.readKey();
+    } finally {
+      this.input.exitAltScreen();
+    }
   }
 
   private async showPalette(): Promise<CommandDef | null> {
     if (!this.input.interactive) return null;
     let filter = '';
     let selected = 0;
-    while (true) {
-      const matches = COMMANDS.filter((command) => {
-        if (!filter) return true;
-        return (command.name + ' ' + command.usage + ' ' + command.description).toLowerCase().includes(filter.toLowerCase());
-      });
-      selected = Math.max(0, Math.min(selected, Math.max(0, matches.length - 1)));
-      this.input.clearScreen();
-      this.input.write(renderCommandPalette(COMMANDS, filter, selected, true, this.menuWidth) + '\n');
-      const key = await this.input.readKey();
-      if (key.name === 'escape') {
+    this.input.enterAltScreen();
+    try {
+      while (true) {
+        const matches = COMMANDS.filter((command) => {
+          if (!filter) return true;
+          return (command.name + ' ' + command.usage + ' ' + command.description).toLowerCase().includes(filter.toLowerCase());
+        });
+        selected = Math.max(0, Math.min(selected, Math.max(0, matches.length - 1)));
         this.input.clearScreen();
-        this.printCompact();
-        return null;
+        this.input.write(renderCommandPalette(COMMANDS, filter, selected, true, this.menuWidth) + '\n');
+        const key = await this.input.readKey();
+        if (key.name === 'escape') return null;
+        if (key.name === 'return' || key.name === 'enter') return matches[selected] ?? null;
+        if (key.name === 'up' || (key.name === 'k' && !key.ctrl)) {
+          selected = Math.max(0, selected - 1);
+          continue;
+        }
+        if (key.name === 'down' || (key.name === 'j' && !key.ctrl)) {
+          selected = Math.min(Math.max(0, matches.length - 1), selected + 1);
+          continue;
+        }
+        if (key.name === 'backspace') {
+          filter = filter.slice(0, -1);
+          selected = 0;
+          continue;
+        }
+        if (key.ctrl || key.meta) continue;
+        const sequence = key.sequence ?? '';
+        if (sequence && !/[\x00-\x1f\x7f]/.test(sequence)) {
+          filter += sequence;
+          selected = 0;
+        }
       }
-      if (key.name === 'return' || key.name === 'enter') {
-        const command = matches[selected] ?? null;
-        this.input.clearScreen();
-        this.printCompact();
-        return command;
-      }
-      if (key.name === 'up' || (key.name === 'k' && !key.ctrl)) {
-        selected = Math.max(0, selected - 1);
-        continue;
-      }
-      if (key.name === 'down' || (key.name === 'j' && !key.ctrl)) {
-        selected = Math.min(Math.max(0, matches.length - 1), selected + 1);
-        continue;
-      }
-      if (key.name === 'backspace') {
-        filter = filter.slice(0, -1);
-        selected = 0;
-        continue;
-      }
-      if (key.ctrl || key.meta) continue;
-      const sequence = key.sequence ?? '';
-      if (sequence && !/[\x00-\x1f\x7f]/.test(sequence)) {
-        filter += sequence;
-        selected = 0;
-      }
+    } finally {
+      this.input.exitAltScreen();
     }
   }
 }

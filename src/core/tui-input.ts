@@ -58,6 +58,14 @@ export class TuiInput {
     this.output.write('\x1b[2J\x1b[H');
   }
 
+  enterAltScreen(): void {
+    this.output.write('\x1b[?1049h\x1b[2J\x1b[H');
+  }
+
+  exitAltScreen(): void {
+    this.output.write('\x1b[?1049l');
+  }
+
   async readLine(options: ReadLineOptions): Promise<LineResult> {
     if (!this.interactive) {
       if (!this.fallback) return { action: 'eof' };
@@ -266,10 +274,26 @@ export class TuiInput {
   }
 
   private renderLine(prompt: string, text: string, cursor: number, hint: string): void {
-    const hintText = hint ? '  \x1b[2m' + hint + '\x1b[0m' : '';
+    const used = visibleWidth(prompt + text);
+    const available = Math.max(0, this.columns - used - 2);
+    const shown = available > 4 ? this.clipHint(hint, available) : '';
+    const hintText = shown ? '  \x1b[2m' + shown + '\x1b[0m' : '';
     this.output.write('\r\x1b[2K' + prompt + text + hintText);
     this.output.write('\r');
     const offset = visibleWidth(prompt + text.slice(0, cursor));
     if (offset > 0) this.output.write('\x1b[' + offset + 'C');
+  }
+
+  private clipHint(hint: string, width: number): string {
+    if (visibleWidth(hint) <= width) return hint;
+    let out = '';
+    let used = 0;
+    for (const char of hint) {
+      const w = visibleWidth(char);
+      if (used + w > width - 1) break;
+      out += char;
+      used += w;
+    }
+    return out + '…';
   }
 }

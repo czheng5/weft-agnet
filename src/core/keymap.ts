@@ -86,7 +86,10 @@ export function bindingsFor(context: KeyContext): KeyBinding[] {
   return KEYMAP.filter((binding) => binding.contexts.includes(context));
 }
 
-export function hintsFor(context: KeyContext): string {
+export function hintsFor(context: KeyContext, compact = false): string {
+  if (context === 'prompt' && compact) {
+    return '? keys  ·  Ctrl+K deck  ·  /help  ·  Tab complete';
+  }
   return bindingsFor(context)
     .map((binding) => binding.hint ?? binding.label)
     .filter((value, index, list) => list.indexOf(value) === index)
