@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="700" viewBox="0 0 1100 700" role="img" aria-label="Weft CLI preview">
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="700" viewBox="0 0 1100 700" role="img" aria-label="Weft CLI preview">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#07111f"/>
@@ -24,32 +24,12 @@
   <text x="550" y="48" text-anchor="middle" fill="#8ba3b8" font-family="Consolas, monospace" font-size="13">weft — ~/projects/risc-v</text>
 
   <g font-family="'JetBrains Mono','Cascadia Code',Consolas,monospace" fill="#dbeafe">
-        <g font-family="'Cascadia Mono', Consolas, monospace" font-size="15" fill="#22d3ee" xml:space="preserve">
-      <text x="64" y="105">██╗&#160;&#160;&#160;&#160;██╗</text>
-      <text x="172" y="105">███████╗</text>
-      <text x="262" y="105">███████╗</text>
-      <text x="352" y="105">████████╗</text>
-      <text x="64" y="129">██║&#160;&#160;&#160;&#160;██║</text>
-      <text x="172" y="129">██╔════╝</text>
-      <text x="262" y="129">██╔════╝</text>
-      <text x="352" y="129">╚══██╔══╝</text>
-      <text x="64" y="153">██║&#160;█╗&#160;██║</text>
-      <text x="172" y="153">█████╗&#160;&#160;</text>
-      <text x="262" y="153">█████╗&#160;&#160;</text>
-      <text x="352" y="153">&#160;&#160;&#160;██║&#160;&#160;&#160;</text>
-      <text x="64" y="177">██║███╗██║</text>
-      <text x="172" y="177">██╔══╝&#160;&#160;</text>
-      <text x="262" y="177">██╔══╝&#160;&#160;</text>
-      <text x="352" y="177">&#160;&#160;&#160;██║&#160;&#160;&#160;</text>
-      <text x="64" y="201">╚███╔███╔╝</text>
-      <text x="172" y="201">███████╗</text>
-      <text x="262" y="201">██║&#160;&#160;&#160;&#160;&#160;</text>
-      <text x="352" y="201">&#160;&#160;&#160;██║&#160;&#160;&#160;</text>
-      <text x="64" y="225">&#160;╚══╝╚══╝&#160;</text>
-      <text x="172" y="225">╚══════╝</text>
-      <text x="262" y="225">╚═╝&#160;&#160;&#160;&#160;&#160;</text>
-      <text x="352" y="225">&#160;&#160;&#160;╚═╝&#160;&#160;&#160;</text>
-    </g>
+    <text x="64" y="105" font-size="14" fill="#22d3ee">  ██╗    ██╗███████╗███████╗████████╗</text>
+    <text x="64" y="127" font-size="14" fill="#22d3ee">  ██║    ██║██╔════╝██╔════╝╚══██╔══╝</text>
+    <text x="64" y="149" font-size="14" fill="#22d3ee">  ██║ █╗ ██║█████╗  █████╗     ██║   </text>
+    <text x="64" y="171" font-size="14" fill="#22d3ee">  ██║███╗██║██╔══╝  ██╔══╝     ██║   </text>
+    <text x="64" y="193" font-size="14" fill="#22d3ee">  ╚███╔███╔╝███████╗██║        ██║   </text>
+    <text x="64" y="215" font-size="14" fill="#22d3ee">   ╚══╝╚══╝ ╚══════╝╚═╝        ╚═╝   </text>
 
     <text x="64" y="253" font-size="16" fill="#67e8f9">≡ WEFT</text>
     <text x="152" y="253" font-size="16" fill="#99f6e4">纬</text>
