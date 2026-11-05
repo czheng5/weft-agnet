@@ -205,7 +205,7 @@
 | 2026-11-04 | V24-A | Workboard + Tianxi concepts | 133 tests；PM metadata | a89b09a |
 | 2026-11-04 | V24-B | EDA/PDK discovery | 133 tests；auto-find | a89b09a |
 | 2026-11-04 | V24-C | v2.4.0 release | 133 tests；tag | a89b09a |
-| 2026-11-04 | V24-D | product README + backlog | 门面/待办对账 | 待提交 |
+| 2026-11-04 | V24-D | product README + backlog | 门面/待办对账 | 10a4cfb |
 | 2026-11-01 | M3-L | v1.0 RC | RC 代码完成；未发布 | 8bdb955 |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |
