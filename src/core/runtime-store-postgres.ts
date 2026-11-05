@@ -295,6 +295,10 @@ export class PostgresRuntimeStore implements RuntimeStore {
     if (result.rows.length !== 1) throw new Error('unknown outbox: ' + id);
   }
 
+  async releaseOutbox(id: string): Promise<void> {
+    await this.pool.query("UPDATE runtime_outbox SET status='pending', claimed_by=NULL, claimed_at=NULL, updated_at=$1 WHERE id=$2 AND status='claimed'", [this.clock(), id]);
+  }
+
   async failOutbox(id: string, error: string, retryAt: number): Promise<void> {
     const result = await this.pool.query("UPDATE runtime_outbox SET status='failed', attempts=attempts+1, next_attempt_at=$1, claimed_by=NULL, claimed_at=NULL, updated_at=$2 WHERE id=$3 RETURNING id", [retryAt, this.clock(), id]);
     if (result.rows.length !== 1) throw new Error('unknown outbox: ' + id + ' (' + error + ')');

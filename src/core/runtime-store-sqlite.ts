@@ -353,6 +353,10 @@ export class SqliteRuntimeStore implements RuntimeStore {
     if (result.changes !== 1) throw new Error('unknown outbox: ' + id);
   }
 
+  async releaseOutbox(id: string): Promise<void> {
+    this.db.prepare("UPDATE runtime_outbox SET status = 'pending', claimed_by = NULL, claimed_at = NULL, updated_at = ? WHERE id = ? AND status = 'claimed'").run(this.clock(), id);
+  }
+
   async failOutbox(id: string, error: string, retryAt: number): Promise<void> {
     const current = this.db.prepare('SELECT attempts FROM runtime_outbox WHERE id = ?').get(id) as { attempts: number } | undefined;
     if (!current) throw new Error('unknown outbox: ' + id);

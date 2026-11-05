@@ -2,6 +2,16 @@
 
 All notable changes are documented here. Format follows Keep a Changelog; versions use SemVer.
 
+## [2.2.0] - 2026-11-04
+
+### Added
+
+- Signed marketplace bundles with Ed25519 publisher verification and key revocation.
+- OIDC JWT verification, JWKS, dynamic jti revocation and Gateway revoke endpoint.
+- FairWorkerPool with tenant round-robin and concurrency.
+- Storage/compute separation orchestration baseline: DeploymentSpec, LocalArtifactStore CAS, WorkerFleet, DeploymentOrchestrator.
+- 127 tests.
+
 ## [2.1.0] - 2026-11-04
 
 ### Added

@@ -5,6 +5,7 @@ import { Router } from './router.ts';
 import { SURFACE_HTML } from './surface.ts';
 import { AccessError, assertRole, resolvePrincipal } from './access.ts';
 import type { Principal, QuotaPolicy } from './access.ts';
+import type { RevocationStore } from './token-revocation.ts';
 import type { RuntimeScope, ThreadRecord } from './runtime-schema.ts';
 import type { RuntimeStore } from './runtime-store.ts';
 
@@ -16,6 +17,8 @@ export interface AgentGatewayOptions {
   router?: Router;
   principals?: Principal[];
   quota?: QuotaPolicy;
+  authenticator?: { authenticate(authorization: string | undefined): Promise<Principal | null> };
+  revocations?: RevocationStore;
 }
 
 export interface AgentGatewayAddress {
@@ -70,6 +73,8 @@ export class AgentGateway {
   readonly token?: string;
   private readonly router: Router;
   private readonly principals?: Principal[];
+  private readonly authenticator?: AgentGatewayOptions['authenticator'];
+  private readonly revocations?: RevocationStore;
   private readonly defaultPrincipal: Principal;
   private readonly quota: QuotaPolicy;
   private readonly streams = new Set<ServerResponse>();
@@ -83,6 +88,8 @@ export class AgentGateway {
     this.token = opts.token;
     this.router = opts.router ?? new Router({ store: this.store });
     this.principals = opts.principals;
+    this.authenticator = opts.authenticator;
+    this.revocations = opts.revocations;
     this.defaultPrincipal = { id: 'local', token: opts.token ?? '', role: 'admin', scope: opts.scope };
     this.quota = opts.quota ?? {};
     this.server = createServer((req, res) => { void this.handle(req, res); });
@@ -106,7 +113,8 @@ export class AgentGateway {
     this.address = null;
   }
 
-  private principalFor(req: IncomingMessage): Principal | null {
+  private async principalFor(req: IncomingMessage): Promise<Principal | null> {
+    if (this.authenticator) return this.authenticator.authenticate(req.headers.authorization);
     if (this.principals) return resolvePrincipal(this.principals, req.headers.authorization);
     if (this.token) return req.headers.authorization === 'Bearer ' + this.token ? this.defaultPrincipal : null;
     return this.defaultPrincipal;
@@ -160,7 +168,7 @@ export class AgentGateway {
 
   private async handle(req: IncomingMessage, res: ServerResponse): Promise<void> {
     try {
-      const principal = this.principalFor(req);
+      const principal = await this.principalFor(req);
       if (!principal) { sendJson(res, 401, { error: 'unauthorized' }); return; }
       const url = new URL(req.url ?? '/', 'http://localhost');
       const path = url.pathname.replace(/\/$/, '');
@@ -170,6 +178,17 @@ export class AgentGateway {
       }
       if (req.method === 'GET' && path === '/health') {
         sendJson(res, 200, { ok: true, service: 'weft-gateway' });
+        return;
+      }
+      if (req.method === 'POST' && path === '/auth/revoke') {
+        assertRole(principal, 'admin');
+        if (!this.revocations) { sendJson(res, 501, { error: 'revocation store not configured' }); return; }
+        const body = await readJson(req);
+        const jti = typeof body.jti === 'string' ? body.jti : '';
+        const expiresAt = typeof body.expiresAt === 'number' ? body.expiresAt : typeof body.exp === 'number' ? body.exp * 1000 : 0;
+        if (!jti || !Number.isFinite(expiresAt) || expiresAt <= 0) { sendJson(res, 400, { error: 'jti and expiresAt/exp required' }); return; }
+        this.revocations.revoke(jti, expiresAt);
+        sendJson(res, 200, { revoked: true, jti });
         return;
       }
       if (req.method === 'GET' && path === '/capabilities') {

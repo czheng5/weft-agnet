@@ -63,6 +63,7 @@ export interface RuntimeStore {
   claimOutbox(workerId: string, limit: number): Promise<OutboxRecord[]>;
   completeOutbox(id: string): Promise<void>;
   failOutbox(id: string, error: string, retryAt: number): Promise<void>;
+  releaseOutbox(id: string): Promise<void>;
 }
 
 export interface RuntimeStoreOptions {

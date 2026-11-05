@@ -2,7 +2,7 @@
 
 > 用途：项目管理视角的独立台账。只记录“开发了什么 / 解决了什么问题 / 达到什么效果”，不写流水账、不替代 PRD/ROADMAP。  
 > 更新规则：每次提交追加一行；效果尽量给可验证证据（测试数、事件数、命令、commit）。  
-> 当前版本：v2.1.0 RELEASED（2026-11-04）；M0–M6 baseline + 断网 IC 情景测试。
+> 当前版本：v2.2.0 RELEASED（2026-11-04）；生产化四项 baseline。
 
 ---
 
@@ -18,6 +18,7 @@
 | M5 v1.6 | ✅ RELEASED | 100% | Gateway/Worker/Router/SSE/Watchdog/AgentLoop seam/Eval/Source/CLI |
 | M6 v2.0 | ✅ RELEASED | 100% | Surface/Registry/BYOM/RBAC/Quota/Protocol/Bench/Marketplace baseline |
 | v2.1 Closed-world | ✅ RELEASED | 100% | 断网推理 + FIFO/CDC/timing 证据情景 |
+| v2.2 Production | ✅ RELEASED | 100% | 签名 Marketplace/OIDC+撤销/公平调度/分离编排 baseline |
 
 ---
 
@@ -67,6 +68,11 @@
 | v2.0 release（M6-E） | 版本 2.0.0；Surface/Registry/BYOM/RBAC/Protocol/Bench | M6 没有发布口径 | v2.0.0 RELEASED；tag |
 | v2.1 Closed-world（V21-A） | 断网只读文件、证据行/claim/patch 检查、FIFO/CDC/timing | 高精尖领域缺少封闭环境情景测试 | 117 tests；3 scenarios PASS |
 | v2.1 release（V21-B） | 版本 2.1.0；离线情景 bench | 新能力没有发布口径 | v2.1.0 RELEASED；tag |
+| v2.2 Signed Marketplace（V22-A） | Ed25519、publisher/keyId、revocation、expiry、remote index | 远程技能没有发布者信任 | 127 tests；签名/撤销测试 |
+| v2.2 OIDC（V22-B） | RS/EdDSA JWT、JWKS、Principal、jti revocation、Gateway revoke | 静态 token 不能生产化 | 127 tests；OIDC/撤销 |
+| v2.2 Fair Scheduler（V22-C） | tenant round-robin、concurrency、releaseOutbox | 单 Worker/单租户饥饿 | 127 tests；3 tenant 公平 |
+| v2.2 Separation（V22-D） | DeploymentSpec、CAS artifacts、WorkerFleet、Orchestrator | 状态/计算仍耦合 | 127 tests；编排测试 |
+| v2.2 release（V22-E） | 版本 2.2.0；四项 baseline | 没有发布口径 | v2.2.0 RELEASED；tag |
 | Release 纪律（M4-plan） | RELEASE.md；gitignore 加固；版本 gate | 防止敏感日志/无关文件入库 | 发布前检查清单 |
 | 自动读判断（M1-T） | sandboxed 档：非敏感外部只读自动允许；外部写直接 deny；敏感路径仍 ask | 必要外部读取不应逐条弹窗，但 secrets 不能自动放行 | 1 个测试；82 tests pass |
 | Shell 输出捕获修复 | ShellSandbox 从 pipe 改为临时文件重定向 | DSH 内 Node child_process pipe 报 EPERM，demo 的 shell 实际失败 | demo 现在真正拿到 stdout=2；新增 capture 测试 |
@@ -179,6 +185,11 @@
 | 2026-11-04 | M6-E | v2.0.0 release | 114 tests；tag | fe57a2b |
 | 2026-11-04 | V21-A | closed-world hardware scenarios | 117 tests；3 PASS | 35b0a7d |
 | 2026-11-04 | V21-B | v2.1.0 release | 117 tests；tag | 35b0a7d |
+| 2026-11-04 | V22-A | signed marketplace | 127 tests；Ed25519 | 待提交 |
+| 2026-11-04 | V22-B | OIDC + revocation | 127 tests；JWT/jti | 待提交 |
+| 2026-11-04 | V22-C | fair worker pool | 127 tests；tenant round-robin | 待提交 |
+| 2026-11-04 | V22-D | storage/compute separation | 127 tests；orchestrator | 待提交 |
+| 2026-11-04 | V22-E | v2.2.0 release | 127 tests；tag | 待提交 |
 | 2026-11-01 | M3-L | v1.0 RC | RC 代码完成；未发布 | 8bdb955 |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |
@@ -193,7 +204,7 @@
 ## 4. 当前可验证结果
 
 ~~~text
-117 tests, 117 pass, 0 fail；v1 demo PASS；real DeepSeek/PG/pgvector；v1.0.2 RELEASED
+127 tests, 127 pass, 0 fail；v1 demo PASS；real DeepSeek/PG/pgvector；v1.0.2 RELEASED
 
 Weft M0 complete: file written, shell verified, memory stored and recalled, knowledge base searched.
 steps=7 toolCalls=6 cacheStable=6 cacheReadTokens=0
