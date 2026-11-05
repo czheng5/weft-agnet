@@ -9,7 +9,8 @@ All notable changes are documented here. Format follows Keep a Changelog; versio
 - Workboard grouping and thread PATCH (status/priority/owner/due/labels).
 - Testbench WEFT_ENV loading without logging values.
 - Weighted fair worker scheduling.
-- 135 tests.
+- OAuth authorization-code + PKCE utilities, JWKS cache and key rotation hook.
+- 138 tests.
 
 ## [2.4.1] - 2026-11-04
 

@@ -32,6 +32,8 @@ import './deployment.test.ts'
 import './objective-anchor.test.ts'
 import './workboard.test.ts'
 import './tool-discovery.test.ts'
+import './oauth.test.ts'
+import './jwks.test.ts'
 import './eda-flow.test.ts'
 import './memory.test.ts';
 import './memory-http.test.ts'

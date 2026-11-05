@@ -7,6 +7,7 @@ export interface OidcConfig {
   issuer: string;
   audience: string;
   jwks: Record<string, unknown>[] | (() => Promise<Record<string, unknown>[]>);
+  jwksRefresh?: () => Promise<Record<string, unknown>[]>;
   revocations?: RevocationStore;
   clockSkewSec?: number;
 }
@@ -54,9 +55,13 @@ export async function verifyOidcToken(token: string, config: OidcConfig, nowSec 
   const header = decodePart(parts[0]) as Record<string, unknown>;
   const claims = decodePart(parts[1]) as Record<string, unknown>;
   if (typeof header.alg !== 'string') throw new OidcError('alg is required');
-  const keys = await getJwks(config);
+  let keys = await getJwks(config);
   const kid = typeof header.kid === 'string' ? header.kid : undefined;
-  const jwk = kid ? keys.find((key) => key.kid === kid) : keys[0];
+  let jwk = kid ? keys.find((key) => key.kid === kid) : keys[0];
+  if (!jwk && config.jwksRefresh) {
+    keys = await config.jwksRefresh();
+    jwk = kid ? keys.find((key) => key.kid === kid) : keys[0];
+  }
   if (!jwk) throw new OidcError('no matching jwk');
   const key = createPublicKey({ key: jwk as never, format: 'jwk' });
   const signingInput = Buffer.from(parts[0] + '.' + parts[1], 'utf8');
