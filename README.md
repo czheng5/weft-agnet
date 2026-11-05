@@ -130,7 +130,7 @@ node --experimental-strip-types src/cli.ts
 node --experimental-strip-types src/cli.ts --model-base-url http://127.0.0.1:11434/v1 --model-name qwen2.5-coder
 ~~~
 
-Weft 不会把 key 写进仓库，也不在日志里打印 key。测试/断网场景从进程环境或 `WEFT_ENV` 读取，不保留明文字段。
+Weft 不会把 key 写进仓库，也不在日志里打印 key。CLI 支持从进程环境或 `WEFT_ENV` 读取；testbench 的环境注入仍在 backlog（P0-3）。
 
 ## 架构
 
