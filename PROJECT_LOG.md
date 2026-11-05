@@ -185,11 +185,11 @@
 | 2026-11-04 | M6-E | v2.0.0 release | 114 tests；tag | fe57a2b |
 | 2026-11-04 | V21-A | closed-world hardware scenarios | 117 tests；3 PASS | 35b0a7d |
 | 2026-11-04 | V21-B | v2.1.0 release | 117 tests；tag | 35b0a7d |
-| 2026-11-04 | V22-A | signed marketplace | 127 tests；Ed25519 | 待提交 |
-| 2026-11-04 | V22-B | OIDC + revocation | 127 tests；JWT/jti | 待提交 |
-| 2026-11-04 | V22-C | fair worker pool | 127 tests；tenant round-robin | 待提交 |
-| 2026-11-04 | V22-D | storage/compute separation | 127 tests；orchestrator | 待提交 |
-| 2026-11-04 | V22-E | v2.2.0 release | 127 tests；tag | 待提交 |
+| 2026-11-04 | V22-A | signed marketplace | 127 tests；Ed25519 | cc64d37 |
+| 2026-11-04 | V22-B | OIDC + revocation | 127 tests；JWT/jti | cc64d37 |
+| 2026-11-04 | V22-C | fair worker pool | 127 tests；tenant round-robin | cc64d37 |
+| 2026-11-04 | V22-D | storage/compute separation | 127 tests；orchestrator | cc64d37 |
+| 2026-11-04 | V22-E | v2.2.0 release | 127 tests；tag | cc64d37 |
 | 2026-11-01 | M3-L | v1.0 RC | RC 代码完成；未发布 | 8bdb955 |
 | 2026-11-01 | M1-E | Postgres MemoryProvider | 35 tests pass；pg-mem 契约通过；--pg-url 可切 | eddb1bb |
 | 2026-11-01 | M1-F | Memory 巩固/冲突消解 | 38 tests pass；duplicate/new-wins/manual | 52ce0c1 |
