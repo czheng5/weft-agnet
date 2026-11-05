@@ -1,0 +1,28 @@
+{
+  "id": "ic-timing-negative-slack",
+  "domain": "ic-design",
+  "title": "100 MHz MAC setup violation",
+  "prompt": "Using only the internal timing report and spec, explain the failing path and recommend a closure action. Cite the report line.",
+  "files": [
+    "spec.md",
+    "timing.rpt"
+  ],
+  "expectedFindings": [
+    {
+      "id": "negative-slack",
+      "keywords": [
+        "slack",
+        "-0.35"
+      ],
+      "evidencePath": "timing.rpt"
+    }
+  ],
+  "expectedPatchKeywords": [
+    "pipeline"
+  ],
+  "forbidden": [
+    "http://",
+    "https://",
+    "fetch("
+  ]
+}

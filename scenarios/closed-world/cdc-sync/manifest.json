@@ -1,0 +1,29 @@
+{
+  "id": "cdc-two-flop",
+  "domain": "ic-design",
+  "title": "CDC synchronizer missing second stage",
+  "prompt": "Review the internal CDC RTL against the specification. Identify the structural CDC bug, cite the exact file/line, and provide a minimal patch. Work offline.",
+  "files": [
+    "spec.md",
+    "rtl/cdc_sync.v"
+  ],
+  "expectedFindings": [
+    {
+      "id": "cdc-one-stage",
+      "keywords": [
+        "synchronizer",
+        "second",
+        "meta"
+      ],
+      "evidencePath": "rtl/cdc_sync.v"
+    }
+  ],
+  "expectedPatchKeywords": [
+    "sync_q"
+  ],
+  "forbidden": [
+    "http://",
+    "https://",
+    "fetch("
+  ]
+}

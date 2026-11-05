@@ -1,0 +1,16 @@
+{
+  "summary": "Only one capture flop exists; sync_out is driven by the metastable first stage instead of a second stable stage.",
+  "findings": [
+    {
+      "id": "cdc-one-stage",
+      "claim": "The synchronizer has only the meta stage and drives sync_out from it; a second flop is required.",
+      "evidence": [
+        {
+          "path": "rtl/cdc_sync.v",
+          "line": 12
+        }
+      ]
+    }
+  ],
+  "patch": "reg sync_q; always @(posedge clk) begin meta <= async_in; sync_q <= meta; end assign sync_out = sync_q;"
+}

@@ -1,0 +1,16 @@
+{
+  "summary": "The MAC path has -0.35 ns setup slack at 100 MHz; it needs pipelining or retiming.",
+  "findings": [
+    {
+      "id": "negative-slack",
+      "claim": "The report shows -0.35 ns slack on a single-cycle MAC path, a setup violation.",
+      "evidence": [
+        {
+          "path": "timing.rpt",
+          "line": 5
+        }
+      ]
+    }
+  ],
+  "patch": "Pipeline the multiply and retime the accumulator; keep the external protocol unchanged."
+}

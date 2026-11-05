@@ -1,0 +1,7 @@
+Path: u_mac/mult_reg[31] -> u_mac/acc_reg[31]
+Launch clock: clk (100 MHz)
+Data arrival: 9.85 ns
+Data required: 9.50 ns
+Slack: -0.35 ns
+Logic levels: 18
+Conclusion: setup violation, single-cycle MAC path.

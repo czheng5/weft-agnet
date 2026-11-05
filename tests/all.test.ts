@@ -22,6 +22,7 @@ import './gateway-access.test.ts'
 import './protocol.test.ts'
 import './bench.test.ts'
 import './marketplace.test.ts'
+import './closed-world.test.ts'
 import './memory.test.ts';
 import './memory-http.test.ts'
 import './memory-postgres.test.ts'

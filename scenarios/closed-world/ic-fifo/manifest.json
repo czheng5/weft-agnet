@@ -1,0 +1,28 @@
+{
+  "id": "ic-fifo-full",
+  "domain": "ic-design",
+  "title": "Synchronous FIFO full flag off-by-one",
+  "prompt": "Review the internal RTL against the authoritative FIFO spec. Identify the functional bug, cite the exact file/line, and provide a minimal patch. Work offline using only the supplied files.",
+  "files": [
+    "spec.md",
+    "rtl/sync_fifo.v"
+  ],
+  "expectedFindings": [
+    {
+      "id": "full-off-by-one",
+      "keywords": [
+        "full",
+        "DEPTH"
+      ],
+      "evidencePath": "rtl/sync_fifo.v"
+    }
+  ],
+  "expectedPatchKeywords": [
+    "count == DEPTH"
+  ],
+  "forbidden": [
+    "http://",
+    "https://",
+    "fetch("
+  ]
+}

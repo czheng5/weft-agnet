@@ -2,6 +2,13 @@
 
 All notable changes are documented here. Format follows Keep a Changelog; versions use SemVer.
 
+## [2.1.0] - 2026-11-04
+
+### Added
+
+- Closed-world reasoning/hardware scenarios: FIFO, CDC, timing; offline evidence checks.
+- 117 tests.
+
 ## [2.0.0] - 2026-11-04
 
 ### Added

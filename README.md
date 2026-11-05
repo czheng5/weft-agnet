@@ -4,16 +4,16 @@
 
 Policy-governed · cache-first · long-horizon · memory-growing agent harness.
 
-![version](https://img.shields.io/badge/version-2.0.0-2dd4bf)
-![tests](https://img.shields.io/badge/tests-114%20pass-22c55e)
+![version](https://img.shields.io/badge/version-2.1.0-2dd4bf)
+![tests](https://img.shields.io/badge/tests-117%20pass-22c55e)
 ![node](https://img.shields.io/badge/node-%3E%3D24-339933)
-![status](https://img.shields.io/badge/status-v2.0%20released-0ea5e9)
+![status](https://img.shields.io/badge/status-v2.1%20released-0ea5e9)
 ![CI](https://github.com/czheng5/weft-agnet/actions/workflows/ci.yml/badge.svg)
 ![license](https://img.shields.io/badge/license-MIT-22c55e)
 
-- **v2.0.0：RELEASED**（2026-11-04）
-- **v2.0 范围**：Web Surface、Capability API、BYOM Registry、RBAC/Quota、Weft Protocol、Bench、Marketplace bundle
-- **路线完成**：M0–M6 baseline；后续为限制项收敛与生态扩展
+- **v2.1.0：RELEASED**（2026-11-04）
+- **v2.1 范围**：断网封闭环境推理 + IC/硬件情景测试（FIFO/CDC/timing）
+- **基础路线**：M0–M6 baseline 已完成；后续为限制项收敛与生态扩展
 
 Weft 把 Codex 的“手”、Claude 的“脑”、DSH 的“脊”、Hermes/MemoryHub 的“记忆”织成一个可运行、可审计、可替换的 Agent Harness。
 
@@ -40,6 +40,7 @@ Weft 把 Codex 的“手”、Claude 的“脑”、DSH 的“脊”、Hermes/Me
 | [docs/m6-access.md](docs/m6-access.md) | M6 RBAC + tenant quota（进行中） |
 | [docs/m6-protocol-bench.md](docs/m6-protocol-bench.md) | M6 Weft Protocol + Bench（进行中） |
 | [docs/m6-marketplace.md](docs/m6-marketplace.md) | M6 Capability Marketplace baseline（进行中） |
+| [docs/closed-world-hardware.md](docs/closed-world-hardware.md) | 断网封闭环境 IC/硬件情景测试（v2.1） |
 | [docs/v2-plan.md](docs/v2-plan.md) | v2 路线 checkpoint：M4/M5/M6 |
 | [docs/m4-schema.md](docs/m4-schema.md) | M4 runtime schema/contract（进行中） |
 | [docs/runtime-pg-live.md](docs/runtime-pg-live.md) | 真实 PostgreSQL RuntimeStore 契约 PASS |
@@ -220,7 +221,7 @@ node --experimental-strip-types scripts/v1-demo.ts
 node --test --test-isolation=none --experimental-strip-types tests/all.test.ts
 ~~~
 
-预期：114 tests pass；v1 demo PASS。
+预期：117 tests pass；v1 demo PASS。
 
 ## 配置
 
@@ -294,7 +295,7 @@ sandboxed 档的自动判断：
 
 | 验收 | 结果 |
 |---|---|
-| 自动化测试 | 114 pass |
+| 自动化测试 | 117 pass |
 | 真实 DeepSeek 任务 | 6 tools / cacheReadTokens=2304 / PASS |
 | 真实 Guardian 50 | 50 actions / 0 mismatch |
 | 真实 PostgreSQL | write/get/search/forget/health PASS |
@@ -313,7 +314,7 @@ src/core/        event log, request, permissions, sandbox, memory, KB,
                  workgraph, actors, scheduler, event-bus, capabilities,
                  context-projection, guardian, metrics, TUI
 src/cli.ts       CLI / TUI 入口
-tests/           114 个测试
+tests/           117 个测试
 scripts/         demo / acceptance / conformance
 migrations/      MemoryHub pgvector schema
 docs/            设计、gate、验收、沙箱、发布
@@ -357,7 +358,7 @@ v1.0.1 tag：2026-11-02T02:52:33-05:00
 
 - 先读 PRD.md、ROADMAP.md、docs/interfaces.md。
 - 新能力必须带测试和契约；不允许静默降级。
-- 提交前运行 114 tests。
+- 提交前运行 117 tests。
 - 安全相关改动必须更新 docs/v1.0-gate.md 或验收矩阵。
 
 ## 许可

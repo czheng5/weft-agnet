@@ -1,0 +1,16 @@
+{
+  "summary": "The FIFO full flag is off by one: it deasserts capacity at DEPTH-1 instead of DEPTH.",
+  "findings": [
+    {
+      "id": "full-off-by-one",
+      "claim": "full compares count against DEPTH - 1, so the last entry can never be used and full asserts one cycle early.",
+      "evidence": [
+        {
+          "path": "rtl/sync_fifo.v",
+          "line": 23
+        }
+      ]
+    }
+  ],
+  "patch": "assign full = (count == DEPTH);"
+}
