@@ -44,5 +44,5 @@
 
 ## 验收
 
-- 144 tests pass
+- 147 tests pass
 - 本地 fake IdP 契约测试 PASS

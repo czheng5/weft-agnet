@@ -28,13 +28,13 @@
 | ID | 事项 | 完成标准 |
 |---|---|---|
 | P1-1 | EDA 实跑 | 环境有 Verilator/Yosys/PDK 时自动发现并跑 lint/sim/synth |
-| P1-2 | Coverage/PERC | coverage 百分比解析；PERC/electrical rule deck adapter；无 deck 不签核 |
+| P1-2 | Coverage/PERC | ◐ Verilator coverage 解析 + PERC report adapter 已做；真实 deck/签核待环境 |
 | P1-3 | OAuth code flow | ◐ PKCE/state/token exchange/refresh/JWKS rotation 已做；登录回调 UI 待做 |
 | P1-4 | 生产 adapter | ◐ S3 store、K8s Job、Nomad Job、secretRef 已做；真实云/HA 待做 |
 | P1-5 | 加权公平调度 | ✅ tenant weight + concurrency；继续做全局公平 |
 | P1-6 | 跨设备同步 | ◐ 设备身份/事件游标/revoke 已做；E2E/冲突/push 待做 |
 | P1-7 | Desktop 壳 | ◐ PWA manifest/SW 已做；原生 Desktop 壳待做 |
-| P1-8 | Marketplace UI | 远程索引、发布者 key 展示、安装审批/回滚 |
+| P1-8 | Marketplace UI | ◐ 安装页/签名安装 API 已做；远程索引/审批/回滚待做 |
 
 ## P2
 

@@ -53,7 +53,8 @@ testbench 覆盖：
 ## 明确限制
 
 - 本机没有 verilator/yosys/iverilog
-- 即使装了工具，coverage 百分比解析和 PERC rule deck 仍未配置
+- coverage 百分比解析已实现（Verilator .info）
+- PERC report adapter 已实现；仍需要环境提供真实 rule deck/report
 - 因此状态保持 BLOCKED，不会把“reference 答对”冒充“电路通过”
 - 需要安装开源 EDA 工具，并提供 PERC 规则/商业工具，才能签核
 

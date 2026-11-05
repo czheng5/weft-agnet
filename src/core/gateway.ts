@@ -3,6 +3,9 @@ import type { IncomingMessage, Server, ServerResponse } from 'node:http';
 import { createThreadRecord, validateCapabilityManifest, RuntimeSchemaError } from './runtime-schema.ts';
 import { Router } from './router.ts';
 import { Workboard } from './workboard.ts';
+import { MARKETPLACE_HTML } from './marketplace-ui.ts';
+import { BundleError, installSignedCapabilityBundle } from './marketplace.ts';
+import type { PublisherKey } from './marketplace.ts';
 import { SURFACE_HTML } from './surface.ts';
 import { PWA_ICON, PWA_MANIFEST, PWA_SERVICE_WORKER } from './pwa.ts';
 import { AccessError, assertRole, resolvePrincipal } from './access.ts';
@@ -21,6 +24,7 @@ export interface AgentGatewayOptions {
   quota?: QuotaPolicy;
   authenticator?: { authenticate(authorization: string | undefined): Promise<Principal | null> };
   revocations?: RevocationStore;
+  publisherKeys?: PublisherKey[];
 }
 
 export interface AgentGatewayAddress {
@@ -83,6 +87,7 @@ export class AgentGateway {
   private readonly principals?: Principal[];
   private readonly authenticator?: AgentGatewayOptions['authenticator'];
   private readonly revocations?: RevocationStore;
+  private readonly publisherKeys: PublisherKey[];
   private readonly defaultPrincipal: Principal;
   private readonly quota: QuotaPolicy;
   private readonly streams = new Set<ServerResponse>();
@@ -99,6 +104,7 @@ export class AgentGateway {
     this.principals = opts.principals;
     this.authenticator = opts.authenticator;
     this.revocations = opts.revocations;
+    this.publisherKeys = opts.publisherKeys ?? [];
     this.defaultPrincipal = { id: 'local', token: opts.token ?? '', role: 'admin', scope: opts.scope };
     this.quota = opts.quota ?? {};
     this.server = createServer((req, res) => { void this.handle(req, res); });
@@ -210,6 +216,27 @@ export class AgentGateway {
         if (!jti || !Number.isFinite(expiresAt) || expiresAt <= 0) { sendJson(res, 400, { error: 'jti and expiresAt/exp required' }); return; }
         this.revocations.revoke(jti, expiresAt);
         sendJson(res, 200, { revoked: true, jti });
+        return;
+      }
+      if (req.method === 'GET' && path === '/marketplace') {
+        sendHtml(res, 200, MARKETPLACE_HTML);
+        return;
+      }
+      if (req.method === 'GET' && path === '/marketplace/keys') {
+        sendJson(res, 200, { keys: this.publisherKeys.map((key) => ({ id: key.id, revokedAt: key.revokedAt ?? null })) });
+        return;
+      }
+      if (req.method === 'POST' && path === '/marketplace/install') {
+        assertRole(principal, 'admin');
+        if (this.publisherKeys.length === 0) { sendJson(res, 501, { error: 'publisher keyring not configured' }); return; }
+        const body = await readJson(req);
+        try {
+          const capabilities = await installSignedCapabilityBundle(this.store, body.bundle as never, this.publisherKeys);
+          sendJson(res, 201, { capabilities });
+        } catch (error) {
+          if (error instanceof BundleError) { sendJson(res, 400, { error: error.message }); return; }
+          throw error;
+        }
         return;
       }
       if (req.method === 'GET' && path === '/capabilities') {

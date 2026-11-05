@@ -12,7 +12,8 @@ All notable changes are documented here. Format follows Keep a Changelog; versio
 - OAuth authorization-code + PKCE utilities, JWKS cache and key rotation hook.
 - S3 artifact store and Kubernetes/Nomad worker launchers.
 - Device sync cursors and PWA shell.
-- 144 tests.
+- Signed Marketplace install UI and EDA coverage/PERC evidence adapters.
+- 147 tests.
 
 ## [2.4.1] - 2026-11-04
 

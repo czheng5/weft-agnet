@@ -2,6 +2,7 @@ import { existsSync, readFileSync, mkdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { discoverToolchain } from './tool-discovery.ts';
+import { FilePercAdapter, coverageGate, parseVerilatorCoverageInfo } from './eda-evidence.ts';
 
 export type GateStatus = 'pass' | 'fail' | 'blocked' | 'unverified';
 
@@ -91,7 +92,7 @@ export function evaluateEdaManifest(scenarioDir: string, manifest: EdaManifest, 
   const build = join(scenarioDir, 'build');
   mkdirSync(build, { recursive: true });
   const lint = run('verilator', ['--lint-only', '-Wall', '--top-module', manifest.top, ...rtl, testbench], scenarioDir);
-  const simBuild = run('verilator', ['--binary', '--timing', '-j', '0', '--top-module', manifest.tbTop, '--Mdir', join(build, 'sim'), ...rtl, testbench], scenarioDir);
+  const simBuild = run('verilator', ['--binary', '--timing', '--coverage', '-j', '0', '--top-module', manifest.tbTop, '--Mdir', join(build, 'sim'), ...rtl, testbench], scenarioDir);
   let simOk = false;
   let simOutput = 'not run';
   if (simBuild.ok) {
@@ -104,12 +105,39 @@ export function evaluateEdaManifest(scenarioDir: string, manifest: EdaManifest, 
   }
   const yosysScript = 'read_verilog ' + rtl.map((file) => JSON.stringify(file)).join(' ') + '; synth -top ' + manifest.top + '; write_json ' + JSON.stringify(join(build, 'netlist.json'));
   const synth = run('yosys', ['-p', yosysScript], scenarioDir);
+
+  let coverageStatus: GateStatus = 'unverified';
+  let coverageDetail = 'coverage artifact not produced';
+  const coverageDat = join(build, 'sim', 'coverage.dat');
+  const coverageInfo = join(build, 'coverage.info');
+  if (simOk && existsSync(coverageDat)) {
+    const convert = run('verilator_coverage', ['--write-info', coverageInfo, coverageDat], scenarioDir);
+    if (convert.ok && existsSync(coverageInfo) && manifest.coverage) {
+      const gate = coverageGate(parseVerilatorCoverageInfo(readFileSync(coverageInfo, 'utf8')), manifest.coverage.linePercent);
+      coverageStatus = gate.status;
+      coverageDetail = gate.detail;
+    } else {
+      coverageDetail = 'coverage conversion failed or threshold missing';
+    }
+  }
+
+  let percStatus: GateStatus = 'unverified';
+  let percDetail = manifest.perc?.detail ?? 'no PERC deck configured';
+  if (manifest.perc?.report) {
+    const perc = new FilePercAdapter().evaluate(resolve(scenarioDir, manifest.perc.report));
+    if (perc.violations === null) percDetail = perc.detail;
+    else {
+      percStatus = perc.violations === 0 ? 'pass' : 'fail';
+      percDetail = perc.detail;
+    }
+  }
+
   const gates: EdaGate[] = [
     { id: 'lint', status: lint.ok ? 'pass' : 'fail', detail: lint.ok ? 'verilator lint clean' : lint.output.slice(0, 500) },
     { id: 'functional', status: simOk ? 'pass' : 'fail', detail: simOk ? 'testbench passed' : simOutput.slice(0, 500) },
-    { id: 'coverage', status: 'unverified', detail: 'coverage threshold parsing not enabled' },
+    { id: 'coverage', status: coverageStatus, detail: coverageDetail },
     { id: 'synthesis', status: synth.ok ? 'pass' : 'fail', detail: synth.ok ? 'yosys netlist generated' : synth.output.slice(0, 500) },
-    { id: 'perc', status: 'unverified', detail: manifest.perc?.detail ?? 'no PERC deck configured' }
+    { id: 'perc', status: percStatus, detail: percDetail }
   ];
   const status = gates.every((gate) => gate.status === 'pass') ? 'pass' : gates.some((gate) => gate.status === 'fail') ? 'fail' : 'blocked';
   return { scenario: manifest.scenario, status, gates, tools, limitations };

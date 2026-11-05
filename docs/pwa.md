@@ -22,7 +22,7 @@
 - icon content-type
 - sw JS
 - Surface 包含 manifest link
-- 144 tests pass
+- 147 tests pass
 
 ## 未完成
 

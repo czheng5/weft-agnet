@@ -38,6 +38,8 @@ import './artifact-s3.test.ts'
 import './worker-launchers.test.ts'
 import './device-sync.test.ts'
 import './pwa.test.ts'
+import './gateway-marketplace.test.ts'
+import './eda-evidence.test.ts'
 import './eda-flow.test.ts'
 import './memory.test.ts';
 import './memory-http.test.ts'
