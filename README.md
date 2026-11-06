@@ -12,7 +12,7 @@ Weft 不是聊天壳，也不是又一个模型客户端。
 ![CI](https://github.com/czheng5/weft-agnet/actions/workflows/ci.yml/badge.svg)
 ![license](https://img.shields.io/badge/license-MIT-22c55e)
 
-TUI 是全屏 alternate-screen 界面。下图按实际 TUI 屏幕输出渲染，展示启动态、面板标签、完整 cwd 和固定 composer/footer；运行 `npm start` 查看交互界面。
+TUI 是全屏 alternate-screen 界面。下图按实际 TUI 屏幕输出渲染，展示启动态、面板标签、完整 cwd 和固定 composer/footer；运行 `weft` 查看交互界面。
 
 ![Weft 七襄 TUI](docs/assets/tui-screen.png)
 
@@ -139,17 +139,22 @@ Weft 的做法很直接：**把 Agent 当运行时做，而不是当提示词做
 git clone https://github.com/czheng5/weft-agnet.git
 cd weft-agnet
 npm install
+npm link
 
-# 交互式 CLI
-node --experimental-strip-types src/cli.ts
+# 交互式 TUI
+weft
 
 # 离线 demo，不需要模型 key
-node --experimental-strip-types src/cli.ts --demo
+weft --demo
 
 # 启动 Gateway + Web Surface
-node --experimental-strip-types src/cli.ts --serve --port 4780
+weft --serve --port 4780
 # http://127.0.0.1:4780
 ~~~
+
+`npm link` 会生成全局 `weft` shim；它实际指向 [bin/weft.mjs](bin/weft.mjs)，再由 launcher 启动 [src/cli.ts](src/cli.ts)。Windows 可用 `Get-Command weft` 查看 shim 路径，macOS/Linux 用 `which weft`。
+
+不想安装全局命令时，仓库根目录的 `weft.cmd` / `bin/weft.mjs` 也可以直接运行。
 
 一条命令安装：
 
