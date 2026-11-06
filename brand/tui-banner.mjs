@@ -118,7 +118,6 @@ export function renderBanner(options = {}) {
   lines.push('    ' + paint(PALETTE.cyan, '█', color));
   lines.push('');
   lines.push('  ' + paint(PALETTE.success, '⏺', color) + ' ' + paint(PALETTE.muted, 'weft v' + o.version + '    ' + o.sandbox + '    approvals ' + o.approvals + '    cache —    0 tok', color));
-  lines.push('  ' + paint(PALETTE.muted, '? keys   Ctrl+K deck   F2 model   F3 settings   /help', color));
   lines.push('');
 
   return lines.join('\n');

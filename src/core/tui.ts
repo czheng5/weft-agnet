@@ -390,7 +390,10 @@ export class Tui {
       sandbox: this.opts.toolContext.sandbox.info.backend,
       approvals: this.opts.toolContext.approvals.policy.ctx.approvalPolicy
     });
-    for (const line of banner.split('\n')) this.transcript.push(line);
+    const lines = banner.split('\n');
+    const cwd = lines.findIndex((line) => line.includes('  cwd  '));
+    const compact = cwd >= 0 ? lines.slice(0, cwd + 1) : lines;
+    for (const line of compact) this.transcript.push(line);
     this.welcome = true;
     this.redraw();
   }
