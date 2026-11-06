@@ -88,7 +88,7 @@ fi
 mkdir -p "$BIN"
 cat > "$BIN/weft" <<EOF
 #!/usr/bin/env sh
-exec node --experimental-strip-types "$ROOT/src/cli.ts" "\$@"
+exec node "$ROOT/bin/weft.mjs" "\$@"
 EOF
 chmod +x "$BIN/weft"
 

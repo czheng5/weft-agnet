@@ -64,7 +64,7 @@ try {
   }
 
   New-Item -ItemType Directory -Force -Path $Bin | Out-Null
-  $wrapper = '@echo off' + [Environment]::NewLine + 'node --experimental-strip-types "' + (Join-Path $root 'src\cli.ts') + '" %*' + [Environment]::NewLine
+  $wrapper = '@echo off' + [Environment]::NewLine + 'node "' + (Join-Path $root 'bin\weft.mjs') + '" %*' + [Environment]::NewLine
   Set-Content -Path $weftCmd -Value $wrapper -Encoding ASCII
 
   $userPath = [Environment]::GetEnvironmentVariable('Path', 'User')
