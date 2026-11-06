@@ -23,6 +23,7 @@ export interface ReadLineOptions {
   history?: string[];
   initialText?: string;
   complete?: (text: string, cursor: number) => { text: string; cursor: number } | null;
+  onScroll?: (direction: -1 | 1) => void;
 }
 
 type TtyInput = NodeJS.ReadStream & { isTTY?: boolean; setRawMode?: (mode: boolean) => void };
@@ -159,6 +160,11 @@ export class TuiInput {
         }
         if (sequence === '?' && text.length === 0) {
           finish({ action: 'help' });
+          return;
+        }
+        if (name === 'pageup' || name === 'pagedown') {
+          options.onScroll?.(name === 'pageup' ? -1 : 1);
+          render();
           return;
         }
         if (name === 'tab' && key.shift) {

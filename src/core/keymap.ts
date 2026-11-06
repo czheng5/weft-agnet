@@ -26,6 +26,8 @@ export const KEYMAP: KeyBinding[] = [
   { id: 'settings', keys: ['f3'], label: 'F3', description: '设置 / 运行时信息', section: 'Navigate', contexts: ['prompt'], hint: 'F3 settings' },
   { id: 'commands', keys: ['/'], label: '/', description: '斜杠命令', section: 'Navigate', contexts: ['prompt'], hint: '/ commands' },
   { id: 'panel', keys: ['shift+tab'], label: 'Shift+Tab', description: '切换工作面板', section: 'Navigate', contexts: ['prompt'], hint: 'Shift+Tab panel' },
+  { id: 'scroll-up', keys: ['pageup'], label: 'PgUp', description: '向上滚动 transcript', section: 'Compose', contexts: ['prompt'], hint: 'PgUp scroll' },
+  { id: 'scroll-down', keys: ['pagedown'], label: 'PgDn', description: '向下滚动 transcript', section: 'Compose', contexts: ['prompt'], hint: 'PgDn scroll' },
   { id: 'clear-screen', keys: ['ctrl+l'], label: 'Ctrl+L', description: '清屏并保留当前会话', section: 'Navigate', contexts: ['prompt'], hint: 'Ctrl+L clear' },
   { id: 'cancel', keys: ['esc'], label: 'Esc', description: '清空当前输入 / 取消审批', section: 'Compose', contexts: ['prompt', 'approval'], hint: 'Esc cancel' },
   { id: 'interrupt', keys: ['ctrl+c'], label: 'Ctrl+C', description: '清空输入；空输入连按两次退出', section: 'Compose', contexts: ['prompt'], hint: 'Ctrl+C cancel' },

@@ -11,7 +11,7 @@ import { WorkGraph, WorkGraphStore } from './workgraph.ts';
 import { computeMetrics, formatMetrics } from './metrics.ts';
 import { COMMANDS, completeCommand, hintsFor, type CommandDef } from './keymap.ts';
 import { TuiInput } from './tui-input.ts';
-import { fitVisible, renderChoiceMenu, renderCommandList, renderCommandPalette, renderKeyHelp, renderSettingsPanel, renderStatusBar } from './tui-menu.ts';
+import { fitVisible, visibleWidth, renderChoiceMenu, renderCommandList, renderCommandPalette, renderKeyHelp, renderSettingsPanel, renderStatusBar } from './tui-menu.ts';
 
 export interface TuiOptions {
   session: Session;
@@ -43,6 +43,8 @@ export class Tui {
   private readonly history: string[] = [];
   private readonly transcript: string[] = [];
   private panel: Panel = 'chat';
+  private scrollOffset = 0;
+  private welcome = true;
   private lastInterrupt = 0;
 
   constructor(opts: TuiOptions) {
@@ -75,7 +77,12 @@ export class Tui {
           hint: '',
           history: this.history,
           initialText: preset,
-          complete: completeCommand
+          complete: completeCommand,
+          onScroll: (direction) => {
+            const max = Math.max(0, this.transcript.length - 1);
+            this.scrollOffset = Math.max(0, Math.min(max, this.scrollOffset - direction * 5));
+            this.redraw();
+          }
         });
         preset = '';
 
@@ -301,6 +308,8 @@ export class Tui {
 
 
   private emit(text: string): void {
+    this.welcome = false;
+    this.scrollOffset = 0;
     for (const line of text.split('\n')) this.transcript.push(line);
     if (this.transcript.length > 500) this.transcript.splice(0, this.transcript.length - 500);
   }
@@ -308,6 +317,7 @@ export class Tui {
   private cyclePanel(): void {
     const index = PANELS.findIndex((item) => item.id === this.panel);
     this.panel = PANELS[(index + 1) % PANELS.length].id;
+    this.scrollOffset = 0;
     this.redraw();
   }
 
@@ -353,8 +363,17 @@ export class Tui {
     lines.push(fitVisible(top, Math.max(1, cols - 1)));
     lines.push('─'.repeat(Math.max(1, cols - 1)));
     lines.push(fitVisible(tabs, Math.max(1, cols - 1)));
-    const visible = this.panelLines().slice(-area);
-    for (let i = 0; i < area; i += 1) lines.push(fitVisible(visible[i] ?? '', Math.max(1, cols - 1)));
+    const all = this.panelLines();
+    const end = Math.max(area, all.length - this.scrollOffset);
+    let visible = all.slice(Math.max(0, end - area), end);
+    let leftPad = 0;
+    if (this.welcome && this.panel === 'chat') {
+      const width = Math.max(0, ...visible.map((line) => visibleWidth(line)));
+      if (width < cols - 1) leftPad = Math.floor((cols - 1 - width) / 2);
+      const topPad = Math.max(0, Math.floor((area - visible.length) / 2));
+      visible = [...Array(topPad).fill(''), ...visible].slice(-area);
+    }
+    for (let i = 0; i < area; i += 1) lines.push(fitVisible(' '.repeat(leftPad) + (visible[i] ?? ''), Math.max(1, cols - 1)));
     const footer = hintsFor('prompt', true);
     this.input.write('\x1b[2J\x1b[H' + lines.join('\n') + '\x1b[' + footerRow + ';1H\x1b[2K  \x1b[2m' + footer + '\x1b[0m' + '\x1b[' + inputRow + ';1H\x1b[2K');
   }
@@ -371,7 +390,8 @@ export class Tui {
       sandbox: this.opts.toolContext.sandbox.info.backend,
       approvals: this.opts.toolContext.approvals.policy.ctx.approvalPolicy
     });
-    this.emit(banner);
+    for (const line of banner.split('\n')) this.transcript.push(line);
+    this.welcome = true;
     this.redraw();
   }
 
