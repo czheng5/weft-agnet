@@ -1,4 +1,4 @@
-# Weft 七襄
+﻿# Weft 七襄
 
 ### 能长期跑、能追责、能恢复的 Agent Harness
 
@@ -133,38 +133,73 @@ Weft 的做法很直接：**把 Agent 当运行时做，而不是当提示词做
 
 ## 30 秒跑起来
 
-要求：Node.js >= 24。
+要求：Node.js >= 24。安装完成后的正式入口是 `weft`，`npm start` 只保留给本地开发。
 
-~~~powershell
+### Linux（推荐）
+
+~~~bash
+curl -fsSL https://raw.githubusercontent.com/czheng5/weft-agnet/v2.5.0/install.sh | sh
+weft
+~~~
+
+`install.sh` 会把启动器写到 `~/.local/bin/weft`；确保该目录在 `PATH` 中，`which weft` 指向它。
+
+### macOS（推荐）
+
+~~~bash
+# Node 24（任选其一）
+brew install node@24
+# 或：nvm install 24 && nvm use 24
+
+curl -fsSL https://raw.githubusercontent.com/czheng5/weft-agnet/v2.5.0/install.sh | sh
+weft
+~~~
+
+macOS 与 Linux 共用同一个 `install.sh`；`which weft` 应指向 `~/.local/bin/weft`。
+
+也可以从源码安装：
+
+~~~bash
 git clone https://github.com/czheng5/weft-agnet.git
 cd weft-agnet
 npm install
 npm link
-
-# 交互式 TUI
 weft
-
-# 离线 demo，不需要模型 key
-weft --demo
-
-# 启动 Gateway + Web Surface
-weft --serve --port 4780
-# http://127.0.0.1:4780
 ~~~
 
-`npm link` 会生成全局 `weft` shim；它实际指向 [bin/weft.mjs](bin/weft.mjs)，再由 launcher 启动 [src/cli.ts](src/cli.ts)。Windows 可用 `Get-Command weft` 查看 shim 路径，macOS/Linux 用 `which weft`。
+`npm link` 会生成全局 `weft` shim；它实际指向 [bin/weft.mjs](bin/weft.mjs)，再由 launcher 启动 [src/cli.ts](src/cli.ts)。Windows 用 `Get-Command weft` 查看路径，macOS/Linux 用 `which weft`。
 
-不想安装全局命令时，仓库根目录的 `weft.cmd` / `bin/weft.mjs` 也可以直接运行。
+### Windows
 
-一条命令安装：
+> **Windows 原生版本还在修正一些小问题，推荐使用 WSL2 里的 Linux 环境。**
 
-~~~sh
+先装 WSL2（管理员 PowerShell），重启后在 Ubuntu 中执行：
+
+~~~powershell
+wsl --install -d Ubuntu
+wsl
+~~~
+
+~~~bash
+# 在 WSL Ubuntu 内
+sudo apt update && sudo apt install -y git curl
+# 安装 Node 24（推荐 nvm）
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+source ~/.bashrc
+nvm install 24
+nvm use 24
+
 curl -fsSL https://raw.githubusercontent.com/czheng5/weft-agnet/v2.5.0/install.sh | sh
+weft
 ~~~
+
+Windows 原生安装脚本仍保留为实验路径：
 
 ~~~powershell
 irm https://raw.githubusercontent.com/czheng5/weft-agnet/v2.5.0/install.ps1 | iex
 ~~~
+
+如果 `Get-Command weft` 找不到命令，把 `%USERPROFILE%\.weft\bin` 加入用户 PATH，重新打开 PowerShell；或先在仓库根目录使用 `weft.cmd`。
 
 ## 模型配置
 
@@ -174,13 +209,13 @@ irm https://raw.githubusercontent.com/czheng5/weft-agnet/v2.5.0/install.ps1 | ie
 $env:WEFT_MODEL_API_KEY = "..."
 $env:WEFT_MODEL_BASE_URL = "https://api.deepseek.com/v1"
 $env:WEFT_MODEL = "deepseek-chat"
-node --experimental-strip-types src/cli.ts
+weft
 ~~~
 
 本地模型，无 key：
 
 ~~~powershell
-node --experimental-strip-types src/cli.ts --model-base-url http://127.0.0.1:11434/v1 --model-name qwen2.5-coder
+weft --model-base-url http://127.0.0.1:11434/v1 --model-name qwen2.5-coder
 ~~~
 
 Weft 不会把 key 写进仓库，也不在日志里打印 key。CLI 支持从进程环境或 `WEFT_ENV` 读取；testbench 的环境注入仍在 backlog（P0-3）。
@@ -236,3 +271,4 @@ Boundary     Policy / Approval / Sandbox / Guardian
 ## License
 
 MIT © 2026 Weft contributors。见 [LICENSE](LICENSE)。
+
