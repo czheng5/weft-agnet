@@ -11,7 +11,7 @@ All notable changes are documented here. Format follows Keep a Changelog; versio
 - TUI keymap and Command Deck: `?`, `Ctrl+K`, `F2` model picker, `F3` settings, `Tab`, history, clear, footer hints, and contextual approval keys.
 - Session resume: `--continue`, `--resume <id>`, and `/sessions`.
 - Chinese product name **七襄**; slogan updated to **三线成纬，七襄成章**.
-- 151 tests.
+- 153 tests, including TUI render stability.
 
 ## [2.5.0] - 2026-11-05
 

@@ -1,4 +1,4 @@
-﻿# Weft 七襄
+# Weft 七襄
 
 ### 能长期跑、能追责、能恢复的 Agent Harness
 
@@ -6,7 +6,7 @@ Weft 不是聊天壳，也不是又一个模型客户端。
 它把任务、权限、记忆、工具和界面放进同一个可恢复的运行时，让 Agent 真正能接手长活。
 
 ![version](https://img.shields.io/badge/version-2.5.0-2dd4bf)
-![tests](https://img.shields.io/badge/tests-151%20pass-22c55e)
+![tests](https://img.shields.io/badge/tests-153%20pass-22c55e)
 ![node](https://img.shields.io/badge/node-%3E%3D24-339933)
 ![status](https://img.shields.io/badge/status-v2.5%20released-0ea5e9)
 ![CI](https://github.com/czheng5/weft-agnet/actions/workflows/ci.yml/badge.svg)
