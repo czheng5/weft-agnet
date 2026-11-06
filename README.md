@@ -12,7 +12,11 @@ Weft 不是聊天壳，也不是又一个模型客户端。
 ![CI](https://github.com/czheng5/weft-agnet/actions/workflows/ci.yml/badge.svg)
 ![license](https://img.shields.io/badge/license-MIT-22c55e)
 
-> TUI 是全屏 alternate-screen 界面，README 不再使用静态“示意图”冒充实际截图。运行 `npm start` 查看真实布局。
+TUI 是全屏 alternate-screen 界面。下图按实际 TUI 屏幕输出渲染，展示启动态、面板标签、完整 cwd 和固定 composer/footer；运行 `npm start` 查看交互界面。
+
+![Weft 七襄 TUI](docs/assets/tui-screen.png)
+
+> 图由实际 TUI 屏幕输出渲染，不是手绘示意图；交互、滚动和面板切换请在终端运行查看。
 
 ```text
 WEFT 七襄  v2.5.0  ·  session <id>  ·  <model>  ·  <sandbox>
