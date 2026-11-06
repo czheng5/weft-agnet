@@ -10,7 +10,7 @@ export interface KeyEvent {
   sequence?: string;
 }
 
-export type LineAction = 'line' | 'help' | 'palette' | 'model' | 'settings' | 'cancel' | 'interrupt' | 'eof';
+export type LineAction = 'line' | 'help' | 'palette' | 'model' | 'settings' | 'panel' | 'cancel' | 'interrupt' | 'eof';
 
 export interface LineResult {
   action: LineAction;
@@ -159,6 +159,10 @@ export class TuiInput {
         }
         if (sequence === '?' && text.length === 0) {
           finish({ action: 'help' });
+          return;
+        }
+        if (name === 'tab' && key.shift) {
+          finish({ action: 'panel' });
           return;
         }
         if (name === 'tab') {

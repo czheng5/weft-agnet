@@ -17,23 +17,27 @@ Weft 不是聊天壳，也不是又一个模型客户端。
 ```text
 WEFT 七襄  v2.5.0  ·  session <id>  ·  <model>  ·  <sandbox>
 ──────────────────────────────────────────────────────────────
+[CHAT]  BOARD  EVENTS  SESSIONS  ACTORS  CAPS
+
   WEFT 七襄
   三线成纬，七襄成章
   cwd    /full/workspace/path
   /help  /model  /settings  /status  /plan
   ※ Tip ...
+
 weft> _
-  ? keys  ·  Ctrl+K deck  ·  F2 model  ·  /help
+  ? keys  ·  Ctrl+K deck  ·  Shift+Tab panel  ·  F2 model
 ```
 
 ## TUI 快捷键
 
-主界面支持游戏化的键位面板和命令面板，斜杠命令仍然保留：
+主界面是独立的 alternate-screen 全屏界面：顶部状态栏、面板标签、transcript、固定 composer 和 footer。斜杠命令仍然保留：
 
 | 键 | 动作 |
 |---|---|
 | `?` | 打开快捷键面板 |
 | `Ctrl+K` | 打开 Command Deck 命令面板 |
+| `Shift+Tab` | 切换工作面板：CHAT / BOARD / EVENTS / SESSIONS / ACTORS / CAPS |
 | `F2` | 模型选择器 |
 | `F3` | 设置 / 运行时信息 |
 | `/` | 直接输入斜杠命令 |

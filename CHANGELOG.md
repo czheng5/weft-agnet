@@ -6,7 +6,8 @@ All notable changes are documented here. Format follows Keep a Changelog; versio
 
 ### Added
 
-- Full-screen TUI shell with fixed top bar, transcript viewport, composer and footer.
+- Full-screen TUI shell with fixed top bar, panel tabs, transcript viewport, composer and footer.
+- Panel switching (`Shift+Tab`): CHAT, BOARD, EVENTS, SESSIONS, ACTORS, CAPS.
 - TUI keymap and Command Deck: `?`, `Ctrl+K`, `F2` model picker, `F3` settings, `Tab`, history, clear, footer hints, and contextual approval keys.
 - Session resume: `--continue`, `--resume <id>`, and `/sessions`.
 - Chinese product name **七襄**; slogan updated to **三线成纬，七襄成章**.

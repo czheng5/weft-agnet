@@ -23,6 +23,16 @@ export interface TuiOptions {
 
 const VERSION = '2.5.0';
 
+type Panel = 'chat' | 'board' | 'events' | 'sessions' | 'actors' | 'caps';
+const PANELS: Array<{ id: Panel; label: string }> = [
+  { id: 'chat', label: 'CHAT' },
+  { id: 'board', label: 'BOARD' },
+  { id: 'events', label: 'EVENTS' },
+  { id: 'sessions', label: 'SESSIONS' },
+  { id: 'actors', label: 'ACTORS' },
+  { id: 'caps', label: 'CAPS' }
+];
+
 export class Tui {
   private readonly opts: TuiOptions;
   private readonly input = new TuiInput();
@@ -32,6 +42,7 @@ export class Tui {
   private graph: WorkGraph | null;
   private readonly history: string[] = [];
   private readonly transcript: string[] = [];
+  private panel: Panel = 'chat';
   private lastInterrupt = 0;
 
   constructor(opts: TuiOptions) {
@@ -101,6 +112,10 @@ export class Tui {
           await this.showSettings();
           continue;
         }
+        if (result.action === 'panel') {
+          this.cyclePanel();
+          continue;
+        }
 
         const line = (result.text ?? '').trim();
         if (!line) continue;
@@ -116,6 +131,7 @@ export class Tui {
 
   private async execute(line: string): Promise<boolean> {
     if (line === '/quit' || line === '/exit') return false;
+    if (!['/board', '/sessions', '/actors', '/caps', '/chat'].includes(line)) this.panel = 'chat';
     if (line === '/help') {
       this.printHelp();
       return true;
@@ -150,16 +166,28 @@ export class Tui {
       return true;
     }
     if (line === '/sessions') {
-      const sessions = listSessions(this.opts.workspace).slice(0, 12);
-      if (sessions.length === 0) {
-        this.emit('  no sessions yet');
-      } else {
-        this.emit('  recent sessions');
-        for (const item of sessions) {
-          this.emit('  ' + item.id + '  ' + new Date(item.updatedAt).toISOString() + '  ' + Math.ceil(item.bytes / 1024) + 'k');
-        }
-        this.emit('  resume: weft --resume <id>');
-      }
+      this.panel = 'sessions';
+      this.redraw();
+      return true;
+    }
+    if (line === '/board') {
+      this.panel = 'board';
+      this.redraw();
+      return true;
+    }
+    if (line === '/actors') {
+      this.panel = 'actors';
+      this.redraw();
+      return true;
+    }
+    if (line === '/caps') {
+      this.panel = 'caps';
+      this.redraw();
+      return true;
+    }
+    if (line === '/chat') {
+      this.panel = 'chat';
+      this.redraw();
       return true;
     }
     if (line === '/status') {
@@ -277,19 +305,55 @@ export class Tui {
     if (this.transcript.length > 500) this.transcript.splice(0, this.transcript.length - 500);
   }
 
+  private cyclePanel(): void {
+    const index = PANELS.findIndex((item) => item.id === this.panel);
+    this.panel = PANELS[(index + 1) % PANELS.length].id;
+    this.redraw();
+  }
+
+  private panelLines(): string[] {
+    if (this.panel === 'board') {
+      if (!this.graph) return ['  no Work Graph yet', '  /goal <text> to create one'];
+      const lines = ['  goal: ' + this.graph.goal.text + ' [' + this.graph.goal.status + ']', '']; 
+      const ready = new Set(this.graph.nextReady().map((task) => task.id));
+      for (const task of this.graph.allTasks()) {
+        lines.push('  ' + task.status.padEnd(11) + ' ' + task.id.slice(0, 8) + '  ' + task.title + (ready.has(task.id) ? '  READY' : ''));
+      }
+      return lines;
+    }
+    if (this.panel === 'events') {
+      return this.opts.session.events().slice(-24).map((event) => '  ' + String(event.seq).padStart(4) + '  ' + event.type);
+    }
+    if (this.panel === 'sessions') {
+      const sessions = listSessions(this.opts.workspace).slice(0, 20);
+      if (sessions.length === 0) return ['  no sessions yet'];
+      return sessions.map((item) => '  ' + item.id + '  ' + new Date(item.updatedAt).toISOString() + '  ' + Math.ceil(item.bytes / 1024) + 'k');
+    }
+    if (this.panel === 'actors') {
+      const events = this.opts.session.events().filter((event) => event.type.startsWith('actor/') || event.type.startsWith('thread/'));
+      return events.length > 0 ? events.slice(-20).map((event) => '  ' + event.type + '  ' + JSON.stringify(event.data).slice(0, 100)) : ['  no actor activity in this session', '  ActorRuntime is available to the gateway; TUI attachment is next.'];
+    }
+    if (this.panel === 'caps') {
+      const events = this.opts.session.events().filter((event) => event.type.startsWith('capability/'));
+      return events.length > 0 ? events.slice(-20).map((event) => '  ' + event.type + '  ' + JSON.stringify(event.data).slice(0, 100)) : ['  no capability events in this session', '  CapabilityRegistry is available to the gateway; TUI attachment is next.'];
+    }
+    return this.transcript;
+  }
   private redraw(): void {
     const rows = this.input.rows;
     const cols = this.input.columns;
-    const inputRow = Math.max(4, rows - 1);
+    const inputRow = Math.max(5, rows - 1);
     const footerRow = rows;
-    const area = Math.max(1, rows - 4);
+    const area = Math.max(1, rows - 5);
     this.input.setLayout({ inputRow, footerRow });
     const session = this.opts.session.log.sessionId.replace(/^session-/, '').slice(0, 8);
     const top = 'WEFT 七襄  v' + VERSION + '  ·  session ' + session + '  ·  ' + this.modelLabel + '  ·  ' + this.opts.toolContext.sandbox.info.backend;
+    const tabs = PANELS.map((item) => item.id === this.panel ? '\x1b[7m ' + item.label + ' \x1b[0m' : ' ' + item.label + ' ').join('  ');
     const lines: string[] = [];
     lines.push(fitVisible(top, Math.max(1, cols - 1)));
     lines.push('─'.repeat(Math.max(1, cols - 1)));
-    const visible = this.transcript.slice(-area);
+    lines.push(fitVisible(tabs, Math.max(1, cols - 1)));
+    const visible = this.panelLines().slice(-area);
     for (let i = 0; i < area; i += 1) lines.push(fitVisible(visible[i] ?? '', Math.max(1, cols - 1)));
     const footer = hintsFor('prompt', true);
     this.input.write('\x1b[2J\x1b[H' + lines.join('\n') + '\x1b[' + footerRow + ';1H\x1b[2K  \x1b[2m' + footer + '\x1b[0m' + '\x1b[' + inputRow + ';1H\x1b[2K');

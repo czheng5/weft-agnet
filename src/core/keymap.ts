@@ -25,6 +25,7 @@ export const KEYMAP: KeyBinding[] = [
   { id: 'model', keys: ['f2'], label: 'F2', description: '切换模型', section: 'Navigate', contexts: ['prompt'], hint: 'F2 model' },
   { id: 'settings', keys: ['f3'], label: 'F3', description: '设置 / 运行时信息', section: 'Navigate', contexts: ['prompt'], hint: 'F3 settings' },
   { id: 'commands', keys: ['/'], label: '/', description: '斜杠命令', section: 'Navigate', contexts: ['prompt'], hint: '/ commands' },
+  { id: 'panel', keys: ['shift+tab'], label: 'Shift+Tab', description: '切换工作面板', section: 'Navigate', contexts: ['prompt'], hint: 'Shift+Tab panel' },
   { id: 'clear-screen', keys: ['ctrl+l'], label: 'Ctrl+L', description: '清屏并保留当前会话', section: 'Navigate', contexts: ['prompt'], hint: 'Ctrl+L clear' },
   { id: 'cancel', keys: ['esc'], label: 'Esc', description: '清空当前输入 / 取消审批', section: 'Compose', contexts: ['prompt', 'approval'], hint: 'Esc cancel' },
   { id: 'interrupt', keys: ['ctrl+c'], label: 'Ctrl+C', description: '清空输入；空输入连按两次退出', section: 'Compose', contexts: ['prompt'], hint: 'Ctrl+C cancel' },
@@ -49,7 +50,10 @@ export const COMMANDS: CommandDef[] = [
   { name: 'model', usage: '/model', description: '切换模型', group: 'Session' },
   { name: 'settings', usage: '/settings', description: '设置与运行时信息', group: 'System' },
   { name: 'status', usage: '/status', description: '查看运行时状态', group: 'Session' },
-  { name: 'sessions', usage: '/sessions', description: '列出可恢复会话', group: 'Session' },
+  { name: 'sessions', usage: '/sessions', description: '会话面板', group: 'Session' },
+  { name: 'board', usage: '/board', description: '工作面板', group: 'Plan' },
+  { name: 'actors', usage: '/actors', description: 'Actor 面板', group: 'Session' },
+  { name: 'caps', usage: '/caps', description: 'Capability 面板', group: 'System' },
   { name: 'plan', usage: '/plan', description: '查看 Work Graph / 计划', group: 'Plan' },
   { name: 'goal', usage: '/goal ', description: '创建目标', group: 'Plan', takesArg: true },
   { name: 'task', usage: '/task ', description: '添加任务', group: 'Plan', takesArg: true },
@@ -93,7 +97,7 @@ export function bindingsFor(context: KeyContext): KeyBinding[] {
 
 export function hintsFor(context: KeyContext, compact = false): string {
   if (context === 'prompt' && compact) {
-    return '? keys  ·  Ctrl+K deck  ·  F2 model  ·  /help';
+    return '? keys  ·  Ctrl+K deck  ·  Shift+Tab panel  ·  F2 model';
   }
   return bindingsFor(context)
     .map((binding) => binding.hint ?? binding.label)
